@@ -5,6 +5,8 @@ class User(models.Model):
     name = models.CharField(max_length=20)
     
     def __str__(self):
+        return self.name
+        
         symptomName, methodName, startDate, endDate = "", "", "", ""
 
         symptomName = UserSymptom.objects.filter(user__id=self.id)[0].symptom.name if len(UserSymptom.objects.filter(user__id=self.id)) > 0 else ""
