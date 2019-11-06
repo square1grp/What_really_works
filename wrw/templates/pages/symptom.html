@@ -4,7 +4,7 @@
 
 <div class="container symptom-page" style="margin-top: 65px;">
     <div class="row mb-5">
-        <a class="btn btn-primary ml-auto my-2" href="#" role="button">Back to Home</a>
+        <a class="btn btn-primary ml-auto my-2" href="/user/1" role="button">Back to Home</a>
 
         <h2 class="col-12 text-center">Results for {{symptom.name}}</h2>
 
@@ -12,18 +12,39 @@
     </div>
 
     <div class="row">
-        <table class="table">
-            <thead>
-                <th scope="col"><h4 class="text-center">Method</h4></th>
-                <th scope="col"><h4 class="text-center">Effectiveness</h4></th>
-                <th scope="col"><h4 class="text-center">Drawbacks</h4></th>
-                <th scope="col"><h4 class="text-center"># of Users</h4></th>
-            </thead>
+        <div class="col-12 d-none d-md-block">
+            <table class="table">
+                <thead>
+                    <th scope="col">
+                        <h3 class="text-center">Method</h3>
+                    </th>
+                    <th scope="col">
+                        <h3 class="text-center">Effectiveness</h3>
+                    </th>
+                    <th scope="col">
+                        <h3 class="text-center">Drawbacks</h3>
+                    </th>
+                    <th scope="col">
+                        <h3 class="text-center"># of Users</h3>
+                    </th>
+                </thead>
 
-            <tbody>
-                
-            </tbody>
-        </table>
+                <tbody>
+                    {% for method_trial in method_trials %}
+                    <tr>
+                        <td>
+                            <a href="/method/{{method_trial.id}}" class="btn btn-link">
+                                <h5>{{method_trial.name}}</h5>
+                            </a>
+                        </td>
+                        <td class="text-center">{{method_trial.effectiveness}}</td>
+                        <td class="text-center">{{method_trial.drawbacks}}</td>
+                        <td class="text-center">{{method_trial.user_count}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
