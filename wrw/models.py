@@ -53,7 +53,7 @@ class User(models.Model):
 
 class Symptom(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=200)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
@@ -61,7 +61,7 @@ class Symptom(models.Model):
 
 class Method(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=200)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
@@ -96,7 +96,7 @@ class UserSeverityUpdate(models.Model):
     user_symptom = models.ForeignKey(UserSymptom, on_delete=models.CASCADE)
     rating = models.IntegerField()
     title = models.CharField(max_length=200)
-    description = models.CharField(max_length=2000)
+    description = models.TextField()
     date = models.DateTimeField('date published')
 
     def __str__(self):

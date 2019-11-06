@@ -4,7 +4,7 @@
 
 <div class="container symptom-page" style="margin-top: 65px;">
     <div class="row">
-        <a class="btn btn-primary ml-auto my-2" href="/user/1" role="button">Back to Home</a>
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/user/1" role="button">Back to Home</a>
 
         <h2 class="col-12 text-center">Results for {{symptom.name}}</h2>
 
@@ -12,7 +12,7 @@
     </div>
 
     <div class="row">
-        <div class="col-12 d-none d-md-block mt-5">
+        <div class="col-12 mt-5">
             <table class="table">
                 <thead>
                     <th scope="col">
@@ -33,7 +33,7 @@
                     {% for method_trial in method_trials %}
                     <tr>
                         <td>
-                            <a href="/method/{{method_trial.id}}" class="btn btn-link">
+                            <a href="/symptom/{{symptom.id}}/method/{{method_trial.id}}" class="btn btn-link">
                                 <h5>{{method_trial.name}}</h5>
                             </a>
                         </td>

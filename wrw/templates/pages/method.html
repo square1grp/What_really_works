@@ -1,0 +1,50 @@
+{% extends 'layouts/index.html' %}
+
+{% block content %}
+
+<div class="container method-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/symptom/{{symptom.id}}" role="button">Back to
+            {{symptom.name}}</a>
+        <a class="btn btn-primary mr-2 my-2" href="/user/1" role="button">Back to Home</a>
+
+        <h2 class="col-12 text-center">{{method.name}}</h2>
+
+        <hr class="w-50 mx-auto mb-5 d-block" style="border-width: 4px;" />
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-3">
+                    <h2>Description</h2>
+                </div>
+                <div class="col-9">
+                    <p>{{method.description}}</p>
+                </div>
+            </div>
+
+            <hr class="w-100 d-block" style="border-width: 2px;" />
+
+            <div class="row">
+                <div class="col-3">
+                    <h2>Statistics</h2>
+                </div>
+                <div class="col-9">
+                </div>
+            </div>
+
+            <hr class="w-100 d-block" style="border-width: 2px;" />
+
+            <div class="row">
+                <div class="col-4">
+                    <h1>User Timelines</h1>
+                </div>
+                <div class="col-8">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
