@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import *
 
+
 # Create your views here.
 
 
@@ -24,22 +25,22 @@ def symptom_page(request, symptom_id):
     symptom = Symptom.objects.get(id=symptom_id)
     users = UserSymptom.getUsersBySymptom(symptom_id)
 
-    method_trials = []
+    methods = []
     for user in users:
-        method_trials = list(dict.fromkeys(
-            method_trials + user.getMethodTrials()))
+        methods = list(dict.fromkeys(
+            methods + user.getMethods()))
 
-    method_trials = [dict(
-        id=method_trial.id,
-        name=method_trial.name,
-        effectiveness=1,
-        drawbacks=1,
-        user_count=5
-    ) for method_trial in method_trials]
+    methods = [dict(
+        id=method.id,
+        name=method.name,
+        effectiveness=method.getAvgEffectivenessScore(),
+        drawbacks=method.getAvgDrawbacksScore(),
+        user_count=method.getUsersByMethod(True)
+    ) for method in methods]
 
     return render(request, 'pages/symptom.html', dict(
         symptom=symptom,
-        method_trials=method_trials
+        methods=methods
     ))
 
 

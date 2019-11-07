@@ -30,16 +30,16 @@
                 </thead>
 
                 <tbody>
-                    {% for method_trial in method_trials %}
+                    {% for method in methods %}
                     <tr>
                         <td>
-                            <a href="/symptom/{{symptom.id}}/method/{{method_trial.id}}" class="btn btn-link">
-                                <h5>{{method_trial.name}}</h5>
+                            <a href="/symptom/{{symptom.id}}/method/{{method.id}}" class="btn btn-link">
+                                <h5>{{method.name}}</h5>
                             </a>
                         </td>
-                        <td class="text-center">{{method_trial.effectiveness}}</td>
-                        <td class="text-center">{{method_trial.drawbacks}}</td>
-                        <td class="text-center">{{method_trial.user_count}}</td>
+                        <td class="text-center">{{method.effectiveness}}</td>
+                        <td class="text-center">{{method.drawbacks}}</td>
+                        <td class="text-center">{{method.user_count}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

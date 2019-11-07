@@ -1,4 +1,6 @@
 from django.db import models
+from datetime import datetime
+from statistics import *
 
 
 class User(models.Model):
@@ -6,28 +8,6 @@ class User(models.Model):
 
     def __str__(self):
         return self.name
-
-        symptomName, methodName, startDate, endDate = "", "", "", ""
-
-        symptomName = UserSymptom.objects.filter(user__id=self.id)[0].symptom.name if len(
-            UserSymptom.objects.filter(user__id=self.id)) > 0 else ""
-
-        userMethodTrial = UserMethodTrial.objects.filter(user__id=self.id)
-        if len(userMethodTrial) > 0:
-            userMethodTrial = userMethodTrial[0]
-            methodName = userMethodTrial.method.name
-
-            startDate = UserMethodTrialStartUpdate.objects.filter(
-                user_method_trial__id=userMethodTrial.id)
-            startDate = startDate[0].user_severity_update.date if len(
-                startDate) > 0 else ""
-
-            endDate = UserMethodTrialEndUpdate.objects.filter(
-                user_method_trial__id=userMethodTrial.id)
-            endDate = endDate[0].user_severity_update.date if len(
-                endDate) > 0 else ""
-
-        return "%s\n %s\n %s\n %s\n %s\n" % (self.name, symptomName, methodName, startDate, endDate)
 
     # get symptoms
     def getSymptoms(self):
@@ -38,17 +18,15 @@ class User(models.Model):
 
         return symptoms
 
-    # get method trials
-    def getMethodTrials(self, no_duplicate=True):
-        method_trials = []
-
-        for method_trial in UserMethodTrial.objects.filter(user__id=self.id):
-            method_trials.append(method_trial.method)
+    # get methods
+    def getMethods(self, no_duplicate=True):
+        methods = [method_trial.method for method_trial in UserMethodTrial.objects.filter(
+            user__id=self.id)]
 
         if no_duplicate:
-            return list(dict.fromkeys(method_trials))
+            return list(dict.fromkeys(methods))
 
-        return method_trials
+        return methods
 
 
 class Symptom(models.Model):
@@ -65,6 +43,44 @@ class Method(models.Model):
 
     def __str__(self):
         return self.name
+
+    # get user count use this method
+    def getUsersByMethod(self, count=False):
+        users = [method_trial.user for method_trial in UserMethodTrial.objects.filter(
+            method__id=self.id)]
+
+        users = list(dict.fromkeys(users))
+
+        return len(users) if count else users
+
+    # get user method trials
+    def getMethodTrialsByMethod(self, count=False):
+        method_trials = [method_trial for method_trial in UserMethodTrial.objects.filter(
+            method__id=self.id)]
+
+        method_trials = list(dict.fromkeys(method_trials))
+
+        return len(method_trials) if count else method_trials
+
+    # get Effectiveness score average
+    def getAvgEffectivenessScore(self):
+        method_trials = self.getMethodTrialsByMethod()
+        scores = [method_trial.getEffectivenessScore()
+                  for method_trial in method_trials]
+
+        scores = [score for score in scores if score is not None]
+
+        return mean(scores)
+
+    # get Drawbacks score average
+    def getAvgDrawbacksScore(self):
+        method_trials = self.getMethodTrialsByMethod()
+        scores = [method_trial.getDrawbacksScore()
+                  for method_trial in method_trials]
+
+        scores = [score for score in scores if score is not None]
+
+        return mean(scores)
 
 
 class UserSymptom(models.Model):
@@ -89,18 +105,64 @@ class UserMethodTrial(models.Model):
     method = models.ForeignKey(Method, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.method)
+        return '%s - %s' % (str(self.user), str(self.method))
+
+    # get effectiveness score
+    def getEffectivenessScore(self):
+        try:
+            start_severity = UserMethodTrialStartUpdate.objects.filter(
+                user_method_trial__id=self.id)[0]
+            end_severity = UserMethodTrialEndUpdate.objects.filter(
+                user_method_trial_start_severity__id=start_severity.id)
+
+            if not len(end_severity):
+                return None
+
+            end_severity = end_severity[0]
+
+            actual = end_severity.user_severity_update.rating - \
+                start_severity.user_severity_update.rating
+            max_pos = 4 - start_severity.user_severity_update.rating
+            max_neg = -start_severity.user_severity_update.rating
+
+            return 100 * (actual - max_pos)/(max_neg - max_pos)
+
+        except:
+            return None
+
+    # get Drawbacks score
+    def getDrawbacksScore(self):
+        try:
+            start_severity = UserMethodTrialStartUpdate.objects.filter(
+                user_method_trial__id=self.id)[0]
+            end_severity = UserMethodTrialEndUpdate.objects.filter(
+                user_method_trial_start_severity__id=start_severity.id)
+
+            if not len(end_severity):
+                return None
+
+            end_severity = end_severity[0]
+
+            actual = end_severity.user_severity_update.rating - \
+                start_severity.user_severity_update.rating
+            max_pos = 4 - start_severity.user_severity_update.rating
+            max_neg = -start_severity.user_severity_update.rating
+
+            return 100 * (actual - max_neg)/(max_pos - max_neg)
+
+        except:
+            return None
 
 
 class UserSeverityUpdate(models.Model):
     user_symptom = models.ForeignKey(UserSymptom, on_delete=models.CASCADE)
     rating = models.IntegerField()
     title = models.CharField(max_length=200)
-    description = models.TextField()
-    date = models.DateTimeField('date published')
+    description = models.TextField(blank=True)
+    date = models.DateTimeField('date published', default=datetime.now)
 
     def __str__(self):
-        return self.title
+        return '%s - %s' % (str(self.user_symptom.symptom), self.title)
 
 
 class UserMethodTrialStartUpdate(models.Model):
@@ -110,14 +172,14 @@ class UserMethodTrialStartUpdate(models.Model):
         UserSeverityUpdate, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user_method_trial
+        return '%s : %s' % (str(self.user_method_trial), str(self.user_severity_update))
 
 
 class UserMethodTrialEndUpdate(models.Model):
-    user_method_trial = models.ForeignKey(
-        UserMethodTrial, on_delete=models.CASCADE)
+    user_method_trial_start_severity = models.ForeignKey(
+        UserMethodTrialStartUpdate, on_delete=models.CASCADE, null=True)
     user_severity_update = models.ForeignKey(
         UserSeverityUpdate, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user_method_trial
+        return '%s to %s' % (str(self.user_method_trial_start_severity), self.user_severity_update.title)
