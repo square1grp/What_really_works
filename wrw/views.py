@@ -7,7 +7,6 @@ from .models import *
 
 def index(request):
     user_id = int(1)
-
     return redirect('user/%s' % user_id)
 
 
@@ -23,12 +22,12 @@ def user_page(request, user_id):
 
 def symptom_page(request, symptom_id):
     symptom = Symptom.objects.get(id=symptom_id)
-    users = UserSymptom.getUsersBySymptom(symptom_id)
+    users = User.getUsersBySymptom(symptom_id)
 
     methods = []
     for user in users:
         methods = list(dict.fromkeys(
-            methods + user.getMethods()))
+            methods + user.getMethodsBySymptom(symptom_id)))
 
     methods = [dict(
         id=method.id,
