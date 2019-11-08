@@ -45,10 +45,13 @@ class Method(models.Model):
         return self.name
 
     # get user count use this method
-    def getUsersByMethod(self, count=False):
+    def getUsersByMethod(self, symptom_id, count=False):
         users = [method_trial.user for method_trial in UserMethodTrial.objects.filter(
             method__id=self.id)]
 
+        user_ids = [user.id for user in UserSymptom.getUsersBySymptom(symptom_id)]
+        users = [user for user in users if user.id in user_ids]
+        
         users = list(dict.fromkeys(users))
 
         return len(users) if count else users
@@ -70,7 +73,7 @@ class Method(models.Model):
 
         scores = [score for score in scores if score is not None]
 
-        return mean(scores)
+        return mean(scores) if len(scores) else '#'
 
     # get Drawbacks score average
     def getAvgDrawbacksScore(self):
@@ -80,7 +83,7 @@ class Method(models.Model):
 
         scores = [score for score in scores if score is not None]
 
-        return mean(scores)
+        return mean(scores) if len(scores) else '#'
 
 
 class UserSymptom(models.Model):
@@ -162,7 +165,7 @@ class UserSeverityUpdate(models.Model):
     date = models.DateTimeField('date published', default=datetime.now)
 
     def __str__(self):
-        return '%s - %s' % (str(self.user_symptom.symptom), self.title)
+        return '%s - %s - %s' % (str(self.user_symptom.symptom), self.title, self.date)
 
 
 class UserMethodTrialStartUpdate(models.Model):
