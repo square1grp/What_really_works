@@ -121,7 +121,7 @@ class Method(models.Model):
 
         scores = [score for score in scores if score is not None]
 
-        return mean(scores) if len(scores) else '-'
+        return mean(scores) if len(scores) else '#'
 
     # get Drawbacks score average
     def getAvgDrawbacksScore(self):
@@ -131,7 +131,7 @@ class Method(models.Model):
 
         scores = [score for score in scores if score is not None]
 
-        return mean(scores) if len(scores) else '-'
+        return mean(scores) if len(scores) else '#'
 
 
 # User Severity Model
@@ -182,7 +182,6 @@ class UserMethodTrial(models.Model):
         start_severity = UserMethodTrialStartSeverity.objects.filter(
             user_method_trial=self)
 
-        # TODO: start_severity must always exist - I think this means we need to change to the model
         if not len(start_severity):
             return None
         else:
@@ -191,7 +190,6 @@ class UserMethodTrial(models.Model):
         end_severity = UserMethodTrialEndSeverity.objects.filter(
             user_method_trial_start_severity=start_severity)
 
-        # TODO: elseif there is a UserSeverityUpdate, use that as the "end_severity.getSeverity(False)
         if not len(end_severity):
             return None
         else:
