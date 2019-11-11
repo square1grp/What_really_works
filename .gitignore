@@ -87,6 +87,7 @@ local_settings.py
 
 .env
 db.sqlite3
-migrations
 
-run.sh
+makemigrations.sh
+migrate.sh
+runserver.sh
