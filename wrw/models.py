@@ -353,9 +353,12 @@ class UserMethodTrialStart(models.Model):
 
         actual = end_severity.getRating() - start_severity.getRating()
         max_pos = MAX_RATING - start_severity.getRating()
-        # max_neg = -start_severity.getRating()
+        max_neg = -start_severity.getRating()
 
-        score = 200 * (max_pos - actual) / MAX_RATING - 100
+        if (actual<0):
+            score = 100 * actual / max_neg
+        else:
+            score = -100 * actual / max_pos
 
         return round(score, 2)
 
@@ -375,10 +378,13 @@ class UserMethodTrialStart(models.Model):
             return None
 
         actual = end_drawback.getRating() - start_drawback.getRating()
-        # max_pos = MAX_RATING - start_drawback.getRating()
+        max_pos = MAX_RATING - start_drawback.getRating()
         max_neg = -start_drawback.getRating()
 
-        score = 200 * (actual - max_neg) / MAX_RATING - 100
+        if (actual<0):
+            score = 100 * actual / max_neg
+        else:
+            score = -100 * actual / max_pos
 
         return round(score, 2)
 
