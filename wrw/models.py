@@ -50,6 +50,30 @@ class User(models.Model):
 
         return methods
 
+    # get all method trials started
+    def getAllMethodTrialsStarted(self):
+        all_method_trials = []
+
+        for method_trial_start in UserMethodTrialStart.objects.filter(user_symptom__user=self).order_by('started_at'):
+            method = method_trial_start.getMethodName()
+            started_at = method_trial_start.started_at.astimezone(tz=None)
+            method_trial_end = UserMethodTrialEnd.objects.filter(
+                user_method_trial_start=method_trial_start).first()
+            ended_at = datetime.now().astimezone(tz=None)
+            if method_trial_end is not None:
+                ended_at = method_trial_end.ended_at.astimezone(tz=None)
+
+            annotation_at = started_at+(ended_at-started_at)/2
+
+            all_method_trials.append(
+                dict(method=method,
+                     severity=method_trial_start.getSeverity(),
+                     started_at=started_at.strftime('%Y-%m-%d %H:%M:%S'),
+                     ended_at=ended_at.strftime('%Y-%m-%d %H:%M:%S'),
+                     annotation_at=annotation_at.strftime('%Y-%m-%d %H:%M:%S')))
+
+        return all_method_trials
+
 
 # ======================================================
 # ======== Symptom Model

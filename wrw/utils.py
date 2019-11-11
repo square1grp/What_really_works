@@ -1,8 +1,8 @@
 from .models import *
-
 from plotly.offline import plot
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 
 
 # get all users by symptom
@@ -57,6 +57,53 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
                      showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
     fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
                      showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value])
+
+    plot_div = plot(fig, output_type='div', include_plotlyjs=False,
+                    config=dict(displayModeBar=False))
+
+    return plot_div
+
+
+# get treatment gantt chart
+def getTreatmentGanttChart(treatment_trials):
+    rating_texts = ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe']
+    dataframe = []
+
+    dataframe = [
+        dict(Task=rating_text, Start=None, Finish=None) for rating_text in reversed(rating_texts)
+    ]
+
+    dataframe += [dict(
+        Task=treatment_trial['severity'],
+        Start=treatment_trial['started_at'],
+        Finish=treatment_trial['ended_at'],
+    ) for treatment_trial in treatment_trials]
+
+    # figure
+    fig = ff.create_gantt(dataframe, bar_width=0.4,
+                          title=None, group_tasks=True)
+
+    # hide hover text
+    for index in range(len(fig['data'])):
+        fig['data'][index].update(hoverinfo='none')
+
+    # show method at the middle of the bar
+    annotations = [dict(
+        x=treatment_trial['annotation_at'],
+        y=rating_texts.index(treatment_trial['severity']),
+        showarrow=False,
+        text='<b>%s</b>' % treatment_trial['method'],
+        font=dict(color='black', size=16)
+    ) for index, treatment_trial in enumerate(treatment_trials)]
+
+    # plot figure
+    fig['layout']['annotations'] = annotations
+    fig.update_layout(height=350, margin=dict(b=20, t=20, r=20, l=20),
+                      showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+    fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+    fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
+                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
 
     plot_div = plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
