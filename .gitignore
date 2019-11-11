@@ -88,6 +88,8 @@ local_settings.py
 .env
 db.sqlite3
 
+.vscode
+
 makemigrations.sh
 migrate.sh
 runserver.sh
