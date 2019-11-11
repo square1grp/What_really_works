@@ -123,8 +123,10 @@ class Method(models.Model):
         started_user_method_trials = self.getStartedUserMethodTrials(symptom)
 
         statistics_data = (
-            [started_user_method_trial.getEffectivenessScore() for started_user_method_trial in started_user_method_trials],
-            [started_user_method_trial.getDrawbackScore() for started_user_method_trial in started_user_method_trials]
+            [started_user_method_trial.getEffectivenessScore()
+             for started_user_method_trial in started_user_method_trials],
+            [started_user_method_trial.getDrawbackScore()
+             for started_user_method_trial in started_user_method_trials]
         )
 
         return statistics_data
@@ -177,6 +179,9 @@ class Drawback(models.Model):
         return [rating[1] for rating in RATING_CHOICES if rating[0] == self.rating][0]
 
     getRatingText.short_description = 'Rating'
+
+    def getRating(self):
+        return self.rating
 
 
 # ======================================================
@@ -324,32 +329,32 @@ class UserMethodTrialStart(models.Model):
 
         actual = end_severity.getRating() - start_severity.getRating()
         max_pos = MAX_RATING - start_severity.getRating()
-        max_neg = -start_severity.getRating()
+        # max_neg = -start_severity.getRating()
 
-        score = 200 * (actual-max_pos)/(max_neg-max_pos) - 100
+        score = 200 * (max_pos - actual) / MAX_RATING - 100
 
         return round(score, 2)
 
     # get drawback score
     def getDrawbackScore(self):
-        start_severity = self.severity
+        start_drawback = self.drawback
         user_method_trial_end = UserMethodTrialEnd.objects.filter(
             user_method_trial_start=self)
         last_symptom_update = self.getLastSymptomUpdate()
 
         if len(user_method_trial_end):
             user_method_trial_end = user_method_trial_end[0]
-            end_severity = user_method_trial_end.severity
+            end_drawback = user_method_trial_end.drawback
         elif last_symptom_update is not None:
-            end_severity = last_symptom_update.severity
+            end_drawback = last_symptom_update.drawback
         else:
             return None
 
-        actual = end_severity.getRating() - start_severity.getRating()
-        max_pos = MAX_RATING - start_severity.getRating()
-        max_neg = -start_severity.getRating()
+        actual = end_drawback.getRating() - start_drawback.getRating()
+        # max_pos = MAX_RATING - start_drawback.getRating()
+        max_neg = -start_drawback.getRating()
 
-        score = 100 * (actual-max_pos)/(max_pos-max_neg)
+        score = 200 * (actual - max_neg) / MAX_RATING - 100
 
         return round(score, 2)
 

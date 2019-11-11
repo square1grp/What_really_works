@@ -20,26 +20,25 @@ def getUsersBySymptom(symptom, no_duplicate=True):
 # get statistics x, y values
 def getStatisticsData(score_list, is_drawback=False):
     y_values = [0, 0, 0, 0, 0]
-    x_values = ['0 ~ 20', '21 ~ 40', '41 ~ 60',
-                '61 ~ 80', '81 ~ 100'] if not is_drawback else ['-100 ~ -81', '-80 ~ -61', '-60 ~ -41', '-40 ~ -21', '-20 ~ 0']
+    x_values = ['-100 ~ -61', '-60 ~ -21', '-20 ~ 20', '21 ~ 60', '61 ~ 100']
 
     for score in score_list:
-        if score <= 20 if not is_drawback else -80:
+        if score < -60:
             y_values[0] += 1
-        elif score <= 40 if not is_drawback else -60:
+        elif score < -20:
             y_values[1] += 1
-        elif score <= 60 if not is_drawback else -40:
+        elif score <= 20:
             y_values[2] += 1
-        elif score <= 80 if not is_drawback else -20:
+        elif score <= 60:
             y_values[3] += 1
         else:
             y_values[4] += 1
 
+    print(x_values, y_values)
     return dict(x=x_values, y=y_values)
 
+
 # get statistics chart in method page
-
-
 def getStatisticsChart(e_statistics_data, d_statistics_data):
     max_value = 1 + max(e_statistics_data['y'] + d_statistics_data['y'])
 
