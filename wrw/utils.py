@@ -51,16 +51,18 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
         go.Bar(x=d_statistics_data['x'], y=d_statistics_data['y'], hoverinfo='skip', width=width), row=1, col=2)
 
     fig.update_traces(marker_color='#8BC8DB')
-    fig.update_layout(height=150, margin=dict(b=20, t=20, r=20, l=20),
-                      showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+    fig.update_layout(height=200, margin=dict(b=20, t=60, r=20, l=20),
+                      showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                      title=dict(text='Effectivenss and Drawbacks', font_color="black", font_size=24,
+                                 xanchor="center", x=0.5))
 
     # chart title: Effectivenss and Drawbacks
     # x axis title: scores
     # y axis title: # of users
     fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
-                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='score')
     fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True,
-                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value])
+                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value], title_text="# of users")
 
     plot_div = plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
