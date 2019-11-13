@@ -326,13 +326,15 @@ class UserMethodTrialStart(models.Model):
 
     # get last symptom update
     def getLastSymptomUpdate(self):
-        user_symptom_update = UserSymptomUpdate.objects.filter(
+        user_symptom_updates = UserSymptomUpdate.objects.filter(
             user_symptom=self.user_symptom).order_by('-updated_at')
 
-        if not len(user_symptom_update):
+        user_symptom_updates = [user_symptom_update for user_symptom_update in user_symptom_updates if user_symptom_update.updated_at > self.started_at]
+        
+        if not len(user_symptom_updates):
             return None
 
-        user_symptom_update = user_symptom_update[0]
+        user_symptom_update = user_symptom_updates[0]
 
         return user_symptom_update
 
@@ -355,7 +357,7 @@ class UserMethodTrialStart(models.Model):
         max_pos = MAX_RATING - start_severity.getRating()
         max_neg = -start_severity.getRating()
 
-        if (actual<0):
+        if (actual < 0):
             score = 100 * actual / max_neg
         else:
             score = -100 * actual / max_pos
@@ -381,7 +383,7 @@ class UserMethodTrialStart(models.Model):
         max_pos = MAX_RATING - start_drawback.getRating()
         max_neg = -start_drawback.getRating()
 
-        if (actual<0):
+        if (actual < 0):
             score = 100 * actual / max_neg
         else:
             score = -100 * actual / max_pos

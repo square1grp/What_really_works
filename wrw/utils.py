@@ -53,9 +53,13 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
     fig.update_traces(marker_color='#8BC8DB')
     fig.update_layout(height=150, margin=dict(b=20, t=20, r=20, l=20),
                       showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-    fig.update_xaxes(showticklabels=False, showgrid=False, zeroline=True,
+
+    # chart title: Effectivenss and Drawbacks
+    # x axis title: scores
+    # y axis title: # of users
+    fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                      showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
-    fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
+    fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True,
                      showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value])
 
     plot_div = plot(fig, output_type='div', include_plotlyjs=False,
@@ -69,19 +73,19 @@ def getTreatmentGanttChart(treatment_trials):
     rating_texts = ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe']
     dataframe = []
 
-    dataframe = [
-        dict(Task=rating_text, Start=None, Finish=None) for rating_text in reversed(rating_texts)
-    ]
+    # dataframe = [
+    #     dict(Task=rating_text, Start=None, Finish=None) for rating_text in reversed(rating_texts)
+    # ]
 
     dataframe += [dict(
         Task=treatment_trial['severity'],
         Start=treatment_trial['started_at'],
         Finish=treatment_trial['ended_at'],
-    ) for treatment_trial in treatment_trials]
+    ) for treatment_trial in reversed(treatment_trials)]
 
     # figure
     fig = ff.create_gantt(dataframe, bar_width=0.4,
-                          title=None, group_tasks=True)
+                          title=None, group_tasks=False)
 
     # hide hover text
     for index in range(len(fig['data'])):
@@ -90,11 +94,11 @@ def getTreatmentGanttChart(treatment_trials):
     # show method at the middle of the bar
     annotations = [dict(
         x=treatment_trial['annotation_at'],
-        y=rating_texts.index(treatment_trial['severity']),
+        y=index,  # rating_texts.index(treatment_trial['severity']),
         showarrow=False,
         text='<b>%s</b>' % treatment_trial['method'],
         font=dict(color='black', size=16)
-    ) for index, treatment_trial in enumerate(treatment_trials)]
+    ) for index, treatment_trial in enumerate(reversed(treatment_trials))]
 
     # plot figure
     fig['layout']['annotations'] = annotations
