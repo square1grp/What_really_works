@@ -3,6 +3,8 @@
 {% block head %}
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% load static %}
+<script src="{% static 'js/user.js' %}"></script>
 
 {% endblock %}
 
@@ -16,7 +18,7 @@
 
     <div class="row mb-5">
         <div class="col-12 col-md-6 ml-md-auto mb-2">
-            <select class="form-control">
+            <select class="form-control symptom">
                 {% for symptom in user_symptoms %}
                 <option value="{{symptom.id}}">{{symptom.name}}</option>
                 {% endfor %}
@@ -24,7 +26,7 @@
         </div>
 
         <div class="col-12 col-md-3 d-flex mr-md-auto mb-2">
-            <a href="/symptom/1" class="btn btn-primary mx-auto">Search</a>
+            <a id="redirect_to_symptom" href="#" class="btn btn-primary mx-auto">Search</a>
         </div>
     </div>
 
