@@ -307,8 +307,11 @@ class UserMethodTrialStart(models.Model):
     def getUser(self):
         return self.user_symptom.getUser()
 
+    def getSymptom(self):
+        return self.user_symptom.getSymptom()
+
     def getSymptomName(self):
-        return self.user_symptom.getSymptomName()
+        return str(self.getSymptom())
 
     getSymptomName.short_description = 'Symptom'
     getSymptomName.admin_order_field = 'user_symptom__symptom__name'
@@ -329,8 +332,9 @@ class UserMethodTrialStart(models.Model):
         user_symptom_updates = UserSymptomUpdate.objects.filter(
             user_symptom=self.user_symptom).order_by('-updated_at')
 
-        user_symptom_updates = [user_symptom_update for user_symptom_update in user_symptom_updates if user_symptom_update.updated_at > self.started_at]
-        
+        user_symptom_updates = [
+            user_symptom_update for user_symptom_update in user_symptom_updates if user_symptom_update.updated_at > self.started_at]
+
         if not len(user_symptom_updates):
             return None
 
@@ -341,17 +345,34 @@ class UserMethodTrialStart(models.Model):
     # get effectiveness score
     def getEffectivenessScore(self):
         start_severity = self.severity
+
+        # user method trial end with this trial start
         user_method_trial_end = UserMethodTrialEnd.objects.filter(
             user_method_trial_start=self)
+
+        # user method trial end under same symptom
+        user_method_trial_end_others = UserMethodTrialEnd.objects.filter(
+            user_method_trial_start__user_symptom__symptom=self.getSymptom()
+        ).order_by('-ended_at')
+
+        # get last symptom update
         last_symptom_update = self.getLastSymptomUpdate()
 
         if len(user_method_trial_end):
             user_method_trial_end = user_method_trial_end[0]
             end_severity = user_method_trial_end.severity
-        elif last_symptom_update is not None:
-            end_severity = last_symptom_update.severity
         else:
-            return None
+            if len(user_method_trial_end_others):
+                if user_method_trial_end_others[0].ended_at > last_symptom_update.updated_at or last_symptom_update is None:
+                    end_severity = user_method_trial_end_others[0].severity
+                elif last_symptom_update is not None:
+                    end_severity = last_symptom_update.severity
+                else:
+                    return None
+            elif last_symptom_update is not None:
+                end_severity = last_symptom_update.severity
+            else:
+                return None
 
         actual = end_severity.getRating() - start_severity.getRating()
         max_pos = MAX_RATING - start_severity.getRating()
@@ -367,17 +388,34 @@ class UserMethodTrialStart(models.Model):
     # get drawback score
     def getDrawbackScore(self):
         start_drawback = self.drawback
+
+        # user method trial end with this trial start
         user_method_trial_end = UserMethodTrialEnd.objects.filter(
             user_method_trial_start=self)
+
+        # user method trial end under same symptom
+        user_method_trial_end_others = UserMethodTrialEnd.objects.filter(
+            user_method_trial_start__user_symptom__symptom=self.getSymptom()
+        ).order_by('-ended_at')
+
+        # get last symptom update
         last_symptom_update = self.getLastSymptomUpdate()
 
         if len(user_method_trial_end):
             user_method_trial_end = user_method_trial_end[0]
             end_drawback = user_method_trial_end.drawback
-        elif last_symptom_update is not None:
-            end_drawback = last_symptom_update.drawback
         else:
-            return None
+            if len(user_method_trial_end_others):
+                if user_method_trial_end_others[0].ended_at > last_symptom_update.updated_at or last_symptom_update is None:
+                    end_drawback = user_method_trial_end_others[0].drawback
+                elif last_symptom_update is not None:
+                    end_drawback = last_symptom_update.drawback
+                else:
+                    return None
+            elif last_symptom_update is not None:
+                end_drawback = last_symptom_update.drawback
+            else:
+                return None
 
         actual = end_drawback.getRating() - start_drawback.getRating()
         max_pos = MAX_RATING - start_drawback.getRating()
