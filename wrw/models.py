@@ -55,6 +55,7 @@ class User(models.Model):
         all_method_trials = []
 
         for method_trial_start in UserMethodTrialStart.objects.filter(user_symptom__user=self).order_by('created_at'):
+            symptom = method_trial_start.getSymptomName()
             method = method_trial_start.getMethodName()
             started_at = method_trial_start.created_at.astimezone(tz=None)
             method_trial_end = UserMethodTrialEnd.objects.filter(
@@ -66,7 +67,8 @@ class User(models.Model):
             annotation_at = started_at+(ended_at-started_at)/2
 
             all_method_trials.append(
-                dict(method=method,
+                dict(symptom=symptom,
+                     method=method,
                      severity=method_trial_start.getSeverity(),
                      started_at=started_at.strftime('%Y-%m-%d %H:%M:%S'),
                      ended_at=ended_at.strftime('%Y-%m-%d %H:%M:%S'),

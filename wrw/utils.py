@@ -75,18 +75,18 @@ def getTreatmentGanttChart(treatment_trials):
     dataframe = []
 
     dataframe += [dict(
-        Task=treatment_trial['severity'],
+        Task=treatment_trial['symptom'],
         Start=treatment_trial['started_at'],
-        Finish=treatment_trial['ended_at'],
+        Finish=treatment_trial['ended_at']
     ) for treatment_trial in reversed(treatment_trials)]
 
     # figure
-    fig = ff.create_gantt(dataframe, bar_width=0.4,
+    fig = ff.create_gantt(dataframe, bar_width=0.45,
                           title=None, group_tasks=False)
 
     # hide hover text
     for index in range(len(fig['data'])):
-        fig['data'][index].update(hoverinfo='none')
+        fig['data'][index].update(hoverinfo='text')
 
     # show method at the middle of the bar
     annotations = [dict(
@@ -94,7 +94,7 @@ def getTreatmentGanttChart(treatment_trials):
         y=index,
         showarrow=False,
         text='<b>%s</b>' % treatment_trial['method'],
-        font=dict(color='black', size=16)
+        font=dict(color='black', size=12)
     ) for index, treatment_trial in enumerate(reversed(treatment_trials))]
 
     # plot figure
