@@ -34,13 +34,13 @@ def getStatisticsData(score_list, is_drawback=False):
         else:
             y_values[4] += 1
 
-    print(x_values, y_values)
     return dict(x=x_values, y=y_values)
 
 
 # get statistics chart in method page
 def getStatisticsChart(e_statistics_data, d_statistics_data):
-    max_value = 1 + max(e_statistics_data['y'] + d_statistics_data['y'])
+    max_value = max(e_statistics_data['y'] + d_statistics_data['y'])
+    max_value += 5 if max_value % 2 else 4
 
     fig = make_subplots(rows=1, cols=2)
 
@@ -69,6 +69,9 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
 
 # get treatment gantt chart
 def getTreatmentGanttChart(treatment_trials):
+    if not treatment_trials:
+        return ''
+
     dataframe = []
 
     dataframe += [dict(
@@ -154,7 +157,7 @@ def getSymptomTimelines(user, symptoms):
             fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                              showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
             fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
-                             showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 4], title_text='Severity')
+                             showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5], title_text='Severity')
 
             symptom_timeline['chart'] = plot(fig, output_type='div', include_plotlyjs=False,
                                              config=dict(displayModeBar=False))

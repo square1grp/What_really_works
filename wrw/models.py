@@ -327,9 +327,10 @@ class UserMethodTrialStart(models.Model):
         verbose_name_plural = 'User Treatment Trials (begin)'
 
     def __str__(self):
-        return '%s - %s : %s' % (self.user_symptom.getUserName(),
-                                 self.user_symptom.getSymptomName(),
-                                 self.severity.getRatingText())
+        return '%s - %s - %s : %s' % (self.user_symptom.getUserName(),
+                                      self.user_symptom.getSymptomName(),
+                                      self.getMethodName(),
+                                      self.severity.getRatingText())
 
     def getUserName(self):
         return self.user_symptom.getUserName()
@@ -396,12 +397,13 @@ class UserMethodTrialStart(models.Model):
             end_severity = user_method_trial_end.severity
         else:
             if len(user_method_trial_end_others):
-                if user_method_trial_end_others[0].created_at > last_symptom_update.created_at or last_symptom_update is None:
-                    end_severity = user_method_trial_end_others[0].severity
-                elif last_symptom_update is not None:
-                    end_severity = last_symptom_update.severity
+                if last_symptom_update is not None:
+                    if user_method_trial_end_others[0].created_at > last_symptom_update.created_at:
+                        end_severity = user_method_trial_end_others[0].severity
+                    else:
+                        end_severity = last_symptom_update.severity
                 else:
-                    return None
+                    end_severity = user_method_trial_end_others[0].severity
             elif last_symptom_update is not None:
                 end_severity = last_symptom_update.severity
             else:
@@ -439,12 +441,13 @@ class UserMethodTrialStart(models.Model):
             end_drawback = user_method_trial_end.drawback
         else:
             if len(user_method_trial_end_others):
-                if user_method_trial_end_others[0].created_at > last_symptom_update.created_at or last_symptom_update is None:
-                    end_drawback = user_method_trial_end_others[0].drawback
-                elif last_symptom_update is not None:
-                    end_drawback = last_symptom_update.drawback
+                if last_symptom_update is not None:
+                    if user_method_trial_end_others[0].created_at > last_symptom_update.created_at:
+                        end_drawback = user_method_trial_end_others[0].drawback
+                    else:
+                        end_drawback = last_symptom_update.drawback
                 else:
-                    return None
+                    end_drawback = user_method_trial_end_others[0].drawback
             elif last_symptom_update is not None:
                 end_drawback = last_symptom_update.drawback
             else:
@@ -468,10 +471,42 @@ class UserMethodTrialStart(models.Model):
 class UserMethodTrialEnd(models.Model):
     user_method_trial_start = models.OneToOneField(
         UserMethodTrialStart, on_delete=models.CASCADE)
-    severity = models.ForeignKey(Severity, on_delete=models.CASCADE)
-    drawback = models.ForeignKey(Drawback, on_delete=models.CASCADE)
+    severity = models.ForeignKey(Severity, on_delete=models.CASCADE, default=0)
+    drawback = models.ForeignKey(Drawback, on_delete=models.CASCADE, default=0)
     created_at = models.DateTimeField('Ended at', default=datetime.now)
 
     class Meta:
         verbose_name = 'User Treatment Trial (end)'
         verbose_name_plural = 'User Treatment Trials (end)'
+
+    def __str__(self):
+        return '%s - %s' % (str(self.user_method_trial_start), self.getSeverity())
+
+    def getUserName(self):
+        return self.user_method_trial_start.getUserName()
+
+    getUserName.short_description = 'User'
+    getUserName.admin_order_field = 'user_method_trial_start__user_symptom__user__name'
+
+    def getUser(self):
+        return self.user_method_trial_start.getUser()
+
+    def getSymptom(self):
+        return self.user_method_trial_start.getSymptom()
+
+    def getSymptomName(self):
+        return str(self.getSymptom())
+
+    getSymptomName.short_description = 'Symptom'
+    getSymptomName.admin_order_field = 'user_method_trial_start__user_symptom__symptom__name'
+
+    def getMethodName(self):
+        return self.user_method_trial_start.getMethodName()
+
+    getMethodName.short_description = 'Treatment'
+    getMethodName.admin_order_field = 'user_method_trial_start__method__name'
+
+    def getSeverity(self):
+        return self.severity.getRatingText()
+
+    getSeverity.short_description = 'Severity'

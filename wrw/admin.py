@@ -52,6 +52,15 @@ class UserMethodTrialStartAdmin(admin.ModelAdmin):
                    'user_symptom__symptom__name', 'method__name']
 
 
+class UserMethodTrialEndAdmin(admin.ModelAdmin):
+    list_display = ['getUserName', 'getSymptomName', 'getMethodName',
+                    'getSeverity', 'created_at']
+    search_fields = ['user_method_trial_start__user_symptom__user__name',
+                     'user_method_trial_start__user_symptom__symptom__name', 'user_method_trial_start__method__name']
+    list_filter = ['severity__rating',
+                   'user_method_trial_start__user_symptom__symptom__name', 'user_method_trial_start__method__name']
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Symptom, SymptomAdmin)
 admin.site.register(Method, MethodAdmin)
@@ -60,4 +69,4 @@ admin.site.register(Drawback, DrawbackAdmin)
 admin.site.register(UserSymptom, UserSymptomAdmin)
 admin.site.register(UserSymptomUpdate, UserSymptomUpdateAdmin)
 admin.site.register(UserMethodTrialStart, UserMethodTrialStartAdmin)
-admin.site.register(UserMethodTrialEnd)
+admin.site.register(UserMethodTrialEnd, UserMethodTrialEndAdmin)
