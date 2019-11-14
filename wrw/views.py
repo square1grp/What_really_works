@@ -5,21 +5,27 @@ from .utils import *
 
 
 # Create your views here.
+# index page
 def index(request):
     user_id = int(1)
     return redirect('user/%s' % user_id)
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
+# single user page
 def user_page(request, user_id):
     user = User.objects.get(id=user_id)
-    user_symptoms = user.getSymptoms()
-    treatment_timeline = getTreatmentGanttChart(user.getAllMethodTrialsStarted())
+    symptoms = user.getSymptoms()
+    treatment_timeline = getTreatmentGanttChart(
+        user.getAllMethodTrialsStarted())
+
+    symptom_timelines = getSymptomTimelines(user, symptoms)
 
     return render(request, 'pages/user.html', dict(
         user=user,
-        user_symptoms=user_symptoms,
-        treatment_timeline=treatment_timeline
+        symptoms=symptoms,
+        treatment_timeline=treatment_timeline,
+        symptom_timelines=symptom_timelines
     ))
 
 

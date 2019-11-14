@@ -38,14 +38,14 @@ class UserSymptomAdmin(admin.ModelAdmin):
 
 class UserSymptomUpdateAdmin(admin.ModelAdmin):
     list_display = ['getUserName', 'getSymptomName',
-                    'getSeverity', 'updated_at']
+                    'getSeverity', 'created_at']
     search_fields = ['user_symptom__user__name', 'user_symptom__symptom__name']
     list_filter = ['severity__rating']
 
 
 class UserMethodTrialStartAdmin(admin.ModelAdmin):
     list_display = ['getUserName', 'getSymptomName', 'getMethodName',
-                    'getSeverity', 'started_at']
+                    'getSeverity', 'created_at']
     search_fields = ['user_symptom__user__name',
                      'user_symptom__symptom__name', 'method__name']
     list_filter = ['severity__rating',

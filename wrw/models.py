@@ -54,14 +54,14 @@ class User(models.Model):
     def getAllMethodTrialsStarted(self):
         all_method_trials = []
 
-        for method_trial_start in UserMethodTrialStart.objects.filter(user_symptom__user=self).order_by('started_at'):
+        for method_trial_start in UserMethodTrialStart.objects.filter(user_symptom__user=self).order_by('created_at'):
             method = method_trial_start.getMethodName()
-            started_at = method_trial_start.started_at.astimezone(tz=None)
+            started_at = method_trial_start.created_at.astimezone(tz=None)
             method_trial_end = UserMethodTrialEnd.objects.filter(
                 user_method_trial_start=method_trial_start).first()
             ended_at = datetime.now().astimezone(tz=None)
             if method_trial_end is not None:
-                ended_at = method_trial_end.ended_at.astimezone(tz=None)
+                ended_at = method_trial_end.created_at.astimezone(tz=None)
 
             annotation_at = started_at+(ended_at-started_at)/2
 
@@ -73,6 +73,39 @@ class User(models.Model):
                      annotation_at=annotation_at.strftime('%Y-%m-%d %H:%M:%S')))
 
         return all_method_trials
+
+    # get all severity updates
+    def getAllSeverityUpdatesBySymptom(self, symptom):
+        user_symptom = UserSymptom.objects.filter(user=self, symptom=symptom)
+
+        if not len(user_symptom):
+            return dict(effectivenesses=None, drawbacks=None)
+
+        user_symptom = user_symptom[0]
+
+        user_method_trials_started = []
+        user_method_trials_ended = []
+        user_symptom_updates = []
+
+        for user_method_trial_started in UserMethodTrialStart.objects.filter(user_symptom=user_symptom):
+            user_method_trials_started.append(user_method_trial_started)
+
+            user_method_trials_ended += UserMethodTrialEnd.objects.filter(
+                user_method_trial_start=user_method_trial_started)
+
+        user_symptom_updates += UserSymptomUpdate.objects.filter(
+            user_symptom=user_symptom)
+
+        severity_data = (user_method_trials_started +
+                         user_method_trials_ended + user_symptom_updates)
+        severity_data.sort(key=lambda x: x.created_at)
+
+        effectivenesses = [dict(severity=data.severity.getRating(), created_at=data.created_at.strftime(
+            '%Y-%m-%d %H:%M:%S'), title=data.severity.title) for data in severity_data]
+        drawbacks = [dict(severity=data.drawback.getRating(), created_at=data.created_at.strftime(
+            '%Y-%m-%d %H:%M:%S'), title=data.drawback.title) for data in severity_data]
+
+        return dict(effectivenesses=effectivenesses, drawbacks=drawbacks)
 
 
 # ======================================================
@@ -250,7 +283,7 @@ class UserSymptomUpdate(models.Model):
     user_symptom = models.ForeignKey(UserSymptom, on_delete=models.CASCADE)
     severity = models.ForeignKey(Severity, on_delete=models.CASCADE, default=0)
     drawback = models.ForeignKey(Drawback, on_delete=models.CASCADE, default=0)
-    updated_at = models.DateTimeField('Updated at', default=datetime.now)
+    created_at = models.DateTimeField('Updated at', default=datetime.now)
 
     class Meta:
         verbose_name = 'User Symptom Update'
@@ -287,7 +320,7 @@ class UserMethodTrialStart(models.Model):
     method = models.ForeignKey(Method, on_delete=models.CASCADE)
     severity = models.ForeignKey(Severity, on_delete=models.CASCADE, default=0)
     drawback = models.ForeignKey(Drawback, on_delete=models.CASCADE, default=0)
-    started_at = models.DateTimeField('Started at', default=datetime.now)
+    created_at = models.DateTimeField('Started at', default=datetime.now)
 
     class Meta:
         verbose_name = 'User Treatment Trial (begin)'
@@ -330,10 +363,10 @@ class UserMethodTrialStart(models.Model):
     # get last symptom update
     def getLastSymptomUpdate(self):
         user_symptom_updates = UserSymptomUpdate.objects.filter(
-            user_symptom=self.user_symptom).order_by('-updated_at')
+            user_symptom=self.user_symptom).order_by('-created_at')
 
         user_symptom_updates = [
-            user_symptom_update for user_symptom_update in user_symptom_updates if user_symptom_update.updated_at > self.started_at]
+            user_symptom_update for user_symptom_update in user_symptom_updates if user_symptom_update.created_at > self.created_at]
 
         if not len(user_symptom_updates):
             return None
@@ -353,7 +386,7 @@ class UserMethodTrialStart(models.Model):
         # user method trial end under same symptom
         user_method_trial_end_others = UserMethodTrialEnd.objects.filter(
             user_method_trial_start__user_symptom__symptom=self.getSymptom()
-        ).order_by('-ended_at')
+        ).order_by('-created_at')
 
         # get last symptom update
         last_symptom_update = self.getLastSymptomUpdate()
@@ -363,7 +396,7 @@ class UserMethodTrialStart(models.Model):
             end_severity = user_method_trial_end.severity
         else:
             if len(user_method_trial_end_others):
-                if user_method_trial_end_others[0].ended_at > last_symptom_update.updated_at or last_symptom_update is None:
+                if user_method_trial_end_others[0].created_at > last_symptom_update.created_at or last_symptom_update is None:
                     end_severity = user_method_trial_end_others[0].severity
                 elif last_symptom_update is not None:
                     end_severity = last_symptom_update.severity
@@ -396,7 +429,7 @@ class UserMethodTrialStart(models.Model):
         # user method trial end under same symptom
         user_method_trial_end_others = UserMethodTrialEnd.objects.filter(
             user_method_trial_start__user_symptom__symptom=self.getSymptom()
-        ).order_by('-ended_at')
+        ).order_by('-created_at')
 
         # get last symptom update
         last_symptom_update = self.getLastSymptomUpdate()
@@ -406,7 +439,7 @@ class UserMethodTrialStart(models.Model):
             end_drawback = user_method_trial_end.drawback
         else:
             if len(user_method_trial_end_others):
-                if user_method_trial_end_others[0].ended_at > last_symptom_update.updated_at or last_symptom_update is None:
+                if user_method_trial_end_others[0].created_at > last_symptom_update.created_at or last_symptom_update is None:
                     end_drawback = user_method_trial_end_others[0].drawback
                 elif last_symptom_update is not None:
                     end_drawback = last_symptom_update.drawback
@@ -437,7 +470,7 @@ class UserMethodTrialEnd(models.Model):
         UserMethodTrialStart, on_delete=models.CASCADE)
     severity = models.ForeignKey(Severity, on_delete=models.CASCADE)
     drawback = models.ForeignKey(Drawback, on_delete=models.CASCADE)
-    ended_at = models.DateTimeField('Ended at', default=datetime.now)
+    created_at = models.DateTimeField('Ended at', default=datetime.now)
 
     class Meta:
         verbose_name = 'User Treatment Trial (end)'

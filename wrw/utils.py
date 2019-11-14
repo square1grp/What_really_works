@@ -53,16 +53,13 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
     fig.update_traces(marker_color='#8BC8DB')
     fig.update_layout(height=200, margin=dict(b=20, t=60, r=20, l=20),
                       showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                      title=dict(text='Effectivenss and Drawbacks', font_color="black", font_size=24,
-                                 xanchor="center", x=0.5))
+                      title=dict(text='Effectivenss and Drawbacks', font_color='black', font_size=24,
+                                 xanchor='center', x=0.5))
 
-    # chart title: Effectivenss and Drawbacks
-    # x axis title: scores
-    # y axis title: # of users
     fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                      showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='score')
     fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True,
-                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value], title_text="# of users")
+                     showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value], title_text='# of users')
 
     plot_div = plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
@@ -72,12 +69,7 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
 
 # get treatment gantt chart
 def getTreatmentGanttChart(treatment_trials):
-    rating_texts = ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe']
     dataframe = []
-
-    # dataframe = [
-    #     dict(Task=rating_text, Start=None, Finish=None) for rating_text in reversed(rating_texts)
-    # ]
 
     dataframe += [dict(
         Task=treatment_trial['severity'],
@@ -96,7 +88,7 @@ def getTreatmentGanttChart(treatment_trials):
     # show method at the middle of the bar
     annotations = [dict(
         x=treatment_trial['annotation_at'],
-        y=index,  # rating_texts.index(treatment_trial['severity']),
+        y=index,
         showarrow=False,
         text='<b>%s</b>' % treatment_trial['method'],
         font=dict(color='black', size=16)
@@ -115,3 +107,60 @@ def getTreatmentGanttChart(treatment_trials):
                     config=dict(displayModeBar=False))
 
     return plot_div
+
+
+# get symptom timelines
+def getSymptomTimelines(user, symptoms):
+    symptom_timelines = []
+
+    for symptom in symptoms:
+        symptom_timeline = dict(symptom=symptom)
+
+        severity_data = user.getAllSeverityUpdatesBySymptom(symptom)
+
+        if len(severity_data['effectivenesses']) or len(severity_data['drawbacks']):
+            sizes = [[10] * len(severity_data['effectivenesses']),
+                     [10] * len(severity_data['drawbacks'])]
+            line_colors = [['rgba(99, 110, 250, 0)'] * len(severity_data['effectivenesses']),
+                           ['rgba(239, 85, 59, 0)'] * len(severity_data['drawbacks'])]
+
+            fig = go.Figure([
+                go.Scatter(x=[effectiveness['created_at']
+                              for effectiveness in severity_data['effectivenesses']],
+                           y=[effectiveness['severity']
+                              for effectiveness in severity_data['effectivenesses']],
+                           hoverinfo='text',
+                           hovertext=[effectiveness['title']
+                                      for effectiveness in severity_data['effectivenesses']],
+                           mode='lines+markers',
+                           marker=dict(
+                               size=sizes[0], opacity=1, color='rgb(99, 110, 250)', line=dict(width=6, color=line_colors[0])),
+                           name=''),
+                go.Scatter(x=[drawback['created_at']
+                              for drawback in severity_data['drawbacks']],
+                           y=[drawback['severity']
+                              for drawback in severity_data['drawbacks']],
+                           hoverinfo='text',
+                           hovertext=[drawback['title']
+                                      for drawback in severity_data['effectivenesses']],
+                           mode='lines+markers',
+                           marker=dict(
+                               size=sizes[1], opacity=1, color='rgb(239, 85, 59)', line=dict(width=6, color=line_colors[1])),
+                           name='')
+            ])
+
+            fig.update_layout(height=400, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
+                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
+            fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+                             showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+            fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
+                             showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 4], title_text='Severity')
+
+            symptom_timeline['chart'] = plot(fig, output_type='div', include_plotlyjs=False,
+                                             config=dict(displayModeBar=False))
+        else:
+            symptom_timeline['chart'] = ''
+
+        symptom_timelines.append(symptom_timeline)
+
+    return symptom_timelines
