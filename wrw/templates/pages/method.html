@@ -50,6 +50,16 @@
                 <div class="col-8">
                 </div>
             </div>
+
+            {% for user_timeline in user_timelines %}
+            <div class="row">
+                <div class="col-1"></div>
+                <div class="col-3 d-flex flex-column">
+                    <h2 class="text-right m-auto">{{user_timeline.user.name}}</h2>
+                </div>
+                <div class="col-8">{{user_timeline.symptom_timeline.chart|safe}}</div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

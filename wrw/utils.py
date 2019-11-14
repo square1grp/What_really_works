@@ -113,7 +113,7 @@ def getTreatmentGanttChart(treatment_trials):
 
 
 # get symptom timelines
-def getSymptomTimelines(user, symptoms):
+def getSymptomTimelines(user, symptoms, height=400):
     symptom_timelines = []
 
     for symptom in symptoms:
@@ -152,7 +152,7 @@ def getSymptomTimelines(user, symptoms):
                                          width=12, color=line_colors[1])),
                                      name=''))
 
-            fig.update_layout(height=400, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
+            fig.update_layout(height=height, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
             fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                              showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)

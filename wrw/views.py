@@ -64,8 +64,16 @@ def method_page(request, symptom_id, method_id):
     statisticschart_content = getStatisticsChart(
         e_statistics_data, d_statistics_data)
 
+    user_timelines = []
+    users = method.getUsersHaveSymptom(symptom)
+    for user in users:
+        symptom_timeline = getSymptomTimelines(user, [symptom], 250)[0]
+        user_timelines.append(
+            dict(user=user, symptom_timeline=symptom_timeline))
+
     return render(request, 'pages/method.html', dict(
         symptom=symptom,
         method=method,
-        statisticschart_content=statisticschart_content
+        statisticschart_content=statisticschart_content,
+        user_timelines=user_timelines
     ))
