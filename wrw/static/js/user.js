@@ -26,7 +26,7 @@ $(document).ready(function () {
         var color = line_colors[pn];
         color = color.replace("0)", "1)");
         line_colors[pn] = color
-        var update = { "marker": { size: sizes, opacity: 1, "line": { color: line_colors, width: 6 } } };
+        var update = { "marker": { size: sizes, opacity: 1, "line": { color: line_colors, width: 12 } } };
         Plotly.restyle($(this).attr("id"), update, [tn]);
     }).on("plotly_unhover", function (e, data) {
         if (data.points.length == 0)
@@ -41,7 +41,7 @@ $(document).ready(function () {
         var color = line_colors[pn];
         color = color.replace("1)", "0)");
         line_colors[pn] = color
-        var update = { "marker": { size: sizes, opacity: 1, "line": { color: line_colors, width: 6 } } };
+        var update = { "marker": { size: sizes, opacity: 1, "line": { color: line_colors, width: 12 } } };
         Plotly.restyle($(this).attr("id"), update, [tn]);
     });
 });

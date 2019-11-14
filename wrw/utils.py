@@ -124,30 +124,30 @@ def getSymptomTimelines(user, symptoms):
             line_colors = [['rgba(99, 110, 250, 0)'] * len(severity_data['effectivenesses']),
                            ['rgba(239, 85, 59, 0)'] * len(severity_data['drawbacks'])]
 
-            fig = go.Figure([
-                go.Scatter(x=[effectiveness['created_at']
-                              for effectiveness in severity_data['effectivenesses']],
-                           y=[effectiveness['severity']
-                              for effectiveness in severity_data['effectivenesses']],
-                           hoverinfo='text',
-                           hovertext=[effectiveness['title']
-                                      for effectiveness in severity_data['effectivenesses']],
-                           mode='lines+markers',
-                           marker=dict(
-                               size=sizes[0], opacity=1, color='rgb(99, 110, 250)', line=dict(width=6, color=line_colors[0])),
-                           name=''),
-                go.Scatter(x=[drawback['created_at']
-                              for drawback in severity_data['drawbacks']],
-                           y=[drawback['severity']
-                              for drawback in severity_data['drawbacks']],
-                           hoverinfo='text',
-                           hovertext=[drawback['title']
-                                      for drawback in severity_data['effectivenesses']],
-                           mode='lines+markers',
-                           marker=dict(
-                               size=sizes[1], opacity=1, color='rgb(239, 85, 59)', line=dict(width=6, color=line_colors[1])),
-                           name='')
-            ])
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=[effectiveness['created_at']
+                                        for effectiveness in severity_data['effectivenesses']],
+                                     y=[effectiveness['severity']
+                                        for effectiveness in severity_data['effectivenesses']],
+                                     hoverinfo='text',
+                                     hovertext=[effectiveness['title']
+                                                for effectiveness in severity_data['effectivenesses']],
+                                     mode='lines+markers',
+                                     marker=dict(size=sizes[0], opacity=1, color='rgb(99, 110, 250)', line=dict(
+                                         width=12, color=line_colors[0])),
+                                     name=''))
+
+            fig.add_trace(go.Scatter(x=[drawback['created_at']
+                                        for drawback in severity_data['drawbacks']],
+                                     y=[drawback['severity']
+                                        for drawback in severity_data['drawbacks']],
+                                     hoverinfo='text',
+                                     hovertext=[drawback['title']
+                                                for drawback in severity_data['effectivenesses']],
+                                     mode='lines+markers',
+                                     marker=dict(size=sizes[1], opacity=1, color='rgb(239, 85, 59)', line=dict(
+                                         width=12, color=line_colors[1])),
+                                     name=''))
 
             fig.update_layout(height=400, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
