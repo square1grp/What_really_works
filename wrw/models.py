@@ -102,10 +102,23 @@ class User(models.Model):
                          user_method_trials_ended + user_symptom_updates)
         severity_data.sort(key=lambda x: x.created_at)
 
-        effectivenesses = [dict(severity=data.severity.getRating(), created_at=data.created_at.strftime(
-            '%Y-%m-%d %H:%M:%S'), title=data.severity.title) for data in severity_data]
-        drawbacks = [dict(severity=data.drawback.getRating(), created_at=data.created_at.strftime(
-            '%Y-%m-%d %H:%M:%S'), title=data.drawback.title) for data in severity_data]
+        effectivenesses = [
+            dict(
+                title=data.severity.title,
+                description=data.severity.getDescription(),
+                severity=data.severity.getRating(),
+                created_at=data.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            ) for data in severity_data
+        ]
+
+        drawbacks = [
+            dict(
+                title=data.drawback.title,
+                description=data.drawback.getDescription(),
+                severity=data.drawback.getRating(),
+                created_at=data.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            ) for data in severity_data
+        ]
 
         return dict(effectivenesses=effectivenesses, drawbacks=drawbacks)
 
@@ -216,6 +229,9 @@ class Severity(models.Model):
     def getRating(self):
         return self.rating
 
+    def getDescription(self):
+        return self.description
+
 
 # ======================================================
 # ======== Drawback Model
@@ -241,6 +257,9 @@ class Drawback(models.Model):
 
     def getRating(self):
         return self.rating
+
+    def getDescription(self):
+        return self.description
 
 
 # ======================================================

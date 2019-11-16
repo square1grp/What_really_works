@@ -42,7 +42,8 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
     max_value = max(e_statistics_data['y'] + d_statistics_data['y'])
     max_value += 5 if max_value % 2 else 4
 
-    fig = make_subplots(rows=1, cols=2)
+    fig = make_subplots(rows=1, cols=2, subplot_titles=[
+                        'Effectiveness', 'Drawbacks'])
 
     width = [0.5 for i in range(5)]
     fig.add_trace(
@@ -51,10 +52,8 @@ def getStatisticsChart(e_statistics_data, d_statistics_data):
         go.Bar(x=d_statistics_data['x'], y=d_statistics_data['y'], hoverinfo='skip', width=width), row=1, col=2)
 
     fig.update_traces(marker_color='#8BC8DB')
-    fig.update_layout(height=200, margin=dict(b=20, t=60, r=20, l=20),
-                      showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                      title=dict(text='Effectivenss and Drawbacks', font_color='black', font_size=24,
-                                 xanchor='center', x=0.5))
+    fig.update_layout(height=200, margin=dict(b=20, t=20, r=20, l=20),
+                      showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 
     fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                      showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='score')
@@ -138,7 +137,8 @@ def getSymptomTimelines(user, symptoms, height=400):
                                      mode='lines+markers',
                                      marker=dict(size=sizes[0], opacity=1, color='rgb(99, 110, 250)', line=dict(
                                          width=12, color=line_colors[0])),
-                                     name=''))
+                                     name='Symptom Severity',
+                                     customdata=severity_data['effectivenesses']))
 
             fig.add_trace(go.Scatter(x=[drawback['created_at']
                                         for drawback in severity_data['drawbacks']],
@@ -150,9 +150,10 @@ def getSymptomTimelines(user, symptoms, height=400):
                                      mode='lines+markers',
                                      marker=dict(size=sizes[1], opacity=1, color='rgb(239, 85, 59)', line=dict(
                                          width=12, color=line_colors[1])),
-                                     name=''))
+                                     name='Drawbacks',
+                                     customdata=severity_data['drawbacks']))
 
-            fig.update_layout(height=height, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
+            fig.update_layout(height=height, margin=dict(b=20, t=20, r=20, l=20), showlegend=True,
                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
             fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                              showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)

@@ -11,8 +11,11 @@ $(document).ready(function () {
             return false;
 
         point = data.points[0];
-
-        alert("Severity: " + point.hovertext + "\n" + "Created at: " + point.x);
+        $("#symptom_modal_title").text(point.hovertext);
+        $("#symptom_modal_description").text(point.customdata.description);
+        $("#symptom_modal_created_at").text(point.x);
+        $("#symptom_modal").modal();
+        // alert("Severity: " + point.hovertext + "\n" + "Created at: " + point.x);
     }).on("plotly_hover", function (e, data) {
         if (data.points.length == 0)
             return false;

@@ -73,4 +73,29 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="symptom_modal" tabindex="-1" role="dialog" aria-labelledby="symptom_modal_title"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="symptom_modal_title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label><b>Description:</b></label>
+                <p id="symptom_modal_description"></p>
+
+                <label><b>Created at:</b></label>
+                <p id="symptom_modal_created_at"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
