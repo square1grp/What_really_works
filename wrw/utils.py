@@ -17,6 +17,20 @@ def getUsersBySymptom(symptom, no_duplicate=True):
     return users
 
 
+# get all symptoms
+def getAllSymptoms():
+    return Symptom.objects.all()
+
+
+# add user symptom
+def addUserSymptom(user_id, symptom_id):
+    user = User.objects.get(id=user_id)
+    symptom = Symptom.objects.get(id=symptom_id)
+
+    user_symptom = UserSymptom(user=user, symptom=symptom)
+    user_symptom.save()
+
+
 # get statistics x, y values
 def getStatisticsData(score_list, is_drawback=False):
     y_values = [0, 0, 0, 0, 0]

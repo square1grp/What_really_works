@@ -77,3 +77,18 @@ def method_page(request, symptom_id, method_id):
         statisticschart_content=statisticschart_content,
         user_timelines=user_timelines
     ))
+
+
+def add_symptom_page(request, user_id):
+    if request.method == "POST":
+        try:
+            addUserSymptom(user_id, request.POST['symptom_id'])
+        except:
+            pass
+
+    symptoms = getAllSymptoms()
+
+    return render(request, 'pages/add_symptom.html', {
+        'user_id': user_id,
+        'symptoms': symptoms
+    })
