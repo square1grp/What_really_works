@@ -86,7 +86,7 @@ def addUserMethodTrial(params):
 # get statistics x, y values
 def getStatisticsData(score_list, is_drawback=False):
     y_values = [0, 0, 0, 0, 0]
-    x_values = ['-100 ~ -61', '-60 ~ -21', '-20 ~ 20', '21 ~ 60', '61 ~ 100']
+    x_values = ['|-100 ~ -61|', '|-60 ~ -21|', '|-20 ~ 20|', '|21 ~ 60|', '|61 ~ 100|']
 
     for score in score_list:
         if score < -60:
