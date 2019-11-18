@@ -3,6 +3,8 @@ from plotly.offline import plot
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
+from datetime import datetime
+import pytz
 
 
 # get all users by symptom
@@ -23,12 +25,32 @@ def getAllSymptoms():
 
 
 # add user symptom
-def addUserSymptom(user_id, symptom_id):
-    user = User.objects.get(id=user_id)
-    symptom = Symptom.objects.get(id=symptom_id)
+def addUserSymptom(params):
+    user = User.objects.get(id=params['user_id'])
+    symptom = Symptom.objects.get(id=params['symptom_id'])
 
-    user_symptom = UserSymptom(user=user, symptom=symptom)
-    user_symptom.save()
+    try:
+        user_symptom = UserSymptom(user=user, symptom=symptom)
+        user_symptom.save()
+    except:
+        pass
+
+
+# add user symptom update
+def addUserSymptomUpdate(params):
+    user = User.objects.get(id=params['user_id'])
+    symptom = Symptom.objects.get(id=params['symptom_id'])
+    severity = Severity.objects.get(rating=params['severity'])
+    drawback = Drawback.objects.get(rating=0)
+
+    user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
+    created_at = datetime.strptime(
+        params['date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+
+    user_symptom_update = UserSymptomUpdate(
+        user_symptom=user_symptom, severity=severity, drawback=drawback, created_at=created_at)
+
+    user_symptom_update.save()
 
 
 # get statistics x, y values

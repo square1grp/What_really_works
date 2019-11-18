@@ -79,16 +79,33 @@ def method_page(request, symptom_id, method_id):
     ))
 
 
-def add_symptom_page(request, user_id):
+def add_symptom_page(request, user_id, symptom_id=None):
     if request.method == "POST":
         try:
-            addUserSymptom(user_id, request.POST['symptom_id'])
+            addUserSymptom(request.POST)
         except:
             pass
 
     symptoms = getAllSymptoms()
 
     return render(request, 'pages/add_symptom.html', {
+        'user_id': user_id,
+        'symptom_id': symptom_id,
+        'symptoms': symptoms
+    })
+
+
+def add_symptom_update_page(request, user_id):
+    if request.method == "POST":
+        try:
+            addUserSymptomUpdate(request.POST)
+        except:
+            pass
+
+    user = User.objects.get(id=user_id)
+    symptoms = user.getSymptoms()
+
+    return render(request, 'pages/add_symptom_update.html', {
         'user_id': user_id,
         'symptoms': symptoms
     })
