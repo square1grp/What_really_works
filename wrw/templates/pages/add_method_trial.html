@@ -1,0 +1,206 @@
+{% extends "layouts/index.html" %}
+
+
+{% block content %}
+
+<div class="container add-symptom-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto d-block" href="/user/{{user_id}}" role="button">Back to Home</a>
+        <h2 class="col-12 text-center">Add Treatment</h2>
+
+        <hr class="w-50 mx-auto mb-5 d-block" style="border-width: 4px;" />
+    </div>
+
+    <div class="row flex-column">
+
+        <form method="POST" action="/user/{{user_id}}/add/treatment" class="m-auto col-12 col-md-8">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{user_id}}" />
+
+            <button type="submit" class="btn btn-primary ml-auto d-block mb-3">Add</button>
+
+            <div class="form-group row">
+                <label for="method_id" class="col-12 col-md-4 col-form-label">Treatment</label>
+                <div class="col-12 col-md-8">
+                    <select class="form-control" name="method_id">
+                        {% for method in methods%}
+                        <option value="{{method.id}}">{{method}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="symptom" class="col-12 col-md-4 col-form-label">Symptom</label>
+
+                <div class="col-12 col-md-8">
+                    <div class="row m-auto">
+                        <select name="symptom_id" class="form-control col-12 col-md">
+                            {% for symptom in symptoms %}
+                            <option value="{{symptom.id}}" {% if symptom.id == symptom_id %} selected="selected"
+                                {% endif %}>
+                                {{symptom}}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="col-12 col-md">
+                            {% for symptom in symptoms %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" disabled>
+                                <label class="form-check-label" for="symptom-{{symptom.id}}">{{symptom}}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="start_date" class="col-12 col-md-4 col-form-label">Start Date</label>
+
+                <div class="col-12 col-md-8">
+                    <input type="text" class="form-control" name="start_date" id="start_date" />
+                    <script type="text/javascript">
+                        $(function () {
+                            $("#start_date").datepicker({
+                                autoclose: true,
+                                format: "mm/dd/yyyy",
+                                endDate: new Date()
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="start_severity_id" class="col-12 col-md-4 col-form-label">Start Severity</label>
+
+                <div class="col-12 col-md-8">
+                    <select class="form-control" name="start_severity_id">
+                        {% for severity in severities %}
+                        <option value="{{severity.id}}">{{severity}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="start_drawback_id" class="col-12 col-md-4 col-form-label">Start Drawback</label>
+
+                <div class="col-12 col-md-8">
+                    <select class="form-control" name="start_drawback_id">
+                        {% for drawback in drawbacks %}
+                        <option value="{{drawback.id}}">{{drawback}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="start_title" class="col-12 col-md-4 col-form-label">Short Description of How You
+                    Felt</label>
+
+                <div class="col-12 col-md-8">
+                    <input type="text" class="form-control" name="start_title" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="start_description" class="col-12 col-md-4 col-form-label">Long Description of How You
+                    Felt</label>
+
+                <div class="col-12 col-md-8">
+                    <textarea class="form-control" name="start_description"></textarea>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" name="is_ended_trial">
+                    <label class="form-check-label" for="is_ended_trial">Did you end the treatment?</label>
+                </div>
+
+                <script>
+                    (function ($) {
+                        $("input[name=is_ended_trial]").change(function () {
+                            if ($(this).prop('checked')) {
+                                $("fieldset#end_trial").show();
+                            } else {
+                                $("fieldset#end_trial").hide();
+                            }
+                        });
+                    })(jQuery)
+                </script>
+            </div>
+
+
+
+            <fieldset id="end_trial" style="display: none;">
+                <div class="form-group row">
+                    <label for="end_date" class="col-12 col-md-4 col-form-label">End Date</label>
+
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" name="end_date" id="end_date" />
+                        <script type="text/javascript">
+                            $(function () {
+                                $("#end_date").datepicker({
+                                    autoclose: true,
+                                    format: "mm/dd/yyyy",
+                                    endDate: new Date()
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="end_severity_id" class="col-12 col-md-4 col-form-label">End Severity</label>
+
+                    <div class="col-12 col-md-8">
+                        <select class="form-control" name="end_severity_id">
+                            {% for severity in severities %}
+                            <option value="{{severity.id}}">{{severity}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="end_drawback_id" class="col-12 col-md-4 col-form-label">End Drawback</label>
+
+                    <div class="col-12 col-md-8">
+                        <select class="form-control" name="end_drawback_id">
+                            {% for drawback in drawbacks %}
+                            <option value="{{drawback.id}}">{{drawback}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="end_title" class="col-12 col-md-4 col-form-label">Short Description of How You
+                        Felt</label>
+
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" name="end_title" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="end_description" class="col-12 col-md-4 col-form-label">Long Description of How You
+                        Felt</label>
+
+                    <div class="col-12 col-md-8">
+                        <textarea class="form-control" name="end_description"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

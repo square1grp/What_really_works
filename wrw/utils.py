@@ -40,7 +40,7 @@ def addUserSymptom(params):
 def addUserSymptomUpdate(params):
     user = User.objects.get(id=params['user_id'])
     symptom = Symptom.objects.get(id=params['symptom_id'])
-    severity = Severity.objects.get(rating=params['severity'])
+    severity = Severity.objects.get(id=params['severity_id'])
     drawback = Drawback.objects.get(rating=0)
 
     user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
@@ -51,6 +51,36 @@ def addUserSymptomUpdate(params):
         user_symptom=user_symptom, severity=severity, drawback=drawback, created_at=created_at)
 
     user_symptom_update.save()
+
+
+# add user method trial
+def addUserMethodTrial(params):
+    print('============= add user method trial =====================')
+    user = User.objects.get(id=params['user_id'])
+    symptom = Symptom.objects.get(id=params['symptom_id'])
+    method = Method.objects.get(id=params['method_id'])
+    start_severity = Severity.objects.get(id=params['start_severity_id'])
+    start_drawback = Drawback.objects.get(id=params['start_drawback_id'])
+    start_created_at = datetime.strptime(
+        params['start_date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+
+    user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
+
+    user_method_trial_start = UserMethodTrialStart(user_symptom=user_symptom, method=method,
+                                                   severity=start_severity, drawback=start_drawback, created_at=start_created_at)
+
+    user_method_trial_start.save()
+
+    if 'is_ended_trial' in params:
+        end_severity = Severity.objects.get(id=params['end_severity_id'])
+        end_drawback = Drawback.objects.get(id=params['end_drawback_id'])
+        end_created_at = datetime.strptime(
+            params['end_date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+
+        user_method_trial_end = UserMethodTrialEnd(user_method_trial_start=user_method_trial_start,
+                                                   severity=end_severity, drawback=end_drawback, created_at=end_created_at)
+
+        user_method_trial_end.save()
 
 
 # get statistics x, y values

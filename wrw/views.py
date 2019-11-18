@@ -104,8 +104,33 @@ def add_symptom_update_page(request, user_id):
 
     user = User.objects.get(id=user_id)
     symptoms = user.getSymptoms()
+    severities = Severity.objects.all()
 
     return render(request, 'pages/add_symptom_update.html', {
         'user_id': user_id,
-        'symptoms': symptoms
+        'symptoms': symptoms,
+        'severities': severities
+    })
+
+
+def add_method_trial_page(request, user_id):
+    if request.method == "POST":
+        try:
+            addUserMethodTrial(request.POST)
+            pass
+        except:
+            pass
+
+    user = User.objects.get(id=user_id)
+    methods = Method.objects.all()
+    symptoms = user.getSymptoms()
+    severities = Severity.objects.all()
+    drawbacks = Drawback.objects.all()
+
+    return render(request, 'pages/add_method_trial.html', {
+        'user_id': user_id,
+        'methods': methods,
+        'symptoms': symptoms,
+        'severities': severities,
+        'drawbacks': drawbacks
     })
