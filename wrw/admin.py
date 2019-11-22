@@ -32,7 +32,7 @@ class DrawbackAdmin(admin.ModelAdmin):
 
 
 class UserSymptomAdmin(admin.ModelAdmin):
-    list_display = ['getUserName', 'getSymptomName']
+    list_display = ['getUserName', 'getSymptomName', 'created_at']
     search_fields = ['user__name', 'symptom__name']
 
 

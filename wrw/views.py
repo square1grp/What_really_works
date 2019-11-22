@@ -105,11 +105,13 @@ def add_symptom_update_page(request, user_id):
     user = User.objects.get(id=user_id)
     symptoms = user.getSymptoms()
     severities = Severity.objects.all()
+    drawbacks = Drawback.objects.all()
 
     return render(request, 'pages/add_symptom_update.html', {
         'user_id': user_id,
         'symptoms': symptoms,
-        'severities': severities
+        'severities': severities,
+        'drawbacks': drawbacks
     })
 
 

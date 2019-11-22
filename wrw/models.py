@@ -268,6 +268,7 @@ class Drawback(models.Model):
 class UserSymptom(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     symptom = models.ForeignKey(Symptom, on_delete=models.CASCADE)
+    created_at = models.DateTimeField('Start Date', default=datetime.now)
 
     class Meta:
         verbose_name = 'User Symptom'
