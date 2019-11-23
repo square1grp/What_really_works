@@ -135,7 +135,7 @@ class UserMethodTrialStart(models.Model):
         verbose_name_plural = 'User Treatment Trials (start)'
 
     def __str__(self):
-        return '%s was started at %s' % (self.getMethodName(), self.created_at())
+        return '%s was started at %s' % (self.getMethodName(), self.created_at)
 
     def getMethodName(self):
         return str(self.method)
@@ -167,6 +167,8 @@ class UserSymptomTrialStart(models.Model):
     def getMethodName(self):
         return self.user_method_trial_start.getMethodName()
 
+    getMethodName.short_description = 'Treatment'
+
     def getSeverity(self):
         return self.severity.getRatingText()
 
@@ -192,7 +194,7 @@ class UserMethodTrialEnd(models.Model):
         verbose_name_plural = 'User Treatment Trials (end)'
 
     def __str__(self):
-        return '%s and ended at %s' % (self.user_method_trial_start, self.created_at)
+        return 'ended at %s' % self.created_at
 
     def getMethodName(self):
         return self.user_method_trial_start.getMethodName()
@@ -221,10 +223,12 @@ class UserSymptomTrialEnd(models.Model):
         verbose_name_plural = 'User Symptom Trials (end)'
 
     def __str__(self):
-        return '%s : %s and severity was %s' % (self.user_symptom_trial_start, self.user_method_trial_end, self.getSeverity())
+        return '%s and severity was %s' % (self.user_method_trial_end, self.getSeverity())
 
     def getMethodName(self):
         return self.user_method_trial_end.getMethodName()
+
+    getMethodName.short_description = 'Treatment'
 
     def getSeverity(self):
         return self.severity.getRatingText()
@@ -232,7 +236,7 @@ class UserSymptomTrialEnd(models.Model):
     getSeverity.short_description = 'Severity'
 
     def getDrawback(self):
-        return self.user_symptom_trial_end.getDrawback()
+        return self.user_method_trial_end.getDrawback()
 
     getDrawback.short_description = 'Drawback'
 
@@ -246,7 +250,7 @@ class UserSymptom(models.Model):
     user_symptom_trial_start = models.ForeignKey(
         UserSymptomTrialStart, on_delete=models.CASCADE)
     user_symptom_trial_end = models.ForeignKey(
-        UserSymptomTrialEnd, on_delete=models.CASCADE, null=True)
+        UserSymptomTrialEnd, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = 'User Symptom'
@@ -254,11 +258,21 @@ class UserSymptom(models.Model):
 
         unique_together = ['user', 'symptom', 'user_symptom_trial_start']
 
+    def has_related_object(self):
+        has_user_symptom_trial_end = False
+
+        try:
+            has_user_symptom_trial_end = self.user_symptom_trial_end is not None
+        except UserSymptomTrialEnd.DoesNotExist:
+            pass
+
+        return has_user_symptom_trial_end
+
     def __str__(self):
         return '''
             Username : %s, Symptom: %s
             %s
-        ''' % (self.getUserName, self.getSymptomName(), self.user_symptom_trial_end if self.user_symptom_trial_end else self.user_symptom_trial_start)
+        ''' % (self.getUserName(), self.getSymptomName(), self.user_symptom_trial_end if self.has_related_object() else self.user_symptom_trial_start)
 
     def getUserName(self):
         return str(self.user)
