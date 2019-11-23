@@ -158,8 +158,8 @@ class UserSymptomTrialStart(models.Model):
     severity = models.ForeignKey(Severity, on_delete=models.CASCADE, default=0)
 
     class Meta:
-        verbose_name = 'User Treatment Trial (start)'
-        verbose_name_plural = 'User Treatment Trials (start)'
+        verbose_name = 'User Symptom Trial (start)'
+        verbose_name_plural = 'User Symptom Trials (start)'
 
     def __str__(self):
         return '%s and severity was %s' % (self.user_method_trial_start, self.getSeverity())
@@ -217,8 +217,8 @@ class UserSymptomTrialEnd(models.Model):
     severity = models.ForeignKey(Severity, on_delete=models.CASCADE, default=0)
 
     class Meta:
-        verbose_name = 'User Treatment Trial (start)'
-        verbose_name_plural = 'User Treatment Trials (start)'
+        verbose_name = 'User Symptom Trial (end)'
+        verbose_name_plural = 'User Symptom Trials (end)'
 
     def __str__(self):
         return '%s : %s and severity was %s' % (self.user_symptom_trial_start, self.user_method_trial_end, self.getSeverity())

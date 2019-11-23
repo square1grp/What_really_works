@@ -54,7 +54,9 @@
         </div>
 
         <div class="col-12">
+            {% if treatment_timeline %}
             {{treatment_timeline|safe}}
+            {% endif %}
         </div>
     </div>
 

@@ -2,7 +2,16 @@ from django.contrib import admin
 from .models import *
 
 
-# Register your models here.
+def custom_titled_filter(title):
+    class Wrapper(admin.FieldListFilter):
+        def __new__(cls, *args, **kwargs):
+            instance = admin.FieldListFilter.create(*args, **kwargs)
+            instance.title = title
+
+            return instance
+
+    return Wrapper
+
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -34,29 +43,33 @@ class DrawbackAdmin(admin.ModelAdmin):
 class UserMethodTrialStartAdmin(admin.ModelAdmin):
     list_display = ['getMethodName', 'getDrawback', 'created_at']
     search_fields = ['method__name']
-    list_filter = ['drawback__rating']
+    list_filter = [('drawback__rating', custom_titled_filter('Drawback'))]
 
 
 class UserMethodTrialEndAdmin(admin.ModelAdmin):
     list_display = ['getMethodName', 'getDrawback', 'created_at']
     search_fields = ['method__name']
-    list_filter = ['drawback__rating']
+    list_filter = [('drawback__rating', custom_titled_filter('Drawback'))]
 
 
 class UserSymptomTrialStartAdmin(admin.ModelAdmin):
     list_display = ['getMethodName', 'getSeverity', 'getDrawback']
     search_fields = ['user_method_trial_start__method__name']
-    list_filter = ['severity__rating',
-                   'user_method_trial_start__drawback__rating']
+    list_filter = [('severity__rating', custom_titled_filter('Severity')),
+                   ('user_method_trial_start__drawback__rating', custom_titled_filter('Drawback'))]
 
 
 class UserSymptomTrialEndAdmin(admin.ModelAdmin):
     list_display = ['getMethodName', 'getSeverity', 'getDrawback']
     search_fields = [
         'user_symptom_trial_start__user_method_trial_start__method__name']
-    list_filter = ['user_symptom_trial_start__severity__rating',
-                   'user_symptom_trial_start__user_method_trial_start__drawback__rating',
-                   'severity__rating', 'user_method_trial_end__drawback__rating']
+    list_filter = [('user_symptom_trial_start__severity__rating',
+                    custom_titled_filter('Start Severity')),
+                   ('user_symptom_trial_start__user_method_trial_start__drawback__rating',
+                    custom_titled_filter('Start Drawback')),
+                   ('severity__rating', custom_titled_filter('End Severity')),
+                   ('user_method_trial_end__drawback__rating',
+                    custom_titled_filter('End Drawback'))]
 
 
 class UserSymptomAdmin(admin.ModelAdmin):
@@ -65,15 +78,24 @@ class UserSymptomAdmin(admin.ModelAdmin):
     search_fields = ['user__name', 'symptom__name',
                      'user_symptom_trial_start__user_method_trial_start__method__name']
     list_filter = [
-        'user_symptom_trial_start__severity__rating', 'user_symptom_trial_start__user_method_trial_start__drawback__rating',
-        'user_symptom_trial_end__severity__rating', 'user_symptom_trial_end__user_method_trial_end__drawback__rating']
+        ('user_symptom_trial_start__severity__rating',
+         custom_titled_filter('Start Severity')),
+        ('user_symptom_trial_start__user_method_trial_start__drawback__rating',
+         custom_titled_filter('Start Drawback')),
+        ('user_symptom_trial_end__severity__rating',
+         custom_titled_filter('End Severity')),
+        ('user_symptom_trial_end__user_method_trial_end__drawback__rating',
+         custom_titled_filter('End Drawback'))]
 
 
 class UserSymptomUpdateAdmin(admin.ModelAdmin):
     list_display = ['getUserName', 'getSymptomName',
                     'getSeverity', 'getSeverity', 'getDrawback', 'created_at']
     search_fields = ['user_symptom__user__name', 'user_symptom__symptom__name']
-    list_filter = ['severity__rating', 'drawback__rating']
+    list_filter = [('severity__rating',
+                    custom_titled_filter('Severity')),
+                   ('drawback__rating',
+                    custom_titled_filter('Drawback'))]
 
 
 admin.site.register(User, UserAdmin)
