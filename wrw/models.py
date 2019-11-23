@@ -14,6 +14,16 @@ RATING_CHOICES = [
 MAX_RATING = 4
 
 
+def convertRating(rating, to_text=True):
+    if isinstance(rating, Severity):
+        return rating.getRatingText() if to_text else rating.getRating()
+
+    if to_text:
+        return [_rating[1] for _rating in RATING_CHOICES if _rating[0] == rating][0]
+
+    return [_rating[0] for _rating in RATING_CHOICES if _rating[1] == rating][0]
+
+
 # ======================================================
 # ======== User Model
 # ======================================================
@@ -106,6 +116,21 @@ class Method(models.Model):
 
         return [user_symptom.user for user_symptom in user_symptoms]
 
+    def getStatistics(self, symptom):
+        symptom = Symptom.objects.get(
+            id=symptom) if isinstance(symptom, int) else symptom
+
+        user_symptoms = UserSymptom.objects.filter(
+            symptom=symptom, user_symptom_trial_start__user_method_trial_start__method=self)
+
+        statistics_data = (
+            [user_symptom.getEffectivenessScore()
+             for user_symptom in user_symptoms],
+            [user_symptom.getDrawbackScore() for user_symptom in user_symptoms]
+        )
+
+        return statistics_data
+
 
 # ======================================================
 # ======== Severity Model
@@ -125,7 +150,7 @@ class Severity(models.Model):
 
     # convert rating to the text human-readable
     def getRatingText(self):
-        return [rating[1] for rating in RATING_CHOICES if rating[0] == self.rating][0]
+        return convertRating(self.rating, True)
 
     getRatingText.short_description = 'Rating'
 
@@ -154,7 +179,7 @@ class Drawback(models.Model):
 
     # convert rating to the text human-readable
     def getRatingText(self):
-        return [rating[1] for rating in RATING_CHOICES if rating[0] == self.rating][0]
+        return convertRating(self.rating, True)
 
     getRatingText.short_description = 'Rating'
 
@@ -405,7 +430,7 @@ class UserSymptom(models.Model):
             return self.user_symptom_trial_end.getSeverity() if self.user_symptom_trial_end else ' - '
 
         if self.has_user_symptom_trial_end():
-            return self.user_symptom_trial_end.severity
+            return convertRating(self.user_symptom_trial_end.getSeverity(), False)
 
         last_symptom_update = self.getLastSymptomUpdate()
 
@@ -418,15 +443,15 @@ class UserSymptom(models.Model):
                     user_symptom_trial_end = _user_symptom_trial_end
 
             if last_symptom_update is None:
-                return user_symptom_trial_end.severity
+                return convertRating(user_symptom_trial_end.getSeverity(), False)
 
             if last_symptom_update.created_at > user_symptom_trial_end.getEndedAt():
-                return last_symptom_update.severity
+                return convertRating(last_symptom_update.getSeverity(), False)
 
-            return user_symptom_trial_end.severity
+            return convertRating(user_symptom_trial_end.getSeverity(), False)
 
         if last_symptom_update is not None:
-            return last_symptom_update.severity
+            return convertRating(last_symptom_update.getSeverity(), False)
         else:
             return None
 
@@ -437,7 +462,7 @@ class UserSymptom(models.Model):
             return self.user_symptom_trial_end.getDrawback() if self.user_symptom_trial_end else ' - '
 
         if self.has_user_symptom_trial_end():
-            return self.user_symptom_trial_end.user_method_trial_end.drawback
+            return convertRating(self.user_symptom_trial_end.getDrawback(), False)
 
         last_symptom_update = self.getLastSymptomUpdate()
 
@@ -450,15 +475,15 @@ class UserSymptom(models.Model):
                     user_symptom_trial_end = _user_symptom_trial_end
 
             if last_symptom_update is None:
-                return user_symptom_trial_end.user_method_trial_end.drawback
+                return convertRating(user_symptom_trial_end.getDrawback(), False)
 
             if last_symptom_update.created_at > user_symptom_trial_end.getEndedAt():
-                return last_symptom_update.user_method_trial_end.drawback
+                return convertRating(last_symptom_update.getDrawback(), False)
 
-            return user_symptom_trial_end.user_method_trial_end.drawback
+            return convertRating(user_symptom_trial_end.getDrawback(), False)
 
         if last_symptom_update is not None:
-            return last_symptom_update.user_method_trial_end.drawback
+            return convertRating(last_symptom_update.getDrawback(), False)
         else:
             return None
 
@@ -466,16 +491,17 @@ class UserSymptom(models.Model):
 
     # get effectiveness score
     def getEffectivenessScore(self):
-        start_severity = self.user_symptom_trial_start.severity
+        start_severity = convertRating(
+            self.user_symptom_trial_start.getSeverity(), False)
 
         end_severity = self.getEndSeverity(True)
 
         if end_severity is None:
             return None
 
-        actual = end_severity.getRating() - start_severity.getRating()
-        max_pos = MAX_RATING - start_severity.getRating()
-        max_neg = -start_severity.getRating()
+        actual = end_severity - start_severity
+        max_pos = MAX_RATING - start_severity
+        max_neg = -start_severity
 
         if (actual < 0):
             score = 100 * actual / max_neg
@@ -486,16 +512,17 @@ class UserSymptom(models.Model):
 
     # get drawback score
     def getDrawbackScore(self):
-        start_drawback = self.user_symptom_trial_start.user_method_trial_start.drawback
+        start_drawback = convertRating(
+            self.user_symptom_trial_start.getDrawback(), False)
 
         end_drawback = self.getEndDrawback(True)
 
         if end_drawback is None:
             return None
 
-        actual = end_drawback.getRating() - start_drawback.getRating()
-        max_pos = MAX_RATING - start_drawback.getRating()
-        max_neg = -start_drawback.getRating()
+        actual = end_drawback - start_drawback
+        max_pos = MAX_RATING - start_drawback
+        max_neg = -start_drawback
 
         if (actual < 0):
             score = 100 * actual / max_neg
