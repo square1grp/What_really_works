@@ -3,7 +3,7 @@ from plotly.offline import plot
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
-from datetime import datetime
+from datetime import date
 import pytz
 
 
@@ -44,7 +44,7 @@ def addUserSymptomUpdate(params):
     drawback = Drawback.objects.get(rating=0)
 
     user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
-    created_at = datetime.strptime(
+    created_at = date.strptime(
         params['date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
     user_symptom_update = UserSymptomUpdate(
@@ -61,7 +61,7 @@ def addUserMethodTrial(params):
     method = Method.objects.get(id=params['method_id'])
     start_severity = Severity.objects.get(id=params['start_severity_id'])
     start_drawback = Drawback.objects.get(id=params['start_drawback_id'])
-    start_created_at = datetime.strptime(
+    start_created_at = date.strptime(
         params['start_date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
     user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
@@ -74,7 +74,7 @@ def addUserMethodTrial(params):
     if 'is_ended_trial' in params:
         end_severity = Severity.objects.get(id=params['end_severity_id'])
         end_drawback = Drawback.objects.get(id=params['end_drawback_id'])
-        end_created_at = datetime.strptime(
+        end_created_at = date.strptime(
             params['end_date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
         user_method_trial_end = UserMethodTrialEnd(user_method_trial_start=user_method_trial_start,
@@ -152,7 +152,7 @@ def getTreatmentGanttChart(treatment_trials):
 
     # hide hover text
     for index in range(len(fig['data'])):
-        fig['data'][index].update(hoverinfo='text')
+        fig['data'][index].update(hoverinfo='skip')
 
     # show method at the middle of the bar
     annotations = [dict(

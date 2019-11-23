@@ -16,8 +16,8 @@ def index(request):
 def user_page(request, user_id):
     user = User.objects.get(id=user_id)
     symptoms = user.getSymptoms()
-    # getTreatmentGanttChart(user.getAllMethodTrialsStarted())
-    treatment_timeline = None
+    treatment_timeline = getTreatmentGanttChart(
+        user.getAllSymptomTrialsStarted())
 
     symptom_timelines = getSymptomTimelines(user, symptoms)
 

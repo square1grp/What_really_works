@@ -47,6 +47,28 @@ class User(models.Model):
 
         return symptoms
 
+    # get all symptom trials
+    def getAllSymptomTrialsStarted(self):
+        all_symptom_trials = []
+
+        for user_symptom in UserSymptom.objects.filter(user=self):
+            symptom = user_symptom.getSymptomName()
+            method = user_symptom.getTrialStarted().getMethodName()
+            started_at = user_symptom.getStartedAt()
+            ended_at = user_symptom.getEndedAt()
+            ended_at = ended_at if ended_at is not None else timezone.now().date()
+            annotation_at = started_at+(ended_at-started_at)/2
+
+            all_symptom_trials.append(
+                dict(symptom=symptom,
+                     method=method,
+                     severity=user_symptom.getStartSeverity(),
+                     started_at=started_at,
+                     ended_at=ended_at,
+                     annotation_at=annotation_at))
+
+        return all_symptom_trials
+
     # get methods by symptom
     def getMethodsBySymptom(self, symptom):
         symptom = Symptom.objects.get(
@@ -54,7 +76,7 @@ class User(models.Model):
 
         methods = []
         for user_symptom in UserSymptom.objects.filter(user=self, symptom=symptom):
-            method = user_symptom.getTrialStart().getMethod()
+            method = user_symptom.getTrialStarted().getMethod()
 
             if method not in methods:
                 methods.append(method)
@@ -439,7 +461,7 @@ class UserSymptom(models.Model):
     def getSymptom(self):
         return self.symptom
 
-    def getTrialStart(self):
+    def getTrialStarted(self):
         return self.user_symptom_trial_start
 
     def getStartSeverity(self):
@@ -452,8 +474,8 @@ class UserSymptom(models.Model):
 
     getStartDrawback.short_description = 'Start Drawback'
 
-    def getTrialEnd(self):
-        return self.user_symptom_trial_end
+    def getTrialEnded(self):
+        return self.user_symptom_trial_end if self.has_user_symptom_trial_end else None
 
     def getStartedAt(self):
         return self.user_symptom_trial_start.getStartedAt()
