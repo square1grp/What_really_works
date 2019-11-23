@@ -19,7 +19,7 @@ def user_page(request, user_id):
     # getTreatmentGanttChart(user.getAllMethodTrialsStarted())
     treatment_timeline = None
 
-    symptom_timelines = getSymptomTimelines(user, symptoms)
+    symptom_timelines = []  # getSymptomTimelines(user, symptoms)
 
     return render(request, 'pages/user.html', dict(
         user=user,
@@ -41,9 +41,9 @@ def symptom_page(request, symptom_id):
     methods = [dict(
         id=method.id,
         name=method.name,
-        effectiveness=method.getAvgEffectivenessScore(symptom),
-        drawbacks=method.getAvgDrawbackScore(symptom),
-        user_count=len(method.getUsersHaveSymptom(symptom))
+        effectiveness=method.getAverageScore(symptom, True),
+        drawbacks=method.getAverageScore(symptom, False),
+        user_count=0,  # len(method.getUsersHaveSymptom(symptom))
     ) for method in methods]
 
     return render(request, 'pages/symptom.html', dict(

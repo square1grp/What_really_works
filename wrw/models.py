@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from statistics import mean
 
 
 RATING_CHOICES = [
@@ -28,10 +29,27 @@ class User(models.Model):
 
     # get all symptoms that the current user has
     def getSymptoms(self):
-        symptoms = [
-            user_symptom.symptom for user_symptom in UserSymptom.objects.filter(user=self)]
+        symptoms = []
+
+        for user_symptom in UserSymptom.objects.filter(user=self):
+            if user_symptom.symptom not in symptoms:
+                symptoms.append(user_symptom.symptom)
 
         return symptoms
+
+    # get methods by symptom
+    def getMethodsBySymptom(self, symptom):
+        symptom = Symptom.objects.get(
+            id=symptom) if isinstance(symptom, int) else symptom
+
+        methods = []
+        for user_symptom in UserSymptom.objects.filter(user=self, symptom=symptom):
+            method = user_symptom.getTrialStart().getMethod()
+
+            if method not in methods:
+                methods.append(method)
+
+        return methods
 
 
 # ======================================================
@@ -62,6 +80,22 @@ class Method(models.Model):
 
     def __str__(self):
         return self.name
+
+    # get Effectiveness score average
+    # get Drawback score average
+    def getAverageScore(self, symptom, is_effectiveness=True):
+        symptom = Symptom.objects.get(
+            id=symptom) if isinstance(symptom, int) else symptom
+        user_symptoms = UserSymptom.objects.filter(
+            symptom=symptom, user_symptom_trial_start__user_method_trial_start__method=self)
+        scores = [(user_symptom.getEffectivenessScore() if is_effectiveness else user_symptom.getDrawbackScore())
+                  for user_symptom in user_symptoms]
+
+        scores = [score for score in scores if score is not None]
+
+        avg_score = round(mean(scores), 2) if len(scores) else '-'
+
+        return avg_score
 
 
 # ======================================================
@@ -143,6 +177,9 @@ class UserMethodTrialStart(models.Model):
     getMethodName.short_description = 'Treatment'
     getMethodName.admin_order_field = 'method__name'
 
+    def getMethod(self):
+        return self.method
+
     def getDrawback(self):
         return self.drawback.getRatingText()
 
@@ -169,6 +206,9 @@ class UserSymptomTrialStart(models.Model):
 
     getMethodName.short_description = 'Treatment'
 
+    def getMethod(self):
+        return self.user_method_trial_start.getMethod()
+
     def getSeverity(self):
         return self.severity.getRatingText()
 
@@ -178,6 +218,9 @@ class UserSymptomTrialStart(models.Model):
         return self.user_method_trial_start.getDrawback()
 
     getDrawback.short_description = 'Drawback'
+
+    def getStartedAt(self):
+        return self.user_method_trial_start.created_at
 
 
 # ======================================================
@@ -240,6 +283,12 @@ class UserSymptomTrialEnd(models.Model):
 
     getDrawback.short_description = 'Drawback'
 
+    def getStartedAt(self):
+        return self.user_symptom_trial_start.getStartedAt()
+
+    def getEndedAt(self):
+        return self.user_method_trial_end.created_at
+
 
 # ======================================================
 # ======== UserSymptom Model
@@ -258,21 +307,21 @@ class UserSymptom(models.Model):
 
         unique_together = ['user', 'symptom', 'user_symptom_trial_start']
 
-    def has_related_object(self):
-        has_user_symptom_trial_end = False
+    def has_user_symptom_trial_end(self):
+        __has_object = False
 
         try:
-            has_user_symptom_trial_end = self.user_symptom_trial_end is not None
+            __has_object = self.user_symptom_trial_end is not None
         except UserSymptomTrialEnd.DoesNotExist:
             pass
 
-        return has_user_symptom_trial_end
+        return __has_object
 
     def __str__(self):
         return '''
             Username : %s, Symptom: %s
             %s
-        ''' % (self.getUserName(), self.getSymptomName(), self.user_symptom_trial_end if self.has_related_object() else self.user_symptom_trial_start)
+        ''' % (self.getUserName(), self.getSymptomName(), self.user_symptom_trial_end if self.has_user_symptom_trial_end() else self.user_symptom_trial_start)
 
     def getUserName(self):
         return str(self.user)
@@ -292,6 +341,9 @@ class UserSymptom(models.Model):
     def getSymptom(self):
         return self.symptom
 
+    def getTrialStart(self):
+        return self.user_symptom_trial_start
+
     def getStartSeverity(self):
         return self.user_symptom_trial_start.getSeverity()
 
@@ -302,15 +354,148 @@ class UserSymptom(models.Model):
 
     getStartDrawback.short_description = 'Start Drawback'
 
-    def getEndSeverity(self):
-        return self.user_symptom_trial_end.getSeverity() if self.user_symptom_trial_end else ' - '
+    def getTrialEnd(self):
+        return self.user_symptom_trial_end
+
+    def getStartedAt(self):
+        return self.user_symptom_trial_start.getStartedAt()
+
+    def getEndedAt(self):
+        return self.user_symptom_trial_end.getEndedAt() if self.has_user_symptom_trial_end() else None
+
+    # get last symptom update
+    def getLastSymptomUpdate(self):
+        user_symptom_updates = UserSymptomUpdate.objects.filter(
+            user_symptom=self).order_by('-created_at')
+
+        user_symptom_updates = [
+            user_symptom_update for user_symptom_update in user_symptom_updates if user_symptom_update.created_at > self.getStartedAt()]
+
+        if not len(user_symptom_updates):
+            return None
+
+        user_symptom_update = user_symptom_updates[0]
+
+        return user_symptom_update
+
+    def getUserSymptomTrialEndOthers(self):
+        user_symptom_trial_end_others = []
+
+        user_symptoms = [user_symptom for user_symptom in UserSymptom.objects.filter(
+            user=self.user, symptom=self.symptom) if user_symptom.has_user_symptom_trial_end()]
+
+        for user_symptom in user_symptoms:
+            if user_symptom.user_symptom_trial_end not in user_symptom_trial_end_others:
+                user_symptom_trial_end_others.append(
+                    user_symptom.user_symptom_trial_end)
+
+        return user_symptom_trial_end_others
+
+    def getEndSeverity(self, for_score=False):
+        if not for_score:
+            return self.user_symptom_trial_end.getSeverity() if self.user_symptom_trial_end else ' - '
+
+        if self.has_user_symptom_trial_end():
+            return self.user_symptom_trial_end.severity
+
+        last_symptom_update = self.getLastSymptomUpdate()
+
+        user_symptom_trial_end_others = self.getUserSymptomTrialEndOthers()
+        if len(user_symptom_trial_end_others):
+            user_symptom_trial_end = user_symptom_trial_end_others.pop(0)
+
+            for _user_symptom_trial_end in user_symptom_trial_end_others:
+                if _user_symptom_trial_end.getEndedAt() > user_symptom_trial_end.getEndedAt():
+                    user_symptom_trial_end = _user_symptom_trial_end
+
+            if last_symptom_update is None:
+                return user_symptom_trial_end.severity
+
+            if last_symptom_update.created_at > user_symptom_trial_end.getEndedAt():
+                return last_symptom_update.severity
+
+            return user_symptom_trial_end.severity
+
+        if last_symptom_update is not None:
+            return last_symptom_update.severity
+        else:
+            return None
 
     getEndSeverity.short_description = 'End Severity'
 
-    def getEndDrawback(self):
-        return self.user_symptom_trial_end.getDrawback() if self.user_symptom_trial_end else ' - '
+    def getEndDrawback(self, for_score=False):
+        if not for_score:
+            return self.user_symptom_trial_end.getDrawback() if self.user_symptom_trial_end else ' - '
+
+        if self.has_user_symptom_trial_end():
+            return self.user_symptom_trial_end.user_method_trial_end.drawback
+
+        last_symptom_update = self.getLastSymptomUpdate()
+
+        user_symptom_trial_end_others = self.getUserSymptomTrialEndOthers()
+        if len(user_symptom_trial_end_others):
+            user_symptom_trial_end = user_symptom_trial_end_others.pop(0)
+
+            for _user_symptom_trial_end in user_symptom_trial_end_others:
+                if _user_symptom_trial_end.getEndedAt() > user_symptom_trial_end.getEndedAt():
+                    user_symptom_trial_end = _user_symptom_trial_end
+
+            if last_symptom_update is None:
+                return user_symptom_trial_end.user_method_trial_end.drawback
+
+            if last_symptom_update.created_at > user_symptom_trial_end.getEndedAt():
+                return last_symptom_update.user_method_trial_end.drawback
+
+            return user_symptom_trial_end.user_method_trial_end.drawback
+
+        if last_symptom_update is not None:
+            return last_symptom_update.user_method_trial_end.drawback
+        else:
+            return None
 
     getEndDrawback.short_description = 'End Drawback'
+
+    # get effectiveness score
+    def getEffectivenessScore(self):
+        start_severity = self.user_symptom_trial_start.severity
+
+        end_severity = self.getEndSeverity(True)
+
+        if end_severity is None:
+            return None
+
+        actual = end_severity.getRating() - start_severity.getRating()
+        max_pos = MAX_RATING - start_severity.getRating()
+        max_neg = -start_severity.getRating()
+
+        if (actual < 0):
+            score = 100 * actual / max_neg
+        else:
+            score = -100 * actual / max_pos
+
+        return round(score, 2)
+
+    # get drawback score
+    def getDrawbackScore(self):
+        start_drawback = self.user_symptom_trial_start.user_method_trial_start.drawback
+
+        end_drawback = self.getEndDrawback(True)
+
+        if end_drawback is None:
+            return None
+
+        actual = end_drawback.getRating() - start_drawback.getRating()
+        max_pos = MAX_RATING - start_drawback.getRating()
+        max_neg = -start_drawback.getRating()
+
+        print(actual, max_neg, max_pos)
+
+        if (actual < 0):
+            score = 100 * actual / max_neg
+        else:
+            score = -100 * actual / max_pos
+
+        return round(score, 2)
 
 
 # ======================================================
