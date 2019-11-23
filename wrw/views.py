@@ -43,7 +43,7 @@ def symptom_page(request, symptom_id):
         name=method.name,
         effectiveness=method.getAverageScore(symptom, True),
         drawbacks=method.getAverageScore(symptom, False),
-        user_count=0,  # len(method.getUsersHaveSymptom(symptom))
+        user_count=len(method.getUsersHaveSymptom(symptom))
     ) for method in methods]
 
     return render(request, 'pages/symptom.html', dict(

@@ -97,6 +97,15 @@ class Method(models.Model):
 
         return avg_score
 
+    def getUsersHaveSymptom(self, symptom):
+        symptom = Symptom.objects.get(
+            id=symptom) if isinstance(symptom, int) else symptom
+
+        user_symptoms = UserSymptom.objects.filter(
+            symptom=symptom, user_symptom_trial_start__user_method_trial_start__method=self)
+
+        return [user_symptom.user for user_symptom in user_symptoms]
+
 
 # ======================================================
 # ======== Severity Model
@@ -487,8 +496,6 @@ class UserSymptom(models.Model):
         actual = end_drawback.getRating() - start_drawback.getRating()
         max_pos = MAX_RATING - start_drawback.getRating()
         max_neg = -start_drawback.getRating()
-
-        print(actual, max_neg, max_pos)
 
         if (actual < 0):
             score = 100 * actual / max_neg
