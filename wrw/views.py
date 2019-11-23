@@ -19,7 +19,7 @@ def user_page(request, user_id):
     # getTreatmentGanttChart(user.getAllMethodTrialsStarted())
     treatment_timeline = None
 
-    symptom_timelines = []  # getSymptomTimelines(user, symptoms)
+    symptom_timelines = getSymptomTimelines(user, symptoms)
 
     return render(request, 'pages/user.html', dict(
         user=user,

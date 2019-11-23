@@ -61,6 +61,70 @@ class User(models.Model):
 
         return methods
 
+    # get all severity updates
+    def getAllSeverityUpdatesBySymptom(self, symptom):
+        user_symptoms = UserSymptom.objects.filter(user=self, symptom=symptom)
+
+        if not len(user_symptoms):
+            return dict(effectivenesses=None, drawbacks=None)
+
+        effectivenesses, drawbacks = [], []
+        for user_symptom in user_symptoms:
+            effectivenesses.append(dict(
+                title='No Title',
+                description='No Description',
+                severity=convertRating(user_symptom.getStartSeverity(), False),
+                created_at=user_symptom.getStartedAt()
+            ))
+
+            drawbacks.append(dict(
+                title='No Title',
+                description='No Description',
+                severity=convertRating(user_symptom.getStartDrawback(), False),
+                created_at=user_symptom.getStartedAt()
+            ))
+
+            if (user_symptom.has_user_symptom_trial_end()):
+                effectivenesses.append(dict(
+                    title='No Title',
+                    description='No Description',
+                    severity=convertRating(
+                        user_symptom.getEndSeverity(), False),
+                    created_at=user_symptom.getEndedAt()
+                ))
+
+                drawbacks.append(dict(
+                    title='No Title',
+                    description='No Description',
+                    severity=convertRating(
+                        user_symptom.getEndDrawback(), False),
+                    created_at=user_symptom.getEndedAt()
+                ))
+
+            user_symptom_updates = UserSymptomUpdate.objects.filter(
+                user_symptom=user_symptom)
+
+            effectivenesses += [dict(
+                title=user_symptom_update.title,
+                description=user_symptom_update.description,
+                severity=convertRating(
+                    user_symptom_update.getSeverity(), False),
+                created_at=user_symptom_update.created_at
+            ) for user_symptom_update in user_symptom_updates]
+
+            drawbacks += [dict(
+                title=user_symptom_update.title,
+                description=user_symptom_update.description,
+                severity=convertRating(
+                    user_symptom_update.getDrawback(), False),
+                created_at=user_symptom_update.created_at
+            ) for user_symptom_update in user_symptom_updates]
+
+        effectivenesses.sort(key=lambda x: x['created_at'])
+        drawbacks.sort(key=lambda x: x['created_at'])
+
+        return dict(effectivenesses=effectivenesses, drawbacks=drawbacks)
+
 
 # ======================================================
 # ======== Symptom Model
@@ -300,7 +364,7 @@ class UserSymptomTrialEnd(models.Model):
         verbose_name_plural = 'User Symptom Trials (end)'
 
     def __str__(self):
-        return '%s and severity was %s' % (self.user_method_trial_end, self.getSeverity())
+        return '%s, %s and severity was %s' % (self.user_symptom_trial_start, self.user_method_trial_end, self.getSeverity())
 
     def getMethodName(self):
         return self.user_method_trial_end.getMethodName()
@@ -353,7 +417,7 @@ class UserSymptom(models.Model):
 
     def __str__(self):
         return '''
-            Username : %s, Symptom: %s
+            (Username : %s, Symptom: %s)
             %s
         ''' % (self.getUserName(), self.getSymptomName(), self.user_symptom_trial_end if self.has_user_symptom_trial_end() else self.user_symptom_trial_start)
 

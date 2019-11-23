@@ -90,7 +90,7 @@ class UserSymptomAdmin(admin.ModelAdmin):
 
 class UserSymptomUpdateAdmin(admin.ModelAdmin):
     list_display = ['getUserName', 'getSymptomName',
-                    'getSeverity', 'getSeverity', 'getDrawback', 'created_at']
+                    'getSeverity', 'getDrawback', 'created_at']
     search_fields = ['user_symptom__user__name', 'user_symptom__symptom__name']
     list_filter = [('severity__rating',
                     custom_titled_filter('Severity')),
