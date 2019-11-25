@@ -14,7 +14,27 @@
     </div>
 
     <div class="row flex-column">
+        {% for user_treatment in user_treatments %}
+        <form class="form-inline col-12 col-lg-6 mx-auto" method="POST">
+            {% csrf_token %}
+            <div class="col-11 row">
+                <h4>{{user_treatment.method}}</h4>
+                <p class="col-12">
+                    <b>Symptom:</b> {{user_treatment.symptom}}<br />
+                    <b>Started at:</b> {{user_treatment.started_at}}
+                    {% if user_treatment.ended_at %}
+                    <br /><b>Ended at:</b> {{user_treatment.ended_at}}
+                    {% endif %}
+                </p>
+            </div>
 
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="user_symptom_id" value="{{user_treatment.user_symptom_id}}">
+            <button type="submit" class="delete m-auto btn btn-outline-danger btn-sm">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </form>
+        {% endfor %}
     </div>
 
 

@@ -121,8 +121,7 @@ def add_treatment_page(request, user_id):
             if params['action'] == 'add':
                 updateUserSymptom(params)
             elif params['action'] == 'delete':
-                pass
-                # UserSymptomUpdate.objects.get(id=params['user_symptom_update_id']).delete()
+                clearUserSymptom(params)
 
         except:
             pass
@@ -133,12 +132,35 @@ def add_treatment_page(request, user_id):
     for symptom in user.getSymptoms():
         user_symptoms += UserSymptom.objects.filter(user=user, symptom=symptom)
 
+    user_treatments = []
+    for user_symptom in user_symptoms:
+        if not user_symptom.has_user_symptom_trial_start():
+            continue
+
+        user_symptom_trial_started = user_symptom.getTrialStarted()
+        user_symptom_trial_ended = user_symptom.getTrialEnded()
+
+        symptom = user_symptom.getSymptomName()
+        method = user_symptom_trial_started.getMethodName()
+        started_at = user_symptom_trial_started.getStartedAt()
+        ended_at = None if user_symptom_trial_ended is None else user_symptom_trial_ended.getEndedAt()
+
+        user_treatments.append(dict(
+            user_symptom_id=user_symptom.id,
+            symptom=symptom,
+            method=method,
+            started_at=started_at,
+            ended_at=ended_at
+        ))
+    user_treatments.sort(key=lambda x: x['started_at'])
+
     user_symptoms = [dict(
         id=user_symptom.id,
         symptom=user_symptom.getSymptomName(),
         checked=user_symptom.has_user_symptom_trial_start(),
         created_at=user_symptom.getCreatedAt()
     ) for user_symptom in user_symptoms]
+    user_symptoms.sort(key=lambda x: x['created_at'])
 
     treatments = Method.objects.all()
 
@@ -147,6 +169,7 @@ def add_treatment_page(request, user_id):
 
     return render(request, 'pages/add/treatment.html', {
         'user_id': user_id,
+        'user_treatments': user_treatments,
         'treatments': treatments,
         'severities': severities,
         'drawbacks': drawbacks,

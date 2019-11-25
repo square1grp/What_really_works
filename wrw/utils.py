@@ -36,7 +36,6 @@ def addUserSymptom(params):
 
 # update user symptom
 def updateUserSymptom(params):
-    import pdb; pdb.set_trace()
     method = Method.objects.get(id=params['method_id'])
     start_drawback = Drawback.objects.get(id=params['start_drawback_id'])
     started_at = datetime.strptime(
@@ -61,7 +60,8 @@ def updateUserSymptom(params):
         ended_at = datetime.strptime(
             params['ended_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
 
-        user_method_trial_end = UserMethodTrialEnd(user_method_trial_start=user_method_trial_start, drawback=end_drawback, created_at=ended_at)
+        user_method_trial_end = UserMethodTrialEnd(
+            user_method_trial_start=user_method_trial_start, drawback=end_drawback, created_at=ended_at)
         user_method_trial_end.save()
 
         user_symptom_trial_end = UserSymptomTrialEnd(
@@ -69,6 +69,27 @@ def updateUserSymptom(params):
         user_symptom_trial_end.save()
 
         user_symptom.user_symptom_trial_end = user_symptom_trial_end
+
+    user_symptom.save()
+
+
+# clear user symptom
+def clearUserSymptom(params):
+    user_symptom = UserSymptom.objects.get(id=params['user_symptom_id'])
+
+    user_symptom_trial_started = user_symptom.getTrialStarted()
+    user_symptom_trial_ended = user_symptom.getTrialEnded()
+
+    if user_symptom_trial_ended is not None:
+        user_symptom_trial_ended.user_method_trial_end.delete()
+        user_symptom_trial_ended.delete()
+
+    if user_symptom_trial_started is not None:
+        user_symptom_trial_started.user_method_trial_start.delete()
+        user_symptom_trial_started.delete()
+
+    user_symptom.user_symptom_trial_start = None
+    user_symptom.user_symptom_trial_end = None
 
     user_symptom.save()
 
