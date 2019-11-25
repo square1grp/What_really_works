@@ -45,16 +45,15 @@
                 <div class="col-sm-8">
                     <select name="user_symptom_id" id="symptom_id" class="form-control" required>
                         {% for user_symptom in user_symptoms %}
-                        <option value="{{user_symptom.id}}">{{user_symptom.symptom}}
-                            <small>({{user_symptom.created_at}})</small></option>
+                        <option value="{{user_symptom.id}}">{{user_symptom.symptom}} ({{user_symptom.created_at}})</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="created_at" class="col-sm-3 col-form-label">Date</label>
-                <div class="col-sm-9">
+                <label for="created_at" class="col-sm-7 col-form-label">Date</label>
+                <div class="col-sm-5">
                     <input type="" name="created_at" id="created_at" class="form-control" readonly required />
 
                     <script>
@@ -62,15 +61,15 @@
                         var yesterday = new Date()
                         yesterday.setDate(today.getDate() - 1)
 
-                        $("#created_at").datepicker({ autoclose: true, startDate: yesterday, endDate: today });
+                        $("#created_at").datepicker({ autoclose: true, minDate: yesterday, maxDate: today });
                     </script>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label class="col-12"><b>Symptom Severity</b></label>
-                <label for="severity_id" class="col-sm-3 col-form-label">New Severity</label>
-                <div class="col-sm-9">
+                <label for="severity_id" class="col-sm-7 col-form-label">New Severity</label>
+                <div class="col-sm-5">
                     <select name="severity_id" class="form-control" required>
                         {% for severity in severities %}
                         <option value="{{severity.id}}">{{severity.title}}</option>
@@ -81,8 +80,8 @@
 
             <div class="form-group row">
                 <label class="col-12"><b>Side Effect Severity</b></label>
-                <label for="drawback_id" class="col-sm-3 col-form-label">New Severity</label>
-                <div class="col-sm-9">
+                <label for="drawback_id" class="col-sm-7 col-form-label">New Severity</label>
+                <div class="col-sm-5">
                     <select name="drawback_id" class="form-control" required>
                         {% for drawback in drawbacks %}
                         <option value="{{drawback.id}}">{{drawback.title}}</option>

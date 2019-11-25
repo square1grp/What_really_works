@@ -9,6 +9,8 @@ urlpatterns = [
          views.method_page, name='method-page'),
     path('user/<int:user_id>/add/symptom',
          views.add_symptom_page, name='add-symptom-page'),
+     path('user/<int:user_id>/add/treatment',
+         views.add_treatment_page, name='add-treatment-page'),
     path('user/<int:user_id>/add/symptom_update',
          views.add_symptom_update_page, name='add-symptom-update-page')
 ]

@@ -113,6 +113,47 @@ def add_symptom_page(request, user_id):
     })
 
 
+def add_treatment_page(request, user_id):
+    if request.method == 'POST':
+        try:
+            params = request.POST
+
+            if params['action'] == 'add':
+                updateUserSymptom(params)
+            elif params['action'] == 'delete':
+                pass
+                # UserSymptomUpdate.objects.get(id=params['user_symptom_update_id']).delete()
+
+        except:
+            pass
+
+    user = User.objects.get(id=user_id)
+
+    user_symptoms = []
+    for symptom in user.getSymptoms():
+        user_symptoms += UserSymptom.objects.filter(user=user, symptom=symptom)
+
+    user_symptoms = [dict(
+        id=user_symptom.id,
+        symptom=user_symptom.getSymptomName(),
+        checked=user_symptom.has_user_symptom_trial_start(),
+        created_at=user_symptom.getCreatedAt()
+    ) for user_symptom in user_symptoms]
+
+    treatments = Method.objects.all()
+
+    severities = Severity.objects.all()
+    drawbacks = Drawback.objects.all()
+
+    return render(request, 'pages/add/treatment.html', {
+        'user_id': user_id,
+        'treatments': treatments,
+        'severities': severities,
+        'drawbacks': drawbacks,
+        'user_symptoms': user_symptoms
+    })
+
+
 def add_symptom_update_page(request, user_id):
     if request.method == 'POST':
         try:
@@ -121,7 +162,8 @@ def add_symptom_update_page(request, user_id):
             if params['action'] == 'add':
                 addUserSymptomUpdate(request.POST)
             elif params['action'] == 'delete':
-                UserSymptomUpdate.objects.get(id=params['user_symptom_update_id']).delete()
+                UserSymptomUpdate.objects.get(
+                    id=params['user_symptom_update_id']).delete()
 
         except:
             pass

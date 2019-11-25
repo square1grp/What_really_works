@@ -34,6 +34,45 @@ def addUserSymptom(params):
         pass
 
 
+# update user symptom
+def updateUserSymptom(params):
+    import pdb; pdb.set_trace()
+    method = Method.objects.get(id=params['method_id'])
+    start_drawback = Drawback.objects.get(id=params['start_drawback_id'])
+    started_at = datetime.strptime(
+        params['started_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+
+    user_method_trial_start = UserMethodTrialStart(
+        method=method, drawback=start_drawback, created_at=started_at)
+    user_method_trial_start.save()
+
+    start_severity = Severity.objects.get(id=params['start_severity_id'])
+
+    user_symptom_trial_start = UserSymptomTrialStart(
+        user_method_trial_start=user_method_trial_start, severity=start_severity)
+    user_symptom_trial_start.save()
+
+    user_symptom = UserSymptom.objects.get(id=params['user_symptom_id'])
+    user_symptom.user_symptom_trial_start = user_symptom_trial_start
+
+    if 'ended_treatment' in params and params['ended_treatment'] == 'on':
+        end_drawback = Drawback.objects.get(id=params['end_drawback_id'])
+        end_severity = Severity.objects.get(id=params['end_severity_id'])
+        ended_at = datetime.strptime(
+            params['ended_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+
+        user_method_trial_end = UserMethodTrialEnd(user_method_trial_start=user_method_trial_start, drawback=end_drawback, created_at=ended_at)
+        user_method_trial_end.save()
+
+        user_symptom_trial_end = UserSymptomTrialEnd(
+            user_symptom_trial_start=user_symptom_trial_start, user_method_trial_end=user_method_trial_end, severity=end_severity)
+        user_symptom_trial_end.save()
+
+        user_symptom.user_symptom_trial_end = user_symptom_trial_end
+
+    user_symptom.save()
+
+
 # add user symptom update
 def addUserSymptomUpdate(params):
     user_symptom = UserSymptom.objects.get(id=params['user_symptom_id'])

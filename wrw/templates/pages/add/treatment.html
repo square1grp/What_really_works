@@ -1,0 +1,171 @@
+{% extends 'layouts/index.html' %}
+
+{% block head %}
+
+{% load static %}
+<script src="{% static 'js/add_treatment.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+<div class="container add-treatment-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/user/{{user_id}}" role="button">Back to Home</a>
+    </div>
+
+    <div class="row flex-column">
+
+    </div>
+
+
+    <div class="row">
+        <form class="col-12 col-lg-6 mx-auto mt-5" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="user_id" value="{{user_id}}" />
+
+            <div class="form-group row">
+                <h3 class="col-sm-4">Treatment</h3>
+                <div class="col-sm-8">
+                    <select name="method_id" id="symptom_id" class="form-control" required>
+                        {% for treatment in treatments %}
+                        <option value="{{treatment.id}}">{{treatment.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <fieldset id="start_section">
+                <div class="form-group row">
+                    <label for="started_at" class="col-sm-7 col-form-label">Start Date</label>
+                    <div class="col-sm-5">
+                        <input type="" name="started_at" id="started_at" class="form-control" readonly required />
+
+                        <script>
+                            var today = new Date();
+
+                            $("#started_at").datepicker({ autoclose: true, maxDate: today });
+                        </script>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="start_drawback_id" class="col-sm-7 col-form-label">Side Effect Severity</label>
+                    <div class="col-sm-5">
+                        <select name="start_drawback_id" class="form-control" required>
+                            {% for drawback in drawbacks %}
+                            <option value="{{drawback.id}}">{{drawback.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="start_title">Short Description of How You Felt</label>
+                    <input type="text" name="start_title" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="start_description">Long Description of How You Felt</label>
+                    <textarea name="start_description" class="form-control" required></textarea>
+                </div>
+
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="ended_treatment" name="ended_treatment" />
+                    <label class="form-check-label" for="ended_treatment">Did you end the treatment?</label>
+                </div>
+            </fieldset>
+
+            <fieldset id="end_section" style="display: none;">
+                <div class="form-group row">
+                    <label for="ended_at" class="col-sm-7 col-form-label">End Date</label>
+                    <div class="col-sm-5">
+                        <input type="" name="ended_at" id="ended_at" class="form-control" readonly />
+
+                        <script>
+                            var today = new Date();
+
+                            $("#ended_at").datepicker({ autoclose: true, maxDate: today });
+                        </script>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="end_drawback_id" class="col-sm-7 col-form-label">Side Effect Severity</label>
+                    <div class="col-sm-5">
+                        <select name="end_drawback_id" class="form-control">
+                            {% for drawback in drawbacks %}
+                            <option value="{{drawback.id}}">{{drawback.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_title">Short Description of How You Felt</label>
+                    <input type="text" name="end_title" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="end_description">Long Description of How You Felt</label>
+                    <textarea name="end_description" class="form-control"></textarea>
+                </div>
+            </fieldset>
+
+            <fieldset id="symptom_section">
+                <div class="form-group row">
+                    <h4 class="col-sm-4">Symptoms</h4>
+                    <div class="col-sm-8">
+                        <select name="user_symptom_id" id="symptom_id" class="form-control" required>
+                            {% for user_symptom in user_symptoms %}
+                            {% if not user_symptom.checked %}
+                            <option value="{{user_symptom.id}}">{{user_symptom.symptom}} ({{user_symptom.created_at}})
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <h4 class="col-sm-4 invisible"></h4>
+                    <div class="col-sm-8">
+                        {% for user_symptom in user_symptoms %}
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input"
+                                {% if user_symptom.checked %}checked{% endif %} disabled />
+                            <label class="form-check-label">{{user_symptom.symptom}}
+                                ({{user_symptom.created_at}})</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="start_severity" class="col-sm-7 col-form-label">Symptom Severity on Start Date</label>
+                    <div class="col-sm-5">
+                        <select name="start_severity_id" class="form-control" required>
+                            {% for severity in severities %}
+                            <option value="{{severity.id}}">{{severity.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="end_severity" class="col-sm-7 col-form-label">Symptom Severity on End Date</label>
+                    <div class="col-sm-5">
+                        <select id="end_severity" name="end_severity_id" class="form-control" disabled required>
+                            {% for severity in severities %}
+                            <option value="{{severity.id}}">{{severity.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary d-block ml-auto">Add</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -37,8 +37,8 @@
             <input type="hidden" name="user_id" value="{{user_id}}" />
 
             <div class="form-group row">
-                <label for="symptom_id" class="col-sm-3 col-form-label">Symptom</label>
-                <div class="col-sm-9">
+                <label for="symptom_id" class="col-sm-7 col-form-label">Symptom</label>
+                <div class="col-sm-5">
                     <select name="symptom_id" id="symptom_id" class="form-control" required>
                         {% for symptom in symptoms %}
                         <option value="{{symptom.id}}">{{symptom.name}}</option>
@@ -48,12 +48,12 @@
             </div>
 
             <div class="form-group row">
-                <label for="created_at" class="col-sm-3 col-form-label">Started At</label>
-                <div class="col-sm-9">
+                <label for="created_at" class="col-sm-7 col-form-label">Started At</label>
+                <div class="col-sm-5">
                     <input type="" name="created_at" id="created_at" class="form-control" readonly required />
 
                     <script>
-                        $("#created_at").datepicker({ autoclose: true, endDate: new Date() });
+                        $("#created_at").datepicker({ autoclose: true, maxDate: new Date() });
                     </script>
                 </div>
             </div>
