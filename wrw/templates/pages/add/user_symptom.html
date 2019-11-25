@@ -24,7 +24,7 @@
 
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="user_symptom_id" value="{{user_symptom.id}}">
-            <button type="submit" class="delete m-auto btn btn-outline-primary btn-sm">
+            <button type="submit" class="delete m-auto btn btn-outline-danger btn-sm">
                 <i class="fa fa-times" aria-hidden="true"></i></button>
         </form>
         {% endfor %}
@@ -39,7 +39,7 @@
             <div class="form-group row">
                 <label for="symptom_id" class="col-sm-3 col-form-label">Symptom</label>
                 <div class="col-sm-9">
-                    <select name="symptom_id" id="symptom_id" class="form-control">
+                    <select name="symptom_id" id="symptom_id" class="form-control" required>
                         {% for symptom in symptoms %}
                         <option value="{{symptom.id}}">{{symptom.name}}</option>
                         {% endfor %}
@@ -50,7 +50,7 @@
             <div class="form-group row">
                 <label for="created_at" class="col-sm-3 col-form-label">Started At</label>
                 <div class="col-sm-9">
-                    <input type="" name="created_at" id="created_at" class="form-control" />
+                    <input type="" name="created_at" id="created_at" class="form-control" required/>
 
                     <script>
                         $("#created_at").datepicker();

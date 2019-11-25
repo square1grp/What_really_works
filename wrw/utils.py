@@ -3,7 +3,7 @@ from plotly.offline import plot
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
-from datetime import date
+from datetime import date, datetime
 import pytz
 
 
@@ -28,9 +28,11 @@ def getAllSymptoms():
 def addUserSymptom(params):
     user = User.objects.get(id=params['user_id'])
     symptom = Symptom.objects.get(id=params['symptom_id'])
+    created_at = datetime.strptime(
+        params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
     try:
-        user_symptom = UserSymptom(user=user, symptom=symptom)
+        user_symptom = UserSymptom(user=user, symptom=symptom, created_at=created_at)
         user_symptom.save()
     except:
         pass
