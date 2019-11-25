@@ -16,6 +16,15 @@ def index(request):
 def user_page(request, user_id):
     user = User.objects.get(id=user_id)
     symptoms = user.getSymptoms()
+
+    is_no_symptom = False if len(symptoms) > 0 else True
+
+    treatments = Method.objects.all()
+    is_no_treatment = is_no_symptom or (False if len(treatments) > 0 else True)
+
+    is_no_user_symptom = is_no_symptom or (
+        False if len(user.getSymptoms()) > 0 else True)
+
     treatment_timeline = getTreatmentGanttChart(
         user.getAllSymptomTrialsStarted())
 
@@ -23,6 +32,9 @@ def user_page(request, user_id):
 
     return render(request, 'pages/user.html', dict(
         user=user,
+        is_no_symptom=is_no_symptom,
+        is_no_treatment=is_no_treatment,
+        is_no_user_symptom=is_no_user_symptom,
         symptoms=symptoms,
         treatment_timeline=treatment_timeline,
         symptom_timelines=symptom_timelines

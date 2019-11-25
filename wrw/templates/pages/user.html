@@ -32,15 +32,24 @@
 
     <div class="row mb-3">
         <div class="col-12 col-md-3 ml-md-auto">
-            <a href="/user/{{user.id}}/add/symptom" class="btn btn-primary mx-auto mb-2 ml-md-0">Edit Symptom History</a>
+            <a href="/user/{{user.id}}/add/symptom"
+                class="btn btn-primary mx-auto mb-2 ml-md-0 {% if is_no_symptom %}disabled{% endif %}">
+                Edit Symptom History
+            </a>
         </div>
 
         <div class="col-12 col-md-3">
-            <a href="/user/{{user.id}}/add/treatment" class="btn btn-primary mx-auto mb-2 ml-md-0">Edit Treatment History</a>
+            <a href="/user/{{user.id}}/add/treatment"
+                class="btn btn-primary mx-auto mb-2 ml-md-0 {% if is_no_treatment %}disabled{% endif %}">
+                Edit Treatment History
+            </a>
         </div>
 
         <div class="col-12 col-md-3 mr-md-auto">
-            <a href="/user/{{user.id}}/add/symptom_update" class="btn btn-primary mx-auto mb-2 ml-md-0">Submit Symptom Update</a>
+            <a href="/user/{{user.id}}/add/symptom_update"
+                class="btn btn-primary mx-auto mb-2 ml-md-0  {% if is_no_user_symptom %}disabled{% endif %}">
+                Submit Symptom Update
+            </a>
         </div>
     </div>
 
