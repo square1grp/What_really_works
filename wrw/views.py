@@ -104,10 +104,63 @@ def add_symptom_page(request, user_id):
     ) for user_symptom in user_symptoms]
     user_symptoms.sort(key=lambda x: x['created_at'])
 
-    symptoms = getAllSymptoms()
+    symptoms = Symptom.objects.all()
 
     return render(request, 'pages/add/user_symptom.html', {
         'user_id': user_id,
         'user_symptoms': user_symptoms,
         'symptoms': symptoms
+    })
+
+
+def add_symptom_update_page(request, user_id):
+    if request.method == 'POST':
+        try:
+            params = request.POST
+
+            if params['action'] == 'add':
+                addUserSymptomUpdate(request.POST)
+            elif params['action'] == 'delete':
+                UserSymptomUpdate.objects.get(id=params['user_symptom_update_id']).delete()
+
+        except:
+            pass
+
+    user = User.objects.get(id=user_id)
+
+    user_symptoms = []
+    for symptom in user.getSymptoms():
+        user_symptoms += UserSymptom.objects.filter(user=user, symptom=symptom)
+
+    user_symptom_updates = []
+    for user_symptom in user_symptoms:
+        user_symptom_updates += UserSymptomUpdate.objects.filter(
+            user_symptom=user_symptom)
+
+    user_symptoms = [dict(
+        id=user_symptom.id,
+        symptom=user_symptom.getSymptomName(),
+        created_at=user_symptom.getCreatedAt()
+    ) for user_symptom in user_symptoms]
+
+    user_symptom_updates = [dict(
+        id=user_symptom_update.id,
+        symptom=user_symptom_update.getSymptomName(),
+        title=user_symptom_update.title,
+        severity=user_symptom_update.getSeverity(),
+        drawback=user_symptom_update.getDrawback(),
+        created_at=user_symptom_update.getCreatedAt()
+    ) for user_symptom_update in user_symptom_updates]
+
+    user_symptoms.sort(key=lambda x: x['created_at'])
+
+    severities = Severity.objects.all()
+    drawbacks = Drawback.objects.all()
+
+    return render(request, 'pages/add/symptom_update.html', {
+        'user_id': user_id,
+        'user_symptom_updates': user_symptom_updates,
+        'user_symptoms': user_symptoms,
+        'severities': severities,
+        'drawbacks': drawbacks,
     })

@@ -3,7 +3,7 @@ from plotly.offline import plot
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
-from datetime import date, datetime
+from datetime import datetime
 import pytz
 
 
@@ -19,20 +19,16 @@ def getUsersBySymptom(symptom, no_duplicate=True):
     return users
 
 
-# get all symptoms
-def getAllSymptoms():
-    return Symptom.objects.all()
-
-
 # add user symptom
 def addUserSymptom(params):
     user = User.objects.get(id=params['user_id'])
     symptom = Symptom.objects.get(id=params['symptom_id'])
     created_at = datetime.strptime(
-        params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+        params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
 
     try:
-        user_symptom = UserSymptom(user=user, symptom=symptom, created_at=created_at)
+        user_symptom = UserSymptom(
+            user=user, symptom=symptom, created_at=created_at)
         user_symptom.save()
     except:
         pass
@@ -40,49 +36,21 @@ def addUserSymptom(params):
 
 # add user symptom update
 def addUserSymptomUpdate(params):
-    user = User.objects.get(id=params['user_id'])
-    symptom = Symptom.objects.get(id=params['symptom_id'])
+    user_symptom = UserSymptom.objects.get(id=params['user_symptom_id'])
     severity = Severity.objects.get(id=params['severity_id'])
-    drawback = Drawback.objects.get(rating=0)
+    drawback = Drawback.objects.get(id=params['drawback_id'])
+    title = params['title']
+    description = params['description']
+    created_at = datetime.strptime(
+        params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
 
-    user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
-    created_at = date.strptime(
-        params['date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
-
-    user_symptom_update = UserSymptomUpdate(
-        user_symptom=user_symptom, severity=severity, drawback=drawback, created_at=created_at)
-
-    user_symptom_update.save()
-
-
-# add user method trial
-def addUserMethodTrial(params):
-    print('============= add user method trial =====================')
-    user = User.objects.get(id=params['user_id'])
-    symptom = Symptom.objects.get(id=params['symptom_id'])
-    method = Method.objects.get(id=params['method_id'])
-    start_severity = Severity.objects.get(id=params['start_severity_id'])
-    start_drawback = Drawback.objects.get(id=params['start_drawback_id'])
-    start_created_at = date.strptime(
-        params['start_date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
-
-    user_symptom = UserSymptom.objects.get(user=user, symptom=symptom)
-
-    user_method_trial_start = UserMethodTrialStart(user_symptom=user_symptom, method=method,
-                                                   severity=start_severity, drawback=start_drawback, created_at=start_created_at)
-
-    user_method_trial_start.save()
-
-    if 'is_ended_trial' in params:
-        end_severity = Severity.objects.get(id=params['end_severity_id'])
-        end_drawback = Drawback.objects.get(id=params['end_drawback_id'])
-        end_created_at = date.strptime(
-            params['end_date'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
-
-        user_method_trial_end = UserMethodTrialEnd(user_method_trial_start=user_method_trial_start,
-                                                   severity=end_severity, drawback=end_drawback, created_at=end_created_at)
-
-        user_method_trial_end.save()
+    try:
+        user_symptom_update = UserSymptomUpdate(user_symptom=user_symptom, severity=severity,
+                                                drawback=drawback, title=title, description=description, created_at=created_at)
+        print(user_symptom_update)
+        user_symptom_update.save()
+    except:
+        pass
 
 
 # get statistics x, y values

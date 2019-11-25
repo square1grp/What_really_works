@@ -1,0 +1,108 @@
+{% extends 'layouts/index.html' %}
+
+{% block head %}
+
+{% load static %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container add-user-symptom-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/user/{{user_id}}" role="button">Back to Home</a>
+    </div>
+
+    <div class="row flex-column">
+        {% for user_symptom_update in user_symptom_updates %}
+        <form class="form-inline col-12 col-lg-6 mx-auto" method="POST">
+            {% csrf_token %}
+            <div class="col-11 row">
+                <h4>{{user_symptom_update.symptom}}</h4>
+                <h4 class="d-block ml-auto my-auto">{{user_symptom_update.created_at}}</h4>
+                <h5 class="col-12">{{user_symptom_update.title}}</h5>
+                <p class="col-12">
+                    <b>Severity:</b> {{user_symptom_update.severity}}, <b>Side Effect:</b> {{user_symptom_update.drawback}}<br />
+                </p>
+            </div>
+
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="user_symptom_update_id" value="{{user_symptom_update.id}}">
+            <button type="submit" class="delete m-auto btn btn-outline-danger btn-sm">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <form class="col-12 col-lg-6 mx-auto mt-5" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="user_id" value="{{user_id}}" />
+
+            <div class="form-group row">
+                <h3 class="col-sm-4">Symptom</h3>
+                <div class="col-sm-8">
+                    <select name="user_symptom_id" id="symptom_id" class="form-control" required>
+                        {% for user_symptom in user_symptoms %}
+                        <option value="{{user_symptom.id}}">{{user_symptom.symptom}}
+                            <small>({{user_symptom.created_at}})</small></option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="created_at" class="col-sm-3 col-form-label">Date</label>
+                <div class="col-sm-9">
+                    <input type="" name="created_at" id="created_at" class="form-control" readonly required />
+
+                    <script>
+                        var today = new Date();
+                        var yesterday = new Date()
+                        yesterday.setDate(today.getDate() - 1)
+
+                        $("#created_at").datepicker({ autoclose: true, startDate: yesterday, endDate: today });
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-12"><b>Symptom Severity</b></label>
+                <label for="severity_id" class="col-sm-3 col-form-label">New Severity</label>
+                <div class="col-sm-9">
+                    <select name="severity_id" class="form-control" required>
+                        {% for severity in severities %}
+                        <option value="{{severity.id}}">{{severity.title}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-12"><b>Side Effect Severity</b></label>
+                <label for="drawback_id" class="col-sm-3 col-form-label">New Severity</label>
+                <div class="col-sm-9">
+                    <select name="drawback_id" class="form-control" required>
+                        {% for drawback in drawbacks %}
+                        <option value="{{drawback.id}}">{{drawback.title}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Short Description of How You Felt</label>
+                <input type="text" name="title" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="description">Long Description of How You Felt</label>
+                <textarea name="description" class="form-control" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary d-block ml-auto">Add</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -15,13 +15,16 @@ MAX_RATING = 4
 
 
 def convertRating(rating, to_text=True):
-    if isinstance(rating, Severity):
-        return rating.getRatingText() if to_text else rating.getRating()
+    try:
+        if isinstance(rating, Severity):
+            return rating.getRatingText() if to_text else rating.getRating()
 
-    if to_text:
-        return [_rating[1] for _rating in RATING_CHOICES if _rating[0] == rating][0]
+        if to_text:
+            return [_rating[1] for _rating in RATING_CHOICES if _rating[0] == rating][0]
 
-    return [_rating[0] for _rating in RATING_CHOICES if _rating[1] == rating][0]
+        return [_rating[0] for _rating in RATING_CHOICES if _rating[1] == rating][0]
+    except:
+        return None
 
 
 # ======================================================
@@ -53,7 +56,12 @@ class User(models.Model):
 
         for user_symptom in UserSymptom.objects.filter(user=self):
             symptom = user_symptom.getSymptomName()
-            method = user_symptom.getTrialStarted().getMethodName()
+            user_symptom_trial_started = user_symptom.getTrialStarted()
+
+            if user_symptom_trial_started is None:
+                continue
+
+            method = user_symptom_trial_started.getMethodName()
             started_at = user_symptom.getStartedAt()
             ended_at = user_symptom.getEndedAt()
             ended_at = ended_at if ended_at is not None else timezone.now().date()
@@ -76,7 +84,12 @@ class User(models.Model):
 
         methods = []
         for user_symptom in UserSymptom.objects.filter(user=self, symptom=symptom):
-            method = user_symptom.getTrialStarted().getMethod()
+            user_symptom_trial_started = user_symptom.getTrialStarted()
+
+            if user_symptom_trial_started is None:
+                continue
+
+            method = user_symptom_trial_started.getMethod()
 
             if method not in methods:
                 methods.append(method)
@@ -92,21 +105,22 @@ class User(models.Model):
 
         effectivenesses, drawbacks = [], []
         for user_symptom in user_symptoms:
-            effectivenesses.append(dict(
-                title='No Title',
-                description='No Description',
-                severity=convertRating(user_symptom.getStartSeverity(), False),
-                created_at=user_symptom.getStartedAt()
-            ))
+            if user_symptom.has_user_symptom_trial_start():
+                effectivenesses.append(dict(
+                    title='No Title',
+                    description='No Description',
+                    severity=convertRating(user_symptom.getStartSeverity(), False),
+                    created_at=user_symptom.getStartedAt()
+                ))
 
-            drawbacks.append(dict(
-                title='No Title',
-                description='No Description',
-                severity=convertRating(user_symptom.getStartDrawback(), False),
-                created_at=user_symptom.getStartedAt()
-            ))
+                drawbacks.append(dict(
+                    title='No Title',
+                    description='No Description',
+                    severity=convertRating(user_symptom.getStartDrawback(), False),
+                    created_at=user_symptom.getStartedAt()
+                ))
 
-            if (user_symptom.has_user_symptom_trial_end()):
+            if user_symptom.has_user_symptom_trial_end():
                 effectivenesses.append(dict(
                     title='No Title',
                     description='No Description',
@@ -131,7 +145,7 @@ class User(models.Model):
                 description=user_symptom_update.description,
                 severity=convertRating(
                     user_symptom_update.getSeverity(), False),
-                created_at=user_symptom_update.created_at
+                created_at=user_symptom_update.getCreatedAt()
             ) for user_symptom_update in user_symptom_updates]
 
             drawbacks += [dict(
@@ -139,7 +153,7 @@ class User(models.Model):
                 description=user_symptom_update.description,
                 severity=convertRating(
                     user_symptom_update.getDrawback(), False),
-                created_at=user_symptom_update.created_at
+                created_at=user_symptom_update.getCreatedAt()
             ) for user_symptom_update in user_symptom_updates]
 
         effectivenesses.sort(key=lambda x: x['created_at'])
@@ -693,3 +707,6 @@ class UserSymptomUpdate(models.Model):
         return self.drawback.getRatingText()
 
     getDrawback.short_description = 'Drawback'
+
+    def getCreatedAt(self):
+        return self.created_at
