@@ -9,7 +9,7 @@ from .utils import *
 def index(request):
     user_id = int(1)
     return redirect('user/%s' % user_id)
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return HttpResponse('Hello, world. You\'re at the polls index.')
 
 
 # single user page
@@ -79,60 +79,35 @@ def method_page(request, symptom_id, method_id):
     ))
 
 
-def add_symptom_page(request, user_id, symptom_id=None):
-    if request.method == "POST":
+def add_symptom_page(request, user_id):
+    if request.method == 'POST':
         try:
-            addUserSymptom(request.POST)
+            params = request.POST
+
+            if params['action'] == 'add':
+                addUserSymptom(request.POST)
+            elif params['action'] == 'delete':
+                UserSymptom.objects.get(id=params['user_symptom_id']).delete()
+
         except:
             pass
+
+    user = User.objects.get(id=user_id)
+    user_symptoms = []
+    for symptom in user.getSymptoms():
+        user_symptoms += UserSymptom.objects.filter(user=user, symptom=symptom)
+
+    user_symptoms = [dict(
+        id=user_symptom.id,
+        symptom=user_symptom.getSymptomName(),
+        created_at=user_symptom.getCreatedAt()
+    ) for user_symptom in user_symptoms]
+    user_symptoms.sort(key=lambda x: x['created_at'])
 
     symptoms = getAllSymptoms()
 
-    return render(request, 'pages/add_symptom.html', {
+    return render(request, 'pages/add/user_symptom.html', {
         'user_id': user_id,
-        'symptom_id': symptom_id,
+        'user_symptoms': user_symptoms,
         'symptoms': symptoms
-    })
-
-
-def add_symptom_update_page(request, user_id):
-    if request.method == "POST":
-        try:
-            addUserSymptomUpdate(request.POST)
-        except:
-            pass
-
-    user = User.objects.get(id=user_id)
-    symptoms = user.getSymptoms()
-    severities = Severity.objects.all()
-    drawbacks = Drawback.objects.all()
-
-    return render(request, 'pages/add_symptom_update.html', {
-        'user_id': user_id,
-        'symptoms': symptoms,
-        'severities': severities,
-        'drawbacks': drawbacks
-    })
-
-
-def add_method_trial_page(request, user_id):
-    if request.method == "POST":
-        try:
-            addUserMethodTrial(request.POST)
-            pass
-        except:
-            pass
-
-    user = User.objects.get(id=user_id)
-    methods = Method.objects.all()
-    symptoms = user.getSymptoms()
-    severities = Severity.objects.all()
-    drawbacks = Drawback.objects.all()
-
-    return render(request, 'pages/add_method_trial.html', {
-        'user_id': user_id,
-        'methods': methods,
-        'symptoms': symptoms,
-        'severities': severities,
-        'drawbacks': drawbacks
     })

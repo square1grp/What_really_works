@@ -417,15 +417,27 @@ class UserSymptom(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     symptom = models.ForeignKey(Symptom, on_delete=models.CASCADE)
     user_symptom_trial_start = models.ForeignKey(
-        UserSymptomTrialStart, on_delete=models.CASCADE)
+        UserSymptomTrialStart, on_delete=models.CASCADE, blank=True, null=True)
     user_symptom_trial_end = models.ForeignKey(
         UserSymptomTrialEnd, on_delete=models.CASCADE, blank=True, null=True)
+    created_at = models.DateField(
+        'Started at', default=timezone.now, blank=True, null=True)
 
     class Meta:
         verbose_name = 'User Symptom'
         verbose_name_plural = 'User Symptoms'
 
         unique_together = ['user', 'symptom', 'user_symptom_trial_start']
+
+    def has_user_symptom_trial_start(self):
+        __has_object = False
+
+        try:
+            __has_object = self.user_symptom_trial_start is not None
+        except UserSymptomTrialStart.DoesNotExist:
+            pass
+
+        return __has_object
 
     def has_user_symptom_trial_end(self):
         __has_object = False
@@ -441,7 +453,13 @@ class UserSymptom(models.Model):
         return '''
             (Username : %s, Symptom: %s)
             %s
-        ''' % (self.getUserName(), self.getSymptomName(), self.user_symptom_trial_end if self.has_user_symptom_trial_end() else self.user_symptom_trial_start)
+        ''' % (
+            self.getUserName(),
+            self.getSymptomName(),
+            self.user_symptom_trial_end if self.has_user_symptom_trial_end() else (
+                self.user_symptom_trial_start if self.has_user_symptom_trial_start() else ''
+            )
+        )
 
     def getUserName(self):
         return str(self.user)
@@ -462,23 +480,23 @@ class UserSymptom(models.Model):
         return self.symptom
 
     def getTrialStarted(self):
-        return self.user_symptom_trial_start
+        return self.user_symptom_trial_start if self.has_user_symptom_trial_start() else None
 
     def getStartSeverity(self):
-        return self.user_symptom_trial_start.getSeverity()
+        return self.user_symptom_trial_start.getSeverity() if self.has_user_symptom_trial_start() else None
 
     getStartSeverity.short_description = 'Start Severity'
 
     def getStartDrawback(self):
-        return self.user_symptom_trial_start.getDrawback()
+        return self.user_symptom_trial_start.getDrawback() if self.has_user_symptom_trial_start() else None
 
     getStartDrawback.short_description = 'Start Drawback'
 
     def getTrialEnded(self):
-        return self.user_symptom_trial_end if self.has_user_symptom_trial_end else None
+        return self.user_symptom_trial_end if self.has_user_symptom_trial_end() else None
 
     def getStartedAt(self):
-        return self.user_symptom_trial_start.getStartedAt()
+        return self.user_symptom_trial_start.getStartedAt() if self.has_user_symptom_trial_start() else None
 
     def getEndedAt(self):
         return self.user_symptom_trial_end.getEndedAt() if self.has_user_symptom_trial_end() else None
@@ -578,7 +596,10 @@ class UserSymptom(models.Model):
     # get effectiveness score
     def getEffectivenessScore(self):
         start_severity = convertRating(
-            self.user_symptom_trial_start.getSeverity(), False)
+            self.user_symptom_trial_start.getSeverity(), False) if self.has_user_symptom_trial_start() else None
+
+        if start_severity is None:
+            return None
 
         end_severity = self.getEndSeverity(True)
 
@@ -599,7 +620,10 @@ class UserSymptom(models.Model):
     # get drawback score
     def getDrawbackScore(self):
         start_drawback = convertRating(
-            self.user_symptom_trial_start.getDrawback(), False)
+            self.user_symptom_trial_start.getDrawback(), False) if self.has_user_symptom_trial_start() else None
+
+        if start_drawback is None:
+            return None
 
         end_drawback = self.getEndDrawback(True)
 
@@ -616,6 +640,16 @@ class UserSymptom(models.Model):
             score = -100 * actual / max_pos
 
         return round(score, 2)
+
+    def getCreatedAt(self):
+        created_at = None
+
+        try:
+            created_at = self.created_at
+        except models.DateField.DoesNotExist:
+            created_at = ''
+
+        return created_at
 
 
 # ======================================================

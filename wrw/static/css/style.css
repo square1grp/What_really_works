@@ -1,4 +1,4 @@
-.btn {
+.btn:not(.delete) {
     max-width: 250px;
-    width: 100%;
+    width    : 100%;
 }
