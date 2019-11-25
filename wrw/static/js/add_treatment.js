@@ -3,10 +3,10 @@ $(document).ready(function () {
     $("#ended_treatment").click(function () {
         if ($(this).prop("checked")) {
             $("#end_section").show();
-            $("#end_severity").prop("disabled", false);
+            $("#start_severity_on_end_date").show();
         } else {
             $("#end_section").hide();
-            $("#end_severity").prop("disabled", true);
+            $("#start_severity_on_end_date").hide();
         }
     });
 })

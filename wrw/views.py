@@ -32,7 +32,7 @@ def user_page(request, user_id):
 
     return render(request, 'pages/user.html', dict(
         user=user,
-        is_no_symptom=is_no_symptom,
+        is_no_symptom=False,
         is_no_treatment=is_no_treatment,
         is_no_user_symptom=is_no_user_symptom,
         symptoms=symptoms,
@@ -109,14 +109,17 @@ def add_symptom_page(request, user_id):
     for symptom in user.getSymptoms():
         user_symptoms += UserSymptom.objects.filter(user=user, symptom=symptom)
 
+    symptoms = []
+    for symptom in Symptom.objects.all():
+        if symptom.id not in [user_symptom.symptom.id for user_symptom in user_symptoms]:
+            symptoms.append(symptom)
+
     user_symptoms = [dict(
         id=user_symptom.id,
         symptom=user_symptom.getSymptomName(),
         created_at=user_symptom.getCreatedAt()
     ) for user_symptom in user_symptoms]
     user_symptoms.sort(key=lambda x: x['created_at'])
-
-    symptoms = Symptom.objects.all()
 
     return render(request, 'pages/add/user_symptom.html', {
         'user_id': user_id,

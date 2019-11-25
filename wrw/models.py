@@ -441,7 +441,7 @@ class UserSymptom(models.Model):
         verbose_name = 'User Symptom'
         verbose_name_plural = 'User Symptoms'
 
-        unique_together = ['user', 'symptom', 'user_symptom_trial_start']
+        unique_together = ['user', 'symptom']
 
     def has_user_symptom_trial_start(self):
         __has_object = False

@@ -21,7 +21,8 @@
                 <h4 class="d-block ml-auto my-auto">{{user_symptom_update.created_at}}</h4>
                 <h5 class="col-12">{{user_symptom_update.title}}</h5>
                 <p class="col-12">
-                    <b>Severity:</b> {{user_symptom_update.severity}}, <b>Side Effect:</b> {{user_symptom_update.drawback}}<br />
+                    <b>Severity:</b> {{user_symptom_update.severity}}, <b>Side Effect:</b>
+                    {{user_symptom_update.drawback}}<br />
                 </p>
             </div>
 
@@ -45,7 +46,8 @@
                 <div class="col-sm-8">
                     <select name="user_symptom_id" id="symptom_id" class="form-control" required>
                         {% for user_symptom in user_symptoms %}
-                        <option value="{{user_symptom.id}}">{{user_symptom.symptom}} ({{user_symptom.created_at}})</option>
+                        <option value="{{user_symptom.id}}">{{user_symptom.symptom}} ({{user_symptom.created_at}})
+                        </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -54,14 +56,15 @@
             <div class="form-group row">
                 <label for="created_at" class="col-sm-7 col-form-label">Date</label>
                 <div class="col-sm-5">
-                    <input type="" name="created_at" id="created_at" class="form-control" readonly required />
+                    <input type="" name="created_at" id="created_at" class="form-control" required />
 
                     <script>
                         var today = new Date();
                         var yesterday = new Date()
                         yesterday.setDate(today.getDate() - 1)
 
-                        $("#created_at").datepicker({ autoclose: true, minDate: yesterday, maxDate: today });
+                        $("#created_at").datepicker({ autoclose: true, minDate: yesterday, maxDate: today, defaultDate: today });
+                        $("#created_at").datepicker("setDate", today);
                     </script>
                 </div>
             </div>
