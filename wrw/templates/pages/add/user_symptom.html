@@ -31,7 +31,7 @@
     </div>
 
     <div class="row">
-        <form class="col-12 col-lg-6 mx-auto mt-5" method="POST">
+        <form novalidate class="needs-validation col-12 col-lg-6 mx-auto mt-5" method="POST">
             {% csrf_token %}
             <input type="hidden" name="action" value="add">
             <input type="hidden" name="user_id" value="{{user_id}}" />
@@ -40,10 +40,14 @@
                 <label for="symptom_id" class="col-sm-7 col-form-label">Symptom</label>
                 <div class="col-sm-5">
                     <select name="symptom_id" id="symptom_id" class="form-control" required>
+                        <option value="">Please select a symptom.</option>
                         {% for symptom in symptoms %}
                         <option value="{{symptom.id}}">{{symptom.name}}</option>
                         {% endfor %}
                     </select>
+                    <div class="invalid-feedback">
+                        Please select a symptom.
+                    </div>
                 </div>
             </div>
 
@@ -54,7 +58,11 @@
 
                     <script>
                         $("#created_at").datepicker({ autoclose: true, maxDate: new Date() });
+                        $("#created_at").datepicker("setDate", new Date())
                     </script>
+                    <div class="invalid-feedback">
+                        Please select a valid Date.
+                    </div>
                 </div>
             </div>
 

@@ -36,7 +36,7 @@
     </div>
 
     <div class="row">
-        <form class="col-12 col-lg-6 mx-auto mt-5" method="POST">
+        <form class="col-12 col-lg-6 mx-auto mt-5 needs-validation" method="POST" novalidate>
             {% csrf_token %}
             <input type="hidden" name="action" value="add">
             <input type="hidden" name="user_id" value="{{user_id}}" />
@@ -45,18 +45,22 @@
                 <h3 class="col-sm-4">Symptom</h3>
                 <div class="col-sm-8">
                     <select name="user_symptom_id" id="symptom_id" class="form-control" required>
+                        <option value="">Please select a symptom.</option>
                         {% for user_symptom in user_symptoms %}
                         <option value="{{user_symptom.id}}">{{user_symptom.symptom}} ({{user_symptom.created_at}})
                         </option>
                         {% endfor %}
                     </select>
+                    <div class="invalid-feedback">
+                        Please select a symptom.
+                    </div>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="created_at" class="col-sm-7 col-form-label">Date</label>
                 <div class="col-sm-5">
-                    <input type="" name="created_at" id="created_at" class="form-control" required />
+                    <input type="" name="created_at" id="created_at" class="form-control" required readonly />
 
                     <script>
                         var today = new Date();
@@ -66,6 +70,9 @@
                         $("#created_at").datepicker({ autoclose: true, minDate: yesterday, maxDate: today, defaultDate: today });
                         $("#created_at").datepicker("setDate", today);
                     </script>
+                    <div class="invalid-feedback">
+                        Please select a valid Date.
+                    </div>
                 </div>
             </div>
 
@@ -74,10 +81,14 @@
                 <label for="severity_id" class="col-sm-7 col-form-label">New Severity</label>
                 <div class="col-sm-5">
                     <select name="severity_id" class="form-control" required>
+                        <option value="">Please select a severity</option>
                         {% for severity in severities %}
                         <option value="{{severity.id}}">{{severity.title}}</option>
                         {% endfor %}
                     </select>
+                    <div class="invalid-feedback">
+                        Please select a severity.
+                    </div>
                 </div>
             </div>
 
@@ -86,21 +97,31 @@
                 <label for="drawback_id" class="col-sm-7 col-form-label">New Severity</label>
                 <div class="col-sm-5">
                     <select name="drawback_id" class="form-control" required>
+                        <option value="">Please select a side effect severity</option>
                         {% for drawback in drawbacks %}
                         <option value="{{drawback.id}}">{{drawback.title}}</option>
                         {% endfor %}
                     </select>
+                    <div class="invalid-feedback">
+                        Please select a side effect severity.
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="title">Short Description of How You Felt</label>
                 <input type="text" name="title" class="form-control" required />
+                <div class="invalid-feedback">
+                    Please provide us a title.
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="description">Long Description of How You Felt</label>
                 <textarea name="description" class="form-control" required></textarea>
+                <div class="invalid-feedback">
+                    Please provide us a description.
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary d-block ml-auto">Add</button>

@@ -39,7 +39,7 @@
 
 
     <div class="row">
-        <form class="col-12 col-lg-6 mx-auto mt-5" method="POST">
+        <form class="needs-validation col-12 col-lg-6 mx-auto mt-5" method="POST" novalidate>
             {% csrf_token %}
             <input type="hidden" name="action" value="add">
             <input type="hidden" name="user_id" value="{{user_id}}" />
@@ -47,11 +47,15 @@
             <div class="form-group row">
                 <h3 class="col-sm-4">Treatment</h3>
                 <div class="col-sm-8">
-                    <select name="method_id" id="symptom_id" class="form-control" required>
+                    <select name="method_id" id="method_id" class="form-control" required>
+                        <option value="">Please select a treatment.</option>
                         {% for treatment in treatments %}
                         <option value="{{treatment.id}}">{{treatment.name}}</option>
                         {% endfor %}
                     </select>
+                    <div class="invalid-feedback">
+                        Please select a Treatment.
+                    </div>
                 </div>
             </div>
 
@@ -65,6 +69,7 @@
                             var today = new Date();
 
                             $("#started_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#started_at").datepicker("setDate", today);
                         </script>
                     </div>
                 </div>
@@ -73,21 +78,31 @@
                     <label for="start_drawback_id" class="col-sm-7 col-form-label">Side Effect Severity</label>
                     <div class="col-sm-5">
                         <select name="start_drawback_id" class="form-control" required>
+                            <option value="">Please select a severity</option>
                             {% for drawback in drawbacks %}
                             <option value="{{drawback.id}}">{{drawback.title}}</option>
                             {% endfor %}
                         </select>
+                        <div class="invalid-feedback">
+                            Please select a side effect severity.
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="start_title">Short Description of How You Felt</label>
                     <input type="text" name="start_title" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please provide us a title.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="start_description">Long Description of How You Felt</label>
                     <textarea name="start_description" class="form-control" required></textarea>
+                    <div class="invalid-feedback">
+                        Please provide us a description.
+                    </div>
                 </div>
 
                 <div class="form-group form-check">
@@ -106,6 +121,7 @@
                             var today = new Date();
 
                             $("#ended_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#ended_at").datepicker("setDate", today);
                         </script>
                     </div>
                 </div>
@@ -113,22 +129,32 @@
                 <div class="form-group row">
                     <label for="end_drawback_id" class="col-sm-7 col-form-label">Side Effect Severity</label>
                     <div class="col-sm-5">
-                        <select name="end_drawback_id" class="form-control">
+                        <select name="end_drawback_id" class="form-control" required>
+                            <option value="">Please select a severity.</option>
                             {% for drawback in drawbacks %}
                             <option value="{{drawback.id}}">{{drawback.title}}</option>
                             {% endfor %}
                         </select>
+                        <div class="invalid-feedback">
+                            Please select a side effect severity.
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="end_title">Short Description of How You Felt</label>
-                    <input type="text" name="end_title" class="form-control" />
+                    <input type="text" name="end_title" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please provide us a title.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="end_description">Long Description of How You Felt</label>
-                    <textarea name="end_description" class="form-control"></textarea>
+                    <textarea name="end_description" class="form-control" required></textarea>
+                    <div class="invalid-feedback">
+                        Please provide us a description.
+                    </div>
                 </div>
             </fieldset>
 
@@ -136,12 +162,15 @@
                 <div class="form-group row">
                     <h4 class="col-sm-4">Symptoms</h4>
                     <div class="col-sm-8">
-                        <select name="user_symptom_id" id="symptom_id" class="form-control" required>
+                        <select name="user_symptom_id" id="symptom_id" class="form-control">
                             {% for user_symptom in user_symptoms %}
                             <option value="{{user_symptom.id}}">
                                 {{user_symptom.symptom}} ({{user_symptom.created_at}})
                             </option>
                             {% endfor %}
+                            <div class="invalid-feedback">
+                                Please select a symptom.
+                            </div>
                         </select>
                     </div>
                 </div>
@@ -152,7 +181,7 @@
                         {% for user_symptom in user_symptoms %}
                         <div class="form-group form-check">
                             <input type="checkbox" class="form-check-input"
-                                {% if user_symptom.checked %}checked{% endif %} disabled />
+                                {% if user_symptom.checked %}checked{% endif %} disabled required />
                             <label class="form-check-label">{{user_symptom.symptom}}
                                 ({{user_symptom.created_at}})</label>
                         </div>
@@ -164,10 +193,14 @@
                     <label for="start_severity" class="col-sm-7 col-form-label">Symptom Severity on Start Date</label>
                     <div class="col-sm-5">
                         <select name="start_severity_id" class="form-control" required>
+                            <option value="">Please select a severity.</option>
                             {% for severity in severities %}
                             <option value="{{severity.id}}">{{severity.title}}</option>
                             {% endfor %}
                         </select>
+                        <div class="invalid-feedback">
+                            Please select a severity.
+                        </div>
                     </div>
                 </div>
 
@@ -175,10 +208,14 @@
                     <label for="end_severity" class="col-sm-7 col-form-label">Symptom Severity on End Date</label>
                     <div class="col-sm-5">
                         <select id="end_severity" name="end_severity_id" class="form-control" required>
+                            <option value="">Please select a severity</option>
                             {% for severity in severities %}
                             <option value="{{severity.id}}">{{severity.title}}</option>
                             {% endfor %}
                         </select>
+                        <div class="invalid-feedback">
+                            Please select a severity.
+                        </div>
                     </div>
                 </div>
             </fieldset>
