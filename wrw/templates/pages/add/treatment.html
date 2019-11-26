@@ -118,7 +118,7 @@
                 <div class="form-group row">
                     <label for="ended_at" class="col-sm-7 col-form-label">End Date</label>
                     <div class="col-sm-5">
-                        <input type="" name="ended_at" id="ended_at" class="form-control" readonly />
+                        <input type="" name="ended_at" id="ended_at" class="form-control" />
 
                         <script>
                             var today = new Date();
@@ -135,7 +135,7 @@
                 <div class="form-group row">
                     <label for="end_drawback_id" class="col-sm-7 col-form-label">Side Effect Severity</label>
                     <div class="col-sm-5">
-                        <select name="end_drawback_id" class="form-control" required>
+                        <select name="end_drawback_id" class="form-control">
                             <option value="">Please select a severity.</option>
                             {% for drawback in drawbacks %}
                             <option value="{{drawback.id}}">{{drawback.title}}</option>
@@ -149,7 +149,7 @@
 
                 <div class="form-group">
                     <label for="end_title">Short Description of How You Felt</label>
-                    <input type="text" name="end_title" class="form-control" required />
+                    <input type="text" name="end_title" class="form-control" />
                     <div class="invalid-feedback">
                         Please provide us a title.
                     </div>
@@ -157,7 +157,7 @@
 
                 <div class="form-group">
                     <label for="end_description">Long Description of How You Felt</label>
-                    <textarea name="end_description" class="form-control" required></textarea>
+                    <textarea name="end_description" class="form-control"></textarea>
                     <div class="invalid-feedback">
                         Please provide us a description.
                     </div>
@@ -168,7 +168,7 @@
                 <div class="form-group row">
                     <h4 class="col-sm-4">Symptoms</h4>
                     <div class="col-sm-8">
-                        <select name="user_symptom_id" id="symptom_id" class="form-control">
+                        <select id="user_symptom_id" class="form-control">
                             {% for user_symptom in user_symptoms %}
                             <option value="{{user_symptom.id}}">
                                 {{user_symptom.symptom}} ({{user_symptom.created_at}})
@@ -186,8 +186,14 @@
                     <div class="col-sm-8">
                         {% for user_symptom in user_symptoms %}
                         <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input filled-out"
-                                {% if not user_symptom.checked %}checked{% endif %} disabled required />
+                            <input type="hidden" class="start_severity_id"
+                                name="start_severity_id_{{user_symptom.id}}" symptom-id="{{user_symptom.id}}"
+                                value="-1" />
+                            <input type="hidden" class="end_severity_id" name="end_severity_id_{{user_symptom.id}}"
+                                symptom-id="{{user_symptom.id}}" value="-1" />
+
+                            <input type="checkbox" class="form-check-input filled-out-{{user_symptom.id}}" disabled
+                                required />
                             <label class="form-check-label">{{user_symptom.symptom}}
                                 ({{user_symptom.created_at}})</label>
                         </div>
@@ -198,7 +204,7 @@
                 <div class="form-group row">
                     <label for="start_severity" class="col-sm-7 col-form-label">Symptom Severity on Start Date</label>
                     <div class="col-sm-5">
-                        <select name="start_severity_id" class="form-control" required>
+                        <select id="start_severity_id" class="form-control" required>
                             <option value="">Please select a severity.</option>
                             {% for severity in severities %}
                             <option value="{{severity.id}}">{{severity.title}}</option>
@@ -213,7 +219,7 @@
                 <div class="form-group row" id="start_severity_on_end_date" style="display: none;">
                     <label for="end_severity" class="col-sm-7 col-form-label">Symptom Severity on End Date</label>
                     <div class="col-sm-5">
-                        <select id="end_severity" name="end_severity_id" class="form-control" required>
+                        <select id="end_severity_id" class="form-control">
                             <option value="">Please select a severity</option>
                             {% for severity in severities %}
                             <option value="{{severity.id}}">{{severity.title}}</option>
@@ -225,10 +231,8 @@
                     </div>
                 </div>
             </fieldset>
-            <button type="submit" class="btn btn-primary d-block ml-auto">Add</button>
+            <button type="submit" class="btn btn-primary d-block ml-auto" disabled>Add</button>
         </form>
     </div>
 </div>
-{{ user_treatments|json_script:"user-treatments" }}
-{{ last_formdata|json_script:"last-formdata" }}
 {% endblock %}

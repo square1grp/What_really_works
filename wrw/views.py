@@ -130,22 +130,27 @@ def add_symptom_page(request, user_id):
 
 
 def add_treatment_page(request, user_id):
-    last_formdata = None
+    user = User.objects.get(id=user_id)
 
     if request.method == 'POST':
         try:
             params = request.POST
 
             if params['action'] == 'add':
-                last_formdata = params
-                updateUserSymptom(params)
+                for symptom in user.getSymptoms():
+                    user_symptom = UserSymptom.objects.get(
+                        user=user, symptom=symptom)
+                    start_severity_id = params['start_severity_id_%s' %
+                                               user_symptom.id]
+                    end_severity_id = params['end_severity_id_%s' %
+                                             user_symptom.id]
+                    updateUserSymptom(user_symptom, params,
+                                      start_severity_id, end_severity_id)
             elif params['action'] == 'delete':
                 clearUserSymptom(params)
 
         except:
             pass
-
-    user = User.objects.get(id=user_id)
 
     user_symptoms = []
     for symptom in user.getSymptoms():
@@ -173,20 +178,13 @@ def add_treatment_page(request, user_id):
         user_treatments.append(dict(
             user_symptom_id=user_symptom.id,
             symptom=symptom,
-            method_id=method.id,
             method_name=method.name,
-            started_severity_id=getSeverityID(started_severity),
             started_severity=started_severity,
-            started_drawback_id=getDrawbackID(started_drawback),
             started_drawback=started_drawback,
             started_at=started_at,
-            started_at_str=started_at.strftime('%m/%d/%Y'),
-            ended_severity_id=getSeverityID(ended_severity),
             ended_severity=ended_severity,
-            ended_drawback_id=getDrawbackID(ended_drawback),
             ended_drawback=ended_drawback,
             ended_at=ended_at,
-            ended_at_str=ended_at.strftime('%m/%d/%Y') if ended_at else '',
         ))
     user_treatments.sort(key=lambda x: x['started_at'])
 
@@ -210,7 +208,6 @@ def add_treatment_page(request, user_id):
         'severities': severities,
         'drawbacks': drawbacks,
         'user_symptoms': user_symptoms,
-        'last_formdata': last_formdata
     })
 
 
