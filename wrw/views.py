@@ -92,6 +92,7 @@ def method_page(request, symptom_id, method_id):
 
 
 def add_symptom_page(request, user_id):
+
     if request.method == 'POST':
         try:
             params = request.POST
@@ -129,11 +130,14 @@ def add_symptom_page(request, user_id):
 
 
 def add_treatment_page(request, user_id):
+    last_formdata = None
+
     if request.method == 'POST':
         try:
             params = request.POST
 
             if params['action'] == 'add':
+                last_formdata = params
                 updateUserSymptom(params)
             elif params['action'] == 'delete':
                 clearUserSymptom(params)
@@ -156,16 +160,33 @@ def add_treatment_page(request, user_id):
         user_symptom_trial_ended = user_symptom.getTrialEnded()
 
         symptom = user_symptom.getSymptomName()
-        method = user_symptom_trial_started.getMethodName()
+        method = user_symptom_trial_started.getMethod()
+
+        started_severity = user_symptom.getStartSeverity()
+        started_drawback = user_symptom.getStartDrawback()
         started_at = user_symptom_trial_started.getStartedAt()
+
+        ended_severity = user_symptom.getEndSeverity()
+        ended_drawback = user_symptom.getEndDrawback()
         ended_at = None if user_symptom_trial_ended is None else user_symptom_trial_ended.getEndedAt()
 
         user_treatments.append(dict(
             user_symptom_id=user_symptom.id,
             symptom=symptom,
-            method=method,
+            method_id=method.id,
+            method_name=method.name,
+            started_severity_id=getSeverityID(started_severity),
+            started_severity=started_severity,
+            started_drawback_id=getDrawbackID(started_drawback),
+            started_drawback=started_drawback,
             started_at=started_at,
-            ended_at=ended_at
+            started_at_str=started_at.strftime('%m/%d/%Y'),
+            ended_severity_id=getSeverityID(ended_severity),
+            ended_severity=ended_severity,
+            ended_drawback_id=getDrawbackID(ended_drawback),
+            ended_drawback=ended_drawback,
+            ended_at=ended_at,
+            ended_at_str=ended_at.strftime('%m/%d/%Y') if ended_at else '',
         ))
     user_treatments.sort(key=lambda x: x['started_at'])
 
@@ -188,7 +209,8 @@ def add_treatment_page(request, user_id):
         'treatments': treatments,
         'severities': severities,
         'drawbacks': drawbacks,
-        'user_symptoms': user_symptoms
+        'user_symptoms': user_symptoms,
+        'last_formdata': last_formdata
     })
 
 

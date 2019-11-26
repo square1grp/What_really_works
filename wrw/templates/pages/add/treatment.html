@@ -18,7 +18,7 @@
         <form class="form-inline col-12 col-lg-6 mx-auto" method="POST">
             {% csrf_token %}
             <div class="col-11 row">
-                <h4>{{user_treatment.method}}</h4>
+                <h4>{{user_treatment.method_name}}</h4>
                 <p class="col-12">
                     <b>Symptom:</b> {{user_treatment.symptom}}<br />
                     <b>Started at:</b> {{user_treatment.started_at}}
@@ -38,8 +38,8 @@
     </div>
 
 
-    <div class="row">
-        <form class="needs-validation col-12 col-lg-6 mx-auto mt-5" method="POST" novalidate>
+    <div class="row flex-column">
+        <form id="new_treatment" class="needs-validation col-12 col-lg-6 mx-auto mt-5" method="POST" novalidate>
             {% csrf_token %}
             <input type="hidden" name="action" value="add">
             <input type="hidden" name="user_id" value="{{user_id}}" />
@@ -174,10 +174,10 @@
                                 {{user_symptom.symptom}} ({{user_symptom.created_at}})
                             </option>
                             {% endfor %}
-                            <div class="invalid-feedback">
-                                Please select a symptom.
-                            </div>
                         </select>
+                        <div class="invalid-feedback">
+                            Please select a symptom.
+                        </div>
                     </div>
                 </div>
 
@@ -186,7 +186,7 @@
                     <div class="col-sm-8">
                         {% for user_symptom in user_symptoms %}
                         <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input"
+                            <input type="checkbox" class="form-check-input filled-out"
                                 {% if not user_symptom.checked %}checked{% endif %} disabled required />
                             <label class="form-check-label">{{user_symptom.symptom}}
                                 ({{user_symptom.created_at}})</label>
@@ -225,9 +225,10 @@
                     </div>
                 </div>
             </fieldset>
-
             <button type="submit" class="btn btn-primary d-block ml-auto">Add</button>
         </form>
     </div>
 </div>
+{{ user_treatments|json_script:"user-treatments" }}
+{{ last_formdata|json_script:"last-formdata" }}
 {% endblock %}

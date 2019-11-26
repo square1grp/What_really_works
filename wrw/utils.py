@@ -7,6 +7,22 @@ from datetime import datetime
 import pytz
 
 
+def getSeverityID(severity_text):
+    try:
+        severity = Severity.objects.get(title=severity_text)
+        return severity.id
+    except:
+        return None
+
+
+def getDrawbackID(severity_text):
+    try:
+        drawback = Drawback.objects.get(title=severity_text)
+        return drawback.id
+    except:
+        return None
+
+
 # get all users by symptom
 def getUsersBySymptom(symptom, no_duplicate=True):
     symptom = Symptom.objects.get(
