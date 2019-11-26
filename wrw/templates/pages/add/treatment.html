@@ -71,6 +71,9 @@
                             $("#started_at").datepicker({ autoclose: true, maxDate: today });
                             $("#started_at").datepicker("setDate", today);
                         </script>
+                        <div class="invalid-feedback">
+                            Please fill out this field.
+                        </div>
                     </div>
                 </div>
 
@@ -123,6 +126,9 @@
                             $("#ended_at").datepicker({ autoclose: true, maxDate: today });
                             $("#ended_at").datepicker("setDate", today);
                         </script>
+                        <div class="invalid-feedback">
+                            Please fill out this field.
+                        </div>
                     </div>
                 </div>
 
@@ -181,7 +187,7 @@
                         {% for user_symptom in user_symptoms %}
                         <div class="form-group form-check">
                             <input type="checkbox" class="form-check-input"
-                                {% if user_symptom.checked %}checked{% endif %} disabled required />
+                                {% if not user_symptom.checked %}checked{% endif %} disabled required />
                             <label class="form-check-label">{{user_symptom.symptom}}
                                 ({{user_symptom.created_at}})</label>
                         </div>
