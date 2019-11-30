@@ -1,4 +1,4 @@
-{% extends 'layouts/index.html' %}
+{% extends 'layouts/default.html' %}
 
 {% block head %}
 
@@ -30,25 +30,32 @@
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-12 col-md-3 ml-md-auto">
+    <div class="row mb-5">
+        <div class="col-12 col-md text-center ml-md-auto">
             <a href="/user/{{user.id}}/add/symptom"
-                class="btn btn-primary mx-auto mb-2 ml-md-0 {% if is_no_symptom %}disabled{% endif %}">
+                class="btn btn-primary {% if is_no_symptom %}disabled{% endif %}">
                 Edit Symptom History
             </a>
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md text-center">
             <a href="/user/{{user.id}}/add/treatment"
-                class="btn btn-primary mx-auto mb-2 ml-md-0 {% if is_no_treatment %}disabled{% endif %}">
+                class="btn btn-primary {% if is_no_treatment %}disabled{% endif %}">
                 Edit Treatment History
             </a>
         </div>
 
-        <div class="col-12 col-md-3 mr-md-auto">
+        <div class="col-12 col-md text-center">
             <a href="/user/{{user.id}}/add/symptom_update"
-                class="btn btn-primary mx-auto mb-2 ml-md-0  {% if is_no_user_symptom %}disabled{% endif %}">
+                class="btn btn-primary  {% if is_no_user_symptom %}disabled{% endif %}">
                 Submit Symptom Update
+            </a>
+        </div>
+
+        <div class="col-12 col-md text-center mr-md-auto">
+            <a href="/user/{{user.id}}/add/side_effect_update"
+                class="btn btn-primary  {% if is_no_user_symptom %}disabled{% endif %}">
+                Submit Side Effect Update
             </a>
         </div>
     </div>
@@ -67,14 +74,24 @@
 
     <div class="row mb-3">
         <div class="col-12">
+            <h3 class="text-center">Side Effect Timeline</h3>
+        </div>
+
+        <div class="col-12 col-lg-8 mx-auto">
+            {{side_effect_timeline_chart|safe}}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
             <h3 class="text-center">Symptom Timeline</h3>
         </div>
 
-        <div class="col-12">
+        <div class="w-100">
             {% for symptom_timeline in symptom_timelines %}
 
             <h5><b>- {{symptom_timeline.symptom}}</b></h5>
-            <div class="symptom_timeline">{{symptom_timeline.chart|safe}}</div>
+            <div class="symptom_timeline col-12 col-lg-8 mx-auto">{{symptom_timeline.chart|safe}}</div>
 
             {% endfor %}
         </div>
@@ -82,22 +99,22 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="symptom_modal" tabindex="-1" role="dialog" aria-labelledby="symptom_modal_title"
+<div class="modal fade" id="severity_modal" tabindex="-1" role="dialog" aria-labelledby="severity_modal_title"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="symptom_modal_title">Modal title</h5>
+                <h5 class="modal-title" id="severity_modal_title">Modal title</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <label><b>Description:</b></label>
-                <p id="symptom_modal_description"></p>
+                <p id="severity_modal_description"></p>
 
                 <label><b>Created at:</b></label>
-                <p id="symptom_modal_created_at"></p>
+                <p id="severity_modal_created_at"></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

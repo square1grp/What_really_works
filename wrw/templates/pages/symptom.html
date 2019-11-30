@@ -1,4 +1,4 @@
-{% extends 'layouts/index.html' %}
+{% extends 'layouts/default.html' %}
 
 {% block content %}
 
@@ -19,10 +19,10 @@
                         <h3 class="text-center">Method</h3>
                     </th>
                     <th scope="col">
-                        <h3 class="text-center">Effectiveness</h3>
+                        <h3 class="text-center">Symptom</h3>
                     </th>
                     <th scope="col">
-                        <h3 class="text-center">Drawbacks</h3>
+                        <h3 class="text-center">Side Effect</h3>
                     </th>
                     <th scope="col">
                         <h3 class="text-center"># of Users</h3>
@@ -30,16 +30,16 @@
                 </thead>
 
                 <tbody>
-                    {% for method in methods %}
+                    {% for row in rows %}
                     <tr>
                         <td>
-                            <a href="/symptom/{{symptom.id}}/method/{{method.id}}" class="btn btn-link">
-                                <h5>{{method.name}}</h5>
+                            <a href="/symptom/{{symptom.id}}/method/{{row.method.id}}" class="btn btn-link">
+                                <h5>{{row.method.name}}</h5>
                             </a>
                         </td>
-                        <td class="text-center">{{method.effectiveness}}</td>
-                        <td class="text-center">{{method.drawbacks}}</td>
-                        <td class="text-center">{{method.user_count}}</td>
+                        <td class="text-center">{{row.symptom_score}}</td>
+                        <td class="text-center">{{row.side_effect_score}}</td>
+                        <td class="text-center">{{row.user_count}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

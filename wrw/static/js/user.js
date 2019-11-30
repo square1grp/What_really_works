@@ -6,15 +6,15 @@ $(document).ready(function () {
         window.location.href = "/symptom/" + symptom_id.toString();
     });
 
-    $(".symptom_timeline div.plotly-graph-div").on("plotly_click", function (e, data) {
+    $("div.plotly-graph-div").on("plotly_click", function (e, data) {
         if (data.points.length == 0)
             return false;
 
         point = data.points[0];
-        $("#symptom_modal_title").text(point.hovertext);
-        $("#symptom_modal_description").text(point.customdata.description);
-        $("#symptom_modal_created_at").text(point.x);
-        $("#symptom_modal").modal();
+        $("#severity_modal_title").text(point.hovertext);
+        $("#severity_modal_description").text(point.customdata.description);
+        $("#severity_modal_created_at").text(point.x);
+        $("#severity_modal").modal();
         // alert("Severity: " + point.hovertext + "\n" + "Created at: " + point.x);
     }).on("plotly_hover", function (e, data) {
         if (data.points.length == 0)

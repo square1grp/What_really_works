@@ -12,6 +12,8 @@ def custom_titled_filter(title):
 
     return Wrapper
 
+# Register your models here.
+
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -28,84 +30,64 @@ class MethodAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
-class SeverityAdmin(admin.ModelAdmin):
-    list_display = ['getRatingText', 'title']
+class SymptomSeverityAdmin(admin.ModelAdmin):
+    list_display = ['getSeverityAsText', 'title']
     search_fields = ['title']
     list_filter = ['rating']
 
 
-class DrawbackAdmin(admin.ModelAdmin):
-    list_display = ['getRatingText', 'title']
+class SideEffectSeverityAdmin(admin.ModelAdmin):
+    list_display = ['getSeverityAsText', 'title']
     search_fields = ['title']
     list_filter = ['rating']
 
 
-class UserMethodTrialStartAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'getDrawback', 'created_at']
-    search_fields = ['method__name']
-    list_filter = [('drawback__rating', custom_titled_filter('Drawback'))]
-
-
-class UserMethodTrialEndAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'getDrawback', 'created_at']
-    search_fields = ['method__name']
-    list_filter = [('drawback__rating', custom_titled_filter('Drawback'))]
-
-
-class UserSymptomTrialStartAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'getSeverity', 'getDrawback']
-    search_fields = ['user_method_trial_start__method__name']
-    list_filter = [('severity__rating', custom_titled_filter('Severity')),
-                   ('user_method_trial_start__drawback__rating', custom_titled_filter('Drawback'))]
-
-
-class UserSymptomTrialEndAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'getSeverity', 'getDrawback']
-    search_fields = [
-        'user_symptom_trial_start__user_method_trial_start__method__name']
-    list_filter = [('user_symptom_trial_start__severity__rating',
-                    custom_titled_filter('Start Severity')),
-                   ('user_symptom_trial_start__user_method_trial_start__drawback__rating',
-                    custom_titled_filter('Start Drawback')),
-                   ('severity__rating', custom_titled_filter('End Severity')),
-                   ('user_method_trial_end__drawback__rating',
-                    custom_titled_filter('End Drawback'))]
+class UserSideEffectUpdateAdmin(admin.ModelAdmin):
+    list_display = ['user', 'title', 'getSeverityAsText', 'created_at']
+    search_fields = ['user__name', 'title']
+    list_filter = [('side_effect_severity__rating',
+                    custom_titled_filter('Side Effect Severity'))]
 
 
 class UserSymptomAdmin(admin.ModelAdmin):
-    list_display = ['getUserName', 'getSymptomName', 'getStartSeverity',
-                    'getStartDrawback', 'getEndSeverity', 'getEndDrawback']
-    search_fields = ['user__name', 'symptom__name',
-                     'user_symptom_trial_start__user_method_trial_start__method__name']
-    list_filter = [
-        ('user_symptom_trial_start__severity__rating',
-         custom_titled_filter('Start Severity')),
-        ('user_symptom_trial_start__user_method_trial_start__drawback__rating',
-         custom_titled_filter('Start Drawback')),
-        ('user_symptom_trial_end__severity__rating',
-         custom_titled_filter('End Severity')),
-        ('user_symptom_trial_end__user_method_trial_end__drawback__rating',
-         custom_titled_filter('End Drawback'))]
+    list_display = ['user', 'symptom']
+    search_fields = ['user__name', 'symptom__name']
+
+
+class MethodTrialStartAdmin(admin.ModelAdmin):
+    list_display = ['getMethodName', 'created_at']
+    search_fields = ['method__name']
+
+
+class MethodTrialEndAdmin(admin.ModelAdmin):
+    list_display = ['getMethodName', 'created_at']
+    search_fields = ['method__name']
+
+
+class SymptomTrialStartAdmin(admin.ModelAdmin):
+    list_display = ['getMethodName', 'created_at']
+    search_fields = ['method_trial_start__method__name']
+
+
+class SymptomTrialEndAdmin(admin.ModelAdmin):
+    list_display = ['getMethodName', 'created_at']
+    search_fields = ['symptom_trial_start__method_trial_start__method__name']
 
 
 class UserSymptomUpdateAdmin(admin.ModelAdmin):
-    list_display = ['getUserName', 'getSymptomName',
-                    'getSeverity', 'getDrawback', 'created_at']
-    search_fields = ['user_symptom__user__name', 'user_symptom__symptom__name']
-    list_filter = [('severity__rating',
-                    custom_titled_filter('Severity')),
-                   ('drawback__rating',
-                    custom_titled_filter('Drawback'))]
+    list_display = ['getUserName', 'getSymptomName', 'title', 'getSeverityAsText',
+                    'getMethodName', 'getStartedAt', 'getEndedAt', 'created_at']
 
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Symptom, SymptomAdmin)
-admin.site.register(Method, MethodAdmin)
-admin.site.register(Severity, SeverityAdmin)
-admin.site.register(Drawback, DrawbackAdmin)
 admin.site.register(UserSymptom, UserSymptomAdmin)
+admin.site.register(Method, MethodAdmin)
+admin.site.register(SymptomSeverity, SymptomSeverityAdmin)
+admin.site.register(SideEffectSeverity, SideEffectSeverityAdmin)
+admin.site.register(UserSideEffectUpdate, UserSideEffectUpdateAdmin)
+admin.site.register(MethodTrialStart, MethodTrialStartAdmin)
+admin.site.register(MethodTrialEnd, MethodTrialEndAdmin)
+admin.site.register(SymptomTrialStart, SymptomTrialStartAdmin)
+admin.site.register(SymptomTrialEnd, SymptomTrialEndAdmin)
 admin.site.register(UserSymptomUpdate, UserSymptomUpdateAdmin)
-admin.site.register(UserMethodTrialStart, UserMethodTrialStartAdmin)
-admin.site.register(UserMethodTrialEnd, UserMethodTrialEndAdmin)
-admin.site.register(UserSymptomTrialStart, UserSymptomTrialStartAdmin)
-admin.site.register(UserSymptomTrialEnd, UserSymptomTrialEndAdmin)

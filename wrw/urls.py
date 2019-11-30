@@ -1,16 +1,12 @@
 from django.urls import path
-from . import views
+from .views.index import IndexPage
+from .views.user import UserPage
+from .views.symptom import SymptomPage
+from .views.method import MethodPage
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('user/<int:user_id>/', views.user_page, name='user-page'),
-    path('symptom/<int:symptom_id>/', views.symptom_page, name='symptom-page'),
-    path('symptom/<int:symptom_id>/method/<int:method_id>',
-         views.method_page, name='method-page'),
-    path('user/<int:user_id>/add/symptom',
-         views.add_symptom_page, name='add-symptom-page'),
-     path('user/<int:user_id>/add/treatment',
-         views.add_treatment_page, name='add-treatment-page'),
-    path('user/<int:user_id>/add/symptom_update',
-         views.add_symptom_update_page, name='add-symptom-update-page')
+    path('', IndexPage.as_view()),
+    path('user/<int:user_id>/', UserPage.as_view()),
+    path('symptom/<int:symptom_id>/', SymptomPage.as_view()),
+    path('symptom/<int:symptom_id>/method/<int:method_id>', MethodPage.as_view())
 ]
