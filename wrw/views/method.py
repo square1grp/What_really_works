@@ -84,7 +84,7 @@ class MethodPage(View):
         symptom = Symptom.objects.get(id=symptom_id)
         method = Method.objects.get(id=method_id)
 
-        symptom_severity_scores = method.getSymptomSeverityScores(symptom)
+        symptom_severity_scores = method.getSymptomScores(symptom)
 
         symptom_severity_chart = self.getStatisticsChart(
             symptom_severity_scores)

@@ -68,6 +68,7 @@ class User(models.Model):
 
         return methods
 
+    # return data for side effect severity chart
     def getSideEffectSeverities(self):
         user_side_effect_updates = UserSideEffectUpdate.objects.filter(
             user=self).order_by('-created_at')
@@ -81,6 +82,7 @@ class User(models.Model):
 
         return severities
 
+    # return data for symptom severity chart
     def getSymptomSeverities(self, symptom):
         user_symptom = UserSymptom.objects.get(user=self, symptom=symptom)
 
@@ -595,17 +597,17 @@ class UserSymptomUpdate(models.Model):
         except ObjectDoesNotExist:
             return None
 
-    def getStartedAt(self):
+    def getStartedAt(self, default=None):
         try:
             return self.symptom_trial_start.getStartedAt()
         except ObjectDoesNotExist:
-            return None
+            return default
 
-    def getEndedAt(self):
+    def getEndedAt(self, default=None):
         try:
             return self.symptom_trial_end.getEndedAt()
         except:
-            return None
+            return default
 
     def getTitle(self):
         return self.title

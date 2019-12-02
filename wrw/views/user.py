@@ -1,13 +1,88 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
-from wrw.models import User, Method
+from django.utils import timezone
+from wrw.models import User, Method, UserSymptomUpdate
 from plotly.offline import plot
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 
 
 class UserPage(View):
     template_name = 'pages/user.html'
+
+    def getTreatmentGanttChart(self, user):
+        symptoms = user.getSymptoms()
+        methods = []
+        for symptom in symptoms:
+            methods += user.getMethodsBySymptom(symptom)
+
+        methods = list(dict.fromkeys(methods))
+
+        if not symptoms:
+            return ''
+
+        dataframe = []
+        treatment_timelines = []
+        for method in methods:
+            user_symptom_updates = UserSymptomUpdate.objects.filter(
+                user_symptom__user=user, symptom_trial_start__method_trial_start__method=method).order_by('created_at')
+
+            first_update = user_symptom_updates.first()
+            last_update = user_symptom_updates.last()
+
+            started_at = first_update.getStartedAt()
+
+            if first_update is not last_update:
+                ended_at = last_update.getEndedAt(timezone.now().date())
+            else:
+                ended_at = timezone.now().date()
+
+            annotation_at = started_at+(ended_at-started_at)/2
+
+            treatment_timelines.append(dict(
+                dict(method=str(method),
+                     started_at=started_at,
+                     ended_at=ended_at,
+                     annotation_at=annotation_at)
+            ))
+
+        dataframe += [dict(
+            Task=treatment_timeline['method'],
+            Start=treatment_timeline['started_at'],
+            Finish=treatment_timeline['ended_at']
+        ) for treatment_timeline in reversed(treatment_timelines)]
+
+        # figure
+        fig = ff.create_gantt(dataframe, bar_width=0.45,
+                              title=None, group_tasks=False)
+
+        # hide hover text
+        for index in range(len(fig['data'])):
+            fig['data'][index].update(hoverinfo='skip')
+
+        # show method at the middle of the bar
+        annotations = [dict(
+            x=treatment_timeline['annotation_at'],
+            y=index,
+            showarrow=False,
+            text='<b>%s</b>' % treatment_timeline['method'],
+            font=dict(color='black', size=12)
+        ) for index, treatment_timeline in enumerate(reversed(treatment_timelines))]
+
+        # plot figure
+        fig['layout']['annotations'] = annotations
+        fig.update_layout(height=350, margin=dict(b=20, t=20, r=20, l=20),
+                          showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+        fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+
+        plot_div = plot(fig, output_type='div', include_plotlyjs=False,
+                        config=dict(displayModeBar=False))
+
+        return plot_div
 
     def getSeverityTimelineChart(self, severities_data=[], height=250):
         sizes = [10] * len(severities_data)
@@ -64,6 +139,7 @@ class UserPage(View):
         is_no_user_symptom = is_no_symptom or (
             False if len(user.getSymptoms()) > 0 else True)
 
+        treatment_timeline_chart = self.getTreatmentGanttChart(user)
         side_effect_timeline_chart = self.getSideEffectTimelineChart(user)
         symptom_timelines = [dict(
             symptom=symptom,
@@ -76,7 +152,7 @@ class UserPage(View):
             is_no_treatment=is_no_treatment,
             is_no_user_symptom=is_no_user_symptom,
             symptoms=symptoms,
-            treatment_timeline=None,
+            treatment_timeline_chart=treatment_timeline_chart,
             side_effect_timeline_chart=side_effect_timeline_chart,
             symptom_timelines=symptom_timelines
         ))
