@@ -146,15 +146,29 @@ class User(models.Model):
         except:
             return None
 
-    def getSideEffectScore(self):
+    def getSideEffectScore(self, symptom, method):
+        user_method_trial_starts = UserMethodTrialStart.objects.filter(
+            user=self, method=method)
+
         user_side_effect_updates = UserSideEffectUpdate.objects.filter(
             user=self).order_by('created_at')
+
+        user_side_effect_updates = []
+        for user_method_trial_start in user_method_trial_starts:
+            started_at = user_method_trial_start.getStartedAt()
+            ended_at = user_method_trial_start.getEndedAt()
+
+            if ended_at is None:
+                ended_at = timezone.now().date()
+
+            user_side_effect_updates += UserSideEffectUpdate.objects.filter(
+                created_at__range=[started_at, ended_at])
 
         if not user_side_effect_updates:
             return None
 
-        start_severity = user_side_effect_updates.first().getSeverityRating()
-        end_severity = user_side_effect_updates.last().getSeverityRating()
+        start_severity = user_side_effect_updates[0].getSeverityRating()
+        end_severity = user_side_effect_updates[-1].getSeverityRating()
 
         if start_severity is None or end_severity is None:
             return None
@@ -259,7 +273,7 @@ class Method(models.Model):
 
         scores = []
         for user in users:
-            score = user.getSideEffectScore()
+            score = user.getSideEffectScore(symptom=symptom, method=self)
 
             if score is not None:
                 scores.append(score)
