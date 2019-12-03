@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
 from django.utils import timezone
-from wrw.models import User, Method, UserSymptomUpdate
+from wrw.models import User, Method, UserSymptomUpdate, UserMethodTrialStart
 from plotly.offline import plot
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
@@ -25,27 +25,33 @@ class UserPage(View):
         dataframe = []
         treatment_timelines = []
         for method in methods:
-            user_symptom_updates = UserSymptomUpdate.objects.filter(
-                user_symptom__user=user, symptom_trial_start__method_trial_start__method=method).order_by('created_at')
+            user_method_trial_starts = UserMethodTrialStart.objects.filter(
+                user=user, method=method)
 
-            first_update = user_symptom_updates.first()
-            last_update = user_symptom_updates.last()
+            for user_method_trial_start in user_method_trial_starts:
+                user_symptom_updates = []
+                started_at = user_method_trial_start.getStartedAt()
+                ended_at = user_method_trial_start.getEndedAt()
 
-            started_at = first_update.getStartedAt()
+                if ended_at is None:
+                    ended_at = timezone.now().date()
 
-            if first_update is not last_update:
-                ended_at = last_update.getEndedAt(timezone.now().date())
-            else:
-                ended_at = timezone.now().date()
+                user_symptom_updates += UserSymptomUpdate.objects.filter(
+                    user_symptom__user=user, created_at__range=[started_at, ended_at])
 
-            annotation_at = started_at+(ended_at-started_at)/2
+                if user_symptom_updates:
+                    user_symptom_updates.sort(key=lambda x: x.getCreatedAt())
 
-            treatment_timelines.append(dict(
-                dict(method=str(method),
-                     started_at=started_at,
-                     ended_at=ended_at,
-                     annotation_at=annotation_at)
-            ))
+                    annotation_at = started_at+(ended_at-started_at)/2
+
+                    treatment_timelines.append(dict(
+                        dict(
+                            method=str(method),
+                            started_at=started_at,
+                            ended_at=ended_at,
+                            annotation_at=annotation_at
+                        )
+                    ))
 
         dataframe += [dict(
             Task=treatment_timeline['method'],
