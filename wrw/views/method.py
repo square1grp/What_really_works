@@ -4,17 +4,18 @@ from django.views import View
 from wrw.models import Symptom, Method
 from plotly.offline import plot
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 class MethodPage(View):
     template_name = 'pages/method.html'
 
-    def getStatisticsChart(self, symptom_severity_scores=[]):
+    def getStatisticsData(self, scores):
         y_values = [0, 0, 0, 0, 0]
         x_values = ['|-100 ~ -61|', '|-60 ~ -21|',
                     '|-20 ~ 20|', '|21 ~ 60|', '|61 ~ 100|']
 
-        for score in symptom_severity_scores:
+        for score in scores:
             if score < -60:
                 y_values[0] += 1
             elif score < -20:
@@ -26,17 +27,40 @@ class MethodPage(View):
             else:
                 y_values[4] += 1
 
-        max_value = max(y_values)
-        max_value += 5 if max_value % 2 else 4
+        return dict(x=x_values, y=y_values)
 
-        fig = go.Figure()
+    def getStatisticsChart(self, symptom_severity_scores=[], side_effect_severity_scores=[]):
+        fig = make_subplots(rows=1, cols=2, subplot_titles=[
+            'Symptom Severity', 'Side Effect Severity'])
 
         width = [0.5 for i in range(5)]
-        fig.add_trace(
-            go.Bar(x=x_values, y=y_values, hoverinfo='skip', width=width, marker_color='#8BC8DB'))
 
-        fig.update_layout(title=dict(text='Symptom Severity', y=0.9, x=0.5, xanchor='center', yanchor='top'), height=300,
-                          margin=dict(b=20, t=60, r=20, l=20), showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        max_value = 0
+        for index, scores in enumerate([symptom_severity_scores, side_effect_severity_scores]):
+            y_values = [0, 0, 0, 0, 0]
+            x_values = ['|-100 ~ -61|', '|-60 ~ -21|',
+                        '|-20 ~ 20|', '|21 ~ 60|', '|61 ~ 100|']
+
+            for score in scores:
+                if score < -60:
+                    y_values[0] += 1
+                elif score < -20:
+                    y_values[1] += 1
+                elif score <= 20:
+                    y_values[2] += 1
+                elif score <= 60:
+                    y_values[3] += 1
+                else:
+                    y_values[4] += 1
+
+            max_value = max(y_values+[max_value])
+            max_value += 3 if max_value % 2 else 2
+
+            fig.add_trace(
+                go.Bar(x=x_values, y=y_values, hoverinfo='skip', width=width, marker_color='#8BC8DB'), row=1, col=(index+1))
+
+        fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=20),
+                          showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='Scores')
@@ -85,9 +109,10 @@ class MethodPage(View):
         method = Method.objects.get(id=method_id)
 
         symptom_severity_scores = method.getSymptomScores(symptom)
+        side_effect_severity_scores = method.getSideEffectScores(symptom)
 
-        symptom_severity_chart = self.getStatisticsChart(
-            symptom_severity_scores)
+        statisctics_charts = self.getStatisticsChart(
+            symptom_severity_scores, side_effect_severity_scores)
 
         user_timelines = [dict(
             user=user,
@@ -98,6 +123,6 @@ class MethodPage(View):
         return render(request, self.template_name, dict(
             symptom=symptom,
             method=method,
-            symptom_severity_chart=symptom_severity_chart,
+            statisctics_charts=statisctics_charts,
             user_timelines=user_timelines
         ))

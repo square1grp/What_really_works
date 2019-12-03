@@ -143,6 +143,9 @@ class User(models.Model):
             max_pos = MAX_RATING - start_severity
             max_neg = -start_severity
 
+            if actual == 0:
+                return 0
+
             score = 100*actual/(max_neg if actual < 0 else -max_pos)
 
             return score
@@ -182,6 +185,9 @@ class User(models.Model):
             actual = end_severity - start_severity
             max_pos = MAX_RATING - start_severity
             max_neg = -start_severity
+
+            if actual == 0:
+                return 0
 
             score = 100*actual/(max_neg if actual < 0 else -max_pos)
 
@@ -476,10 +482,13 @@ class UserMethodTrialStart(models.Model):
         return self.created_at
 
     def isEnded(self):
-        user_method_trial_end = UserMethodTrialEnd.objects.get(
-            user_method_trial_start=self)
+        try:
+            user_method_trial_end = UserMethodTrialEnd.objects.get(
+                user_method_trial_start=self)
 
-        return True if user_method_trial_end else False
+            return True if user_method_trial_end else False
+        except:
+            return None
 
     def getEnded(self):
         if self.isEnded():

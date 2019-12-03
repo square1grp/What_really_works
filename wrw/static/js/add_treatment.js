@@ -5,10 +5,16 @@ var func_checkBoxesStatesCheck = function () {
         var start_symptom_severity_id = $("input.start_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val();
         var end_symptom_severity_id = $("input.end_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val();
 
-        if ((start_symptom_severity_id && start_symptom_severity_id != -1) || (end_symptom_severity_id && end_symptom_severity_id != -1)) {
-            $("input.filled-out-" + user_symptom_id).prop("checked", true);
+        if (start_symptom_severity_id && start_symptom_severity_id != -1) {
 
-            return true;
+            if (
+                !$("#is_ended").prop("checked") ||
+                $("#is_ended").prop("checked") && (end_symptom_severity_id && end_symptom_severity_id != -1)
+            ) {
+                $("input.filled-out-" + user_symptom_id).prop("checked", true);
+
+                return true;
+            }
         }
 
         $("input.filled-out-" + user_symptom_id).prop("checked", false);

@@ -7,6 +7,35 @@ from wrw.models import User, UserSymptom, Method, SymptomSeverity, SideEffectSev
 class UserMethodTrialPage(View):
     template_name = 'pages/user-method-trial.html'
 
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs['user_id'] if 'user_id' in kwargs else None
+
+        if user_id is None:
+            return HttpResponse('Provided Parameter is invalid.')
+
+        try:
+            user = User.objects.get(id=user_id)
+        except:
+            return HttpResponse('No user.')
+
+        try:
+            params = request.POST
+
+            if params['action'] == 'add':
+                for symptom in user.getSymptoms():
+                    user_symptom = UserSymptom.objects.get(
+                        user=user, symptom=symptom)
+                    start_symptom_severity_id = params['start_symptom_severity_id_%s' %
+                                                       user_symptom.id]
+                    end_symptom_severity_id = params['end_symptom_severity_id_%s' %
+                                                     user_symptom.id]
+            elif params['action'] == 'delete':
+                pass
+
+        except:
+            pass
+        return self.get(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         user_id = kwargs['user_id'] if 'user_id' in kwargs else None
 
