@@ -127,6 +127,9 @@ class User(models.Model):
             user_symptom_updates += UserSymptomUpdate.objects.filter(
                 user_symptom=user_symptom, created_at__range=[started_at, ended_at])
 
+        if not user_symptom_updates:
+            return None
+
         user_symptom_updates.sort(key=lambda x: x.getCreatedAt())
 
         start_severity = user_symptom_updates[0].getSeverityRating()
@@ -166,6 +169,8 @@ class User(models.Model):
 
         if not user_side_effect_updates:
             return None
+
+        user_side_effect_updates.sort(key=lambda x: x.getCreatedAt())
 
         start_severity = user_side_effect_updates[0].getSeverityRating()
         end_severity = user_side_effect_updates[-1].getSeverityRating()
