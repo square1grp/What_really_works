@@ -366,6 +366,7 @@ class SideEffectSeverity(models.Model):
 class UserSymptom(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     symptom = models.ForeignKey(Symptom, on_delete=models.CASCADE)
+    created_at = models.DateField('Created at', default=timezone.now)
 
     class Meta:
         verbose_name = 'User Symptom'
@@ -384,6 +385,9 @@ class UserSymptom(models.Model):
 
     def getSymptomName(self):
         return str(self.symptom)
+
+    def getCreatedAt(self):
+        return self.created_at
 
 
 '''
