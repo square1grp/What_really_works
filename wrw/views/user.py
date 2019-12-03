@@ -53,6 +53,9 @@ class UserPage(View):
             Finish=treatment_timeline['ended_at']
         ) for treatment_timeline in reversed(treatment_timelines)]
 
+        if not dataframe:
+            return ''
+
         # figure
         fig = ff.create_gantt(dataframe, bar_width=0.45,
                               title=None, group_tasks=False)
@@ -126,7 +129,10 @@ class UserPage(View):
         if user_id is None:
             return HttpResponse('Provided Parameter is invalid.')
 
-        user = User.objects.get(id=user_id)
+        try:
+            user = User.objects.get(id=user_id)
+        except:
+            return HttpResponse('No user.')
 
         symptoms = user.getSymptoms()
 

@@ -56,15 +56,28 @@ class User(models.Model):
     def getMethodsBySymptom(self, symptom):
         methods = []
 
-        for user_symptom in UserSymptom.objects.filter(user=self, symptom=symptom):
-            user_symptom_updates = UserSymptomUpdate.objects.filter(
-                user_symptom=user_symptom)
+        user_symptom = UserSymptom.objects.get(user=self, symptom=symptom)
+        user_symptom_updates = UserSymptomUpdate.objects.filter(
+            user_symptom=user_symptom).order_by('created_at')
 
-            for user_symptom in user_symptom_updates:
-                method = user_symptom.getMethod()
+        user_method_trial_starts = []
+        if len(user_symptom_updates) > 1:
+            user_method_trial_starts = UserMethodTrialStart.objects.filter(
+                created_at__range=[
+                    user_symptom_updates.first().getCreatedAt(),
+                    user_symptom_updates.last().getCreatedAt()
+                ])
+        elif len(user_symptom_updates):
+            user_method_trial_starts = UserMethodTrialStart.objects.filter(
+                created_at=user_symptom_updates[0].getCreatedAt())
+        else:
+            return methods
 
-                if method not in methods:
-                    methods.append(method)
+        for user_method_trial_start in user_method_trial_starts:
+            method = user_method_trial_start.getMethod()
+
+            if method not in methods:
+                methods.append(method)
 
         return methods
 
@@ -99,15 +112,25 @@ class User(models.Model):
         return severities
 
     def getSymptomScore(self, symptom, method):
+        user_method_trial_starts = UserMethodTrialStart.objects.filter(
+            user=self, method=method)
         user_symptom = UserSymptom.objects.get(user=self, symptom=symptom)
 
-        user_symptom_updates = UserSymptomUpdate.objects.filter(
-            user_symptom=user_symptom,
-            symptom_trial_start__method_trial_start__method=method,
-            symptom_trial_end__method_trial_end__method=method).order_by('created_at')
+        user_symptom_updates = []
+        for user_method_trial_start in user_method_trial_starts:
+            started_at = user_method_trial_start.getStartedAt()
+            ended_at = user_method_trial_start.getEndedAt()
 
-        start_severity = user_symptom_updates.first().getSeverityRating()
-        end_severity = user_symptom_updates.last().getSeverityRating()
+            if ended_at is None:
+                ended_at = timezone.now().date()
+
+            user_symptom_updates += UserSymptomUpdate.objects.filter(
+                user_symptom=user_symptom, created_at__range=[started_at, ended_at])
+
+        user_symptom_updates.sort(key=lambda x: x.getCreatedAt())
+
+        start_severity = user_symptom_updates[0].getSeverityRating()
+        end_severity = user_symptom_updates[-1].getSeverityRating()
 
         if start_severity is None or end_severity is None:
             return None
@@ -126,6 +149,9 @@ class User(models.Model):
     def getSideEffectScore(self):
         user_side_effect_updates = UserSideEffectUpdate.objects.filter(
             user=self).order_by('created_at')
+
+        if not user_side_effect_updates:
+            return None
 
         start_severity = user_side_effect_updates.first().getSeverityRating()
         end_severity = user_side_effect_updates.last().getSeverityRating()
@@ -146,6 +172,8 @@ class User(models.Model):
 
 
 '''
+
+
 /************************************************************
 ************* Symptom
 ************************************************************/
@@ -189,11 +217,20 @@ class Method(models.Model):
         users = []
         for user_symptom in user_symptoms:
             user_symptom_updates = UserSymptomUpdate.objects.filter(
-                user_symptom=user_symptom)
+                user_symptom=user_symptom).order_by('created_at')
 
-            for user_symptom_update in user_symptom_updates:
-                if user_symptom_update.hasSymptomTrialStart() and user_symptom.user not in users:
-                    users.append(user_symptom.user)
+            user_method_trial_starts = []
+            if len(user_symptom_updates) > 1:
+                user_method_trial_starts = UserMethodTrialStart.objects.filter(method=self, created_at__range=[
+                    user_symptom_updates.first().getCreatedAt(),
+                    user_symptom_updates.last().getCreatedAt()
+                ])
+            elif len(user_symptom_updates) == 1:
+                user_method_trial_starts = UserMethodTrialStart.objects.filter(
+                    method=self, created_at=user_symptom_updates[0].getCreatedAt())
+
+            if len(user_method_trial_starts) and user_symptom.getUser() not in users:
+                users.append(user_symptom.getUser())
 
         return users
 
@@ -391,22 +428,49 @@ class UserSideEffectUpdate(models.Model):
 '''
 
 
-class MethodTrialStart(models.Model):
+class UserMethodTrialStart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     method = models.ForeignKey(Method, on_delete=models.CASCADE)
     created_at = models.DateField('Started at', default=timezone.now)
 
     class Meta:
-        verbose_name = 'Method Trial Start'
-        verbose_name_plural = 'Method Trial Starts'
+        verbose_name = 'User Method Trial Start'
+        verbose_name_plural = 'User Method Trial Starts'
 
     def __str__(self):
-        return '%s started at %s' % (self.getMethodName(), self.created_at)
+        return '%s : %s started at %s' % (self.user, self.getMethodName(), self.created_at)
 
     def getMethodName(self):
         return str(self.method)
 
     def getMethod(self):
         return self.method
+
+    def getUserName(self):
+        return str(self.user)
+
+    def getStartedAt(self):
+        return self.created_at
+
+    def isEnded(self):
+        user_method_trial_end = UserMethodTrialEnd.objects.get(
+            user_method_trial_start=self)
+
+        return True if user_method_trial_end else False
+
+    def getEnded(self):
+        if self.isEnded():
+            user_method_trial_end = UserMethodTrialEnd.objects.get(
+                user_method_trial_start=self)
+
+            return user_method_trial_end
+
+        return None
+
+    def getEndedAt(self):
+        user_method_trial_end = self.getEnded()
+
+        return None if user_method_trial_end is None else user_method_trial_end.getEndedAt()
 
 
 '''
@@ -416,97 +480,26 @@ class MethodTrialStart(models.Model):
 '''
 
 
-class MethodTrialEnd(models.Model):
-    method = models.ForeignKey(Method, on_delete=models.CASCADE)
+class UserMethodTrialEnd(models.Model):
+    user_method_trial_start = models.OneToOneField(
+        UserMethodTrialStart, on_delete=models.CASCADE)
     created_at = models.DateField('Ended at', default=timezone.now)
 
     class Meta:
-        verbose_name = 'Method Trial End'
-        verbose_name_plural = 'Method Trial Ends'
+        verbose_name = 'User Method Trial End'
+        verbose_name_plural = 'User Method Trial Ends'
 
     def __str__(self):
-        return '%s ended at %s' % (self.getMethodName(), self.created_at)
+        return '%s ended at %s' % (self.user_method_trial_start, self.created_at)
 
     def getMethodName(self):
-        return str(self.method)
+        return self.user_method_trial_start.getMethodName()
 
-    def getMethod(self):
-        return self.method
-
-
-'''
-/************************************************************
-************* Symptom Trial Start
-************************************************************/
-'''
-
-
-class SymptomTrialStart(models.Model):
-    method_trial_start = models.ForeignKey(
-        MethodTrialStart, on_delete=models.CASCADE)
-    created_at = models.DateField('Ended at', default=timezone.now)
-
-    class Meta:
-        verbose_name = 'Symptom Trial Start'
-        verbose_name_plural = 'Symptom Trial Starts'
-
-    def __str__(self):
-        return 'Started at %s' % self.created_at
-
-    def getMethodName(self):
-        try:
-            return self.method_trial_start.getMethodName()
-        except ObjectDoesNotExist:
-            return None
-
-    def getMethod(self):
-        try:
-            return self.method_trial_start.getMethod()
-        except ObjectDoesNotExist:
-            return None
+    def getUserName(self):
+        return self.user_method_trial_start.getUserName()
 
     def getStartedAt(self):
-        return self.created_at
-
-
-'''
-/************************************************************
-************* Symptom Trial End
-************************************************************/
-'''
-
-
-class SymptomTrialEnd(models.Model):
-    method_trial_end = models.ForeignKey(
-        MethodTrialEnd, on_delete=models.CASCADE)
-    symptom_trial_start = models.OneToOneField(
-        SymptomTrialStart, on_delete=models.CASCADE)
-    created_at = models.DateField('Ended at', default=timezone.now)
-
-    class Meta:
-        verbose_name = 'Symptom Trial End'
-        verbose_name_plural = 'Symptom Trial Ends'
-
-    def __str__(self):
-        return '%s started at %s and ended at %s' % (self.getMethodName(), self.getStartedAt(), self.getEndedAt())
-
-    def getMethodName(self):
-        try:
-            return self.method_trial_end.getMethodName()
-        except ObjectDoesNotExist:
-            return None
-
-    def getMethod(self):
-        try:
-            return self.method_trial_end.getMethod()
-        except ObjectDoesNotExist:
-            return None
-
-    def getStartedAt(self):
-        try:
-            return self.symptom_trial_start.getStartedAt()
-        except ObjectDoesNotExist:
-            return None
+        return self.user_method_trial_start.getStartedAt()
 
     def getEndedAt(self):
         return self.created_at
@@ -521,10 +514,6 @@ class SymptomTrialEnd(models.Model):
 
 class UserSymptomUpdate(models.Model):
     user_symptom = models.ForeignKey(UserSymptom, on_delete=models.CASCADE)
-    symptom_trial_start = models.ForeignKey(
-        SymptomTrialStart, on_delete=models.CASCADE)
-    symptom_trial_end = models.ForeignKey(
-        SymptomTrialEnd, on_delete=models.CASCADE)
     symptom_severity = models.ForeignKey(
         SymptomSeverity, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
@@ -535,37 +524,19 @@ class UserSymptomUpdate(models.Model):
         verbose_name = 'User Severity Update (Symptom)'
         verbose_name_plural = 'User Severity Updates (Symptom)'
 
-    def hasSymptomTrialStart(self):
-        __has_object = False
-
-        try:
-            __has_object = self.symptom_trial_start is not None
-        except ObjectDoesNotExist:
-            pass
-
-        return __has_object
-
-    def hasSymptomTrialEnd(self):
-        __has_object = False
-
-        try:
-            __has_object = self.symptom_trial_end is not None
-        except ObjectDoesNotExist:
-            pass
-
-        return __has_object
-
     def getUserName(self):
         try:
             return self.user_symptom.getUserName()
         except ObjectDoesNotExist:
             return None
+    getUserName.short_description = 'User Name'
 
     def getSymptomName(self):
         try:
             return self.user_symptom.getSymptomName()
         except ObjectDoesNotExist:
             return None
+    getSymptomName.short_description = 'Symptom Name'
 
     def getSeverity(self):
         try:
@@ -584,30 +555,7 @@ class UserSymptomUpdate(models.Model):
             return self.symptom_severity.getSeverityAsText()
         except ObjectDoesNotExist:
             return None
-
-    def getMethodName(self):
-        try:
-            return self.symptom_trial_start.getMethodName()
-        except ObjectDoesNotExist:
-            return None
-
-    def getMethod(self):
-        try:
-            return self.symptom_trial_start.getMethod()
-        except ObjectDoesNotExist:
-            return None
-
-    def getStartedAt(self, default=None):
-        try:
-            return self.symptom_trial_start.getStartedAt()
-        except ObjectDoesNotExist:
-            return default
-
-    def getEndedAt(self, default=None):
-        try:
-            return self.symptom_trial_end.getEndedAt()
-        except:
-            return default
+    getSeverityAsText.short_description = 'Severity'
 
     def getTitle(self):
         return self.title

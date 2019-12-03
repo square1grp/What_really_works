@@ -54,29 +54,20 @@ class UserSymptomAdmin(admin.ModelAdmin):
     search_fields = ['user__name', 'symptom__name']
 
 
-class MethodTrialStartAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'created_at']
-    search_fields = ['method__name']
+class UserMethodTrialStartAdmin(admin.ModelAdmin):
+    list_display = ['user', 'getMethodName', 'created_at']
+    search_fields = ['user__name', 'method__name']
 
 
-class MethodTrialEndAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'created_at']
-    search_fields = ['method__name']
-
-
-class SymptomTrialStartAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'created_at']
-    search_fields = ['method_trial_start__method__name']
-
-
-class SymptomTrialEndAdmin(admin.ModelAdmin):
-    list_display = ['getMethodName', 'created_at']
-    search_fields = ['symptom_trial_start__method_trial_start__method__name']
+class UserMethodTrialEndAdmin(admin.ModelAdmin):
+    list_display = ['getUserName', 'getMethodName',
+                    'getStartedAt', 'created_at']
+    search_fields = ['method_trial_start__user__name', 'method__name']
 
 
 class UserSymptomUpdateAdmin(admin.ModelAdmin):
-    list_display = ['getUserName', 'getSymptomName', 'title', 'getSeverityAsText',
-                    'getMethodName', 'getStartedAt', 'getEndedAt', 'created_at']
+    list_display = ['getUserName', 'getSymptomName',
+                    'title', 'getSeverityAsText', 'created_at']
 
 
 admin.site.register(User, UserAdmin)
@@ -86,8 +77,6 @@ admin.site.register(Method, MethodAdmin)
 admin.site.register(SymptomSeverity, SymptomSeverityAdmin)
 admin.site.register(SideEffectSeverity, SideEffectSeverityAdmin)
 admin.site.register(UserSideEffectUpdate, UserSideEffectUpdateAdmin)
-admin.site.register(MethodTrialStart, MethodTrialStartAdmin)
-admin.site.register(MethodTrialEnd, MethodTrialEndAdmin)
-admin.site.register(SymptomTrialStart, SymptomTrialStartAdmin)
-admin.site.register(SymptomTrialEnd, SymptomTrialEndAdmin)
+admin.site.register(UserMethodTrialStart, UserMethodTrialStartAdmin)
+admin.site.register(UserMethodTrialEnd, UserMethodTrialEndAdmin)
 admin.site.register(UserSymptomUpdate, UserSymptomUpdateAdmin)
