@@ -1,0 +1,224 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+
+{% load static %}
+<script src="{% static 'js/add_treatment.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+<div class="container add-treatment-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/user/{{user_id}}" role="button">Back to Home</a>
+    </div>
+
+    <div class="row flex-column">
+        <form id="new_treatment" class="needs-validation col-12 col-lg-7 mx-auto mt-5" method="POST" novalidate>
+            {% csrf_token %}
+
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="user_id" value="{{user_id}}" />
+
+            <div class="form-group row">
+                <h3 class="col-sm-4">Treatment</h3>
+                <div class="col-sm-8">
+                    <select name="method_id" id="method_id" class="form-control" required>
+                        <option value="">Please select a treatment.</option>
+                        {% for method in methods %}
+                        <option value="{{method.id}}">{{method.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a Treatment.
+                    </div>
+                </div>
+            </div>
+
+            <fieldset class="mb-4 p-3 border">
+                <div class="form-group row start">
+                    <label for="started_at" class="col-sm-7 col-form-label">Start Date</label>
+                    <div class="col-sm-5">
+                        <input type="" name="started_at" id="started_at" class="form-control" readonly required />
+
+                        <script>
+                            var today = new Date();
+
+                            $("#started_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#started_at").datepicker("setDate", today);
+                        </script>
+                        <div class="invalid-feedback">
+                            Please fill out this field.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="is_ended">
+                    <label class="form-check-label" for="is_ended">
+                        Did you end the treatment?
+                    </label>
+                </div>
+
+                <div class="form-group row end" style="display: none;">
+                    <label for="ended_at" class="col-sm-7 col-form-label">End Date</label>
+                    <div class="col-sm-5">
+                        <input type="" name="ended_at" id="ended_at" class="form-control" readonly required />
+
+                        <script>
+                            var today = new Date();
+
+                            $("#ended_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#ended_at").datepicker("setDate", today);
+                        </script>
+                        <div class="invalid-feedback">
+                            Please fill out this field.
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-4 p-3 border">
+                <div class="form-group row">
+                    <h4 class="col-sm-4">Symptoms</h4>
+                    <div class="col-sm-8">
+                        <select id="user_symptom_id" class="form-control">
+                            {% for user_symptom in user_symptoms %}
+                            <option value="{{user_symptom.id}}">
+                                {{user_symptom.symptom}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a symptom.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <h4 class="col-sm-4 invisible"></h4>
+                    <div class="col-sm-8">
+                        {% for user_symptom in user_symptoms %}
+                        <div class="form-group form-check">
+                            <input type="hidden" class="start_symptom_severity_id" name="start_symptom_severity_id_{{user_symptom.id}}"
+                                symptom-id="{{user_symptom.id}}" value="-1" />
+                            <input type="hidden" class="end_symptom_severity_id" name="end_symptom_severity_id_{{user_symptom.id}}"
+                                symptom-id="{{user_symptom.id}}" value="-1" />
+
+                            <input type="checkbox" class="form-check-input filled-out-{{user_symptom.id}}" disabled
+                                required />
+                            <label class="form-check-label">{{user_symptom.symptom}}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group row start">
+                    <label for="start_symptom_severity_id" class="col-sm-7 col-form-label">
+                        Symptom Severity on Start Date
+                    </label>
+                    <div class="col-sm-5">
+                        <select id="start_symptom_severity_id" class="form-control" required>
+                            <option value="">Please select a severity.</option>
+                            {% for symptom_severity in symptom_severities %}
+                            <option value="{{symptom_severity.id}}">{{symptom_severity.title}}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a severity.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row end" style="display: none;">
+                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label">
+                        Symptom Severity on End Date
+                    </label>
+                    <div class="col-sm-5">
+                        <select id="end_symptom_severity_id" class="form-control">
+                            <option value="">Please select a severity</option>
+                            {% for symptom_severity in symptom_severities %}
+                            <option value="{{symptom_severity.id}}">{{symptom_severity.title}}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a severity.
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-4 p-3 border">
+                <div class="form-group row start">
+                    <label for="start_side_effect_severity_id" class="col-sm-7 col-form-label">
+                        Side Effect Severity on Start Date
+                    </label>
+                    <div class="col-sm-5">
+                        <select name="start_side_effect_severity_id" class="form-control" required>
+                            <option value="">Please select a severity</option>
+                            {% for side_effect_severity in side_effect_severities %}
+                            <option value="{{side_effect_severity.id}}">{{side_effect_severity.title}}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a side effect severity.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group start">
+                    <label for="start_title">Short Description of How You Felt</label>
+                    <input type="text" name="start_title" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please provide us a title.
+                    </div>
+                </div>
+
+                <div class="form-group start">
+                    <label for="start_description">Long Description of How You Felt</label>
+                    <textarea name="start_description" class="form-control" required></textarea>
+                    <div class="invalid-feedback">
+                        Please provide us a description.
+                    </div>
+                </div>
+
+                <div class="form-group row end" style="display: none;">
+                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label">
+                        Side Effect Severity on End Date
+                    </label>
+                    <div class="col-sm-5">
+                        <select name="end_side_effect_severity_id" class="form-control">
+                            <option value="">Please select a severity</option>
+                            {% for side_effect_severity in side_effect_severities %}
+                            <option value="{{side_effect_severity.id}}">{{side_effect_severity.title}}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a side effect severity.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group end" style="display: none;">
+                    <label for="end_title">Short Description of How You Felt</label>
+                    <input type="text" name="end_title" class="form-control" />
+                    <div class="invalid-feedback">
+                        Please provide us a title.
+                    </div>
+                </div>
+
+                <div class="form-group end" style="display: none;">
+                    <label for="end_description">Long Description of How You Felt</label>
+                    <textarea name="end_description" class="form-control"></textarea>
+                    <div class="invalid-feedback">
+                        Please provide us a description.
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary d-block ml-auto" disabled>Add</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
