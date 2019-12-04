@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
 from django.utils import timezone
-from wrw.models import User, Method, UserSymptomUpdate, UserMethodTrialStart
+from wrw.models import User, Method, UserSymptomUpdate, UserMethodTrialStart, Symptom
 from plotly.offline import plot
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
@@ -162,7 +162,7 @@ class UserPage(View):
             is_no_symptom=False,
             is_no_treatment=is_no_treatment,
             is_no_user_symptom=is_no_user_symptom,
-            symptoms=symptoms,
+            symptoms=Symptom.objects.all(),
             treatment_timeline_chart=treatment_timeline_chart,
             side_effect_timeline_chart=side_effect_timeline_chart,
             symptom_timelines=symptom_timelines
