@@ -84,7 +84,7 @@ class User(models.Model):
     # return data for side effect severity chart
     def getSideEffectSeverities(self):
         user_side_effect_updates = UserSideEffectUpdate.objects.filter(
-            user=self).order_by('-created_at')
+            user=self).order_by('-created_at', '-id')
 
         severities = [dict(
             title=user_side_effect_update.getTitle(),
@@ -100,7 +100,7 @@ class User(models.Model):
         user_symptom = UserSymptom.objects.get(user=self, symptom=symptom)
 
         user_symptom_updates = UserSymptomUpdate.objects.filter(
-            user_symptom=user_symptom).order_by('-created_at')
+            user_symptom=user_symptom).order_by('-created_at', '-id')
 
         severities = [dict(
             title=user_symptom_update.getTitle(),

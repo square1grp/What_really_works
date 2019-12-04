@@ -46,7 +46,7 @@ class UserSideEffectUpdatePage(View):
         user = User.objects.get(id=user_id)
 
         user_side_effect_updates = UserSideEffectUpdate.objects.filter(
-            user=user).order_by('-created_at')
+            user=user).order_by('-created_at', '-id')
         user_side_effect_updates = [dict(
             id=user_side_effect_update.id,
             title=user_side_effect_update.getTitle(),

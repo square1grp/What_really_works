@@ -4,6 +4,8 @@ from django.views import View
 from wrw.models import User, UserSymptom, Method, SymptomSeverity, SideEffectSeverity, UserSideEffectUpdate, UserSymptomUpdate, UserMethodTrialStart, UserMethodTrialEnd
 from datetime import datetime
 import pytz
+from django.utils import timezone
+from datetime import timedelta
 
 
 class UserMethodTrialPage(View):
@@ -116,6 +118,9 @@ class UserMethodTrialPage(View):
                         id=params['end_side_effect_severity_id'])
                     ended_at = datetime.strptime(
                         params['ended_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+
+                    if started_at == ended_at:
+                        ended_at = ended_at + timedelta(days=1)
 
                     self.addUserMethodTrialEnd(
                         user_method_trial_start, ended_at)

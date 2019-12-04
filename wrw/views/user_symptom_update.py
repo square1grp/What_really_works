@@ -48,7 +48,7 @@ class UserSymptomUpdatePage(View):
         user_symptoms = UserSymptom.objects.filter(
             user=user, symptom__in=user.getSymptoms())
         user_symptom_updates = UserSymptomUpdate.objects.filter(
-            user_symptom__in=user_symptoms).order_by('-created_at')
+            user_symptom__in=user_symptoms).order_by('-created_at', '-id')
         user_symptom_updates = [dict(
             id=user_symptom_update.id,
             title=user_symptom_update.getTitle(),
