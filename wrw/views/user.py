@@ -6,7 +6,7 @@ from wrw.models import User, Method, UserSymptomUpdate, UserMethodTrialStart, Sy
 from plotly.offline import plot
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 
 class UserPage(View):
@@ -35,6 +35,9 @@ class UserPage(View):
 
             if ended_at is None:
                 ended_at = timezone.now().date() + timedelta(days=1)
+
+            started_at = datetime.combine(started_at, datetime.min.time())
+            ended_at = datetime.combine(ended_at, datetime.min.time())
 
             user_symptom_updates += UserSymptomUpdate.objects.filter(
                 user_symptom__user=user, created_at__range=[started_at, ended_at])
