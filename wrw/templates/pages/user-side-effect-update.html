@@ -1,0 +1,97 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+
+{% load static %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container add-user-symptom-update-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/user/{{user_id}}" role="button">Back to Home</a>
+    </div>
+
+    <div class="row flex-column">
+        {% for user_side_effect_update in user_side_effect_updates %}
+        <form class="form-inline col-12 col-lg-6 mx-auto pb-3 border-bottom" method="POST">
+            {% csrf_token %}
+            <div class="col-11 row">
+                <h4>{{user_side_effect_update.title}}</h4>
+                <p class="col-12">
+                    <b>Symptom Severity:</b> {{user_side_effect_update.side_effect_severity}}
+                    <br />
+                    <b>Created At:</b> {{user_side_effect_update.created_at}}
+                </p>
+            </div>
+
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="id" value="{{user_side_effect_update.id}}">
+            <button type="submit" class="delete ml-auto btn btn-outline-danger btn-sm">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <form class="col-12 col-lg-6 mx-auto mt-5 needs-validation" method="POST" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="user_id" value="{{user_id}}" />
+
+            <div class="form-group row">
+                <label for="created_at" class="col-sm-7 col-form-label">Date</label>
+                <div class="col-sm-5">
+                    <input type="" name="created_at" id="created_at" class="form-control" required readonly />
+
+                    <script>
+                        var today = new Date();
+                        var yesterday = new Date()
+                        yesterday.setDate(today.getDate() - 1)
+
+                        $("#created_at").datepicker({ autoclose: true, minDate: yesterday, maxDate: today, defaultDate: today });
+                        $("#created_at").datepicker("setDate", today);
+                    </script>
+                    <div class="invalid-feedback">
+                        Please fill out this field.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-12"><b>Symptom Severity</b></label>
+                <label for="side_effect_severity_id" class="col-sm-7 col-form-label">New Severity</label>
+                <div class="col-sm-5">
+                    <select name="side_effect_severity_id" class="form-control" required>
+                        <option value="">Please select a severity</option>
+                        {% for side_effect_severity in side_effect_severities %}
+                        <option value="{{side_effect_severity.id}}">{{side_effect_severity.title}}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a severity.
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="title">Short Description of How You Felt</label>
+                <input type="text" name="title" class="form-control" required />
+                <div class="invalid-feedback">
+                    Please provide us a title.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Long Description of How You Felt</label>
+                <textarea name="description" class="form-control" required></textarea>
+                <div class="invalid-feedback">
+                    Please provide us a description.
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary d-block ml-auto">Add</button>
+        </form>
+    </div>
+</div>
+{% endblock%}

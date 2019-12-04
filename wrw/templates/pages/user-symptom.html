@@ -14,7 +14,7 @@
 
     <div class="row flex-column">
         {% for user_symptom in user_symptoms %}
-        <form class="form-inline col-12 col-lg-6 mx-auto" method="POST">
+        <form class="form-inline col-12 col-lg-6 mx-auto pb-3 border-bottom" method="POST">
             {% csrf_token %}
             <div class="col-11 row">
                 <h4>{{user_symptom.symptom}}</h4>
@@ -23,7 +23,7 @@
 
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="user_symptom_id" value="{{user_symptom.id}}">
-            <button type="submit" class="delete m-auto btn btn-outline-danger btn-sm">
+            <button type="submit" class="delete ml-auto btn btn-outline-danger btn-sm">
                 <i class="fa fa-times" aria-hidden="true"></i>
             </button>
         </form>

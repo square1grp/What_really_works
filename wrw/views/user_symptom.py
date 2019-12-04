@@ -62,8 +62,8 @@ class UserSymptomPage(View):
 
         user_symptoms.sort(key=lambda x: x['created_at'])
 
-        return render(request, self.template_name, {
-            'user_id': user_id,
-            'user_symptoms': user_symptoms,
-            'symptoms': symptoms
-        })
+        return render(request, self.template_name, dict(
+            user_id=user_id,
+            user_symptoms=user_symptoms,
+            symptoms=symptoms
+        ))

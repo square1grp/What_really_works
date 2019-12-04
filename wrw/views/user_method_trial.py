@@ -164,10 +164,8 @@ class UserMethodTrialPage(View):
             return HttpResponse('No user.')
 
         user = User.objects.get(id=user_id)
-        user_symptoms = []
-        for symptom in user.getSymptoms():
-            user_symptoms += UserSymptom.objects.filter(
-                user=user, symptom=symptom)
+        user_symptoms = UserSymptom.objects.filter(
+            user=user, symptom__in=user.getSymptoms())
 
         user_symptoms = [dict(
             id=user_symptom.id,
@@ -190,14 +188,17 @@ class UserMethodTrialPage(View):
                     ended_at=user_method_trial_start.getEndedAt()
                 ))
 
+        user_treatments.sort(key=lambda x: x['started_at'])
+        user_treatments.reverse()
+
         symptom_severities = SymptomSeverity.objects.all()
         side_effect_severities = SideEffectSeverity.objects.all()
 
-        return render(request, self.template_name, {
-            'user_id': user_id,
-            'user_treatments': user_treatments,
-            'methods': methods,
-            'user_symptoms': user_symptoms,
-            'symptom_severities': symptom_severities,
-            'side_effect_severities': side_effect_severities
-        })
+        return render(request, self.template_name, dict(
+            user_id=user_id,
+            user_treatments=user_treatments,
+            methods=methods,
+            user_symptoms=user_symptoms,
+            symptom_severities=symptom_severities,
+            side_effect_severities=side_effect_severities
+        ))
