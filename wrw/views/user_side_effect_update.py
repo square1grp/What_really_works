@@ -50,7 +50,7 @@ class UserSideEffectUpdatePage(View):
         user_side_effect_updates = [dict(
             id=user_side_effect_update.id,
             title=user_side_effect_update.getTitle(),
-            symptom_severity=user_side_effect_update.getSeverityAsText(),
+            side_effect_severity=user_side_effect_update.getSeverityAsText(),
             created_at=user_side_effect_update.getCreatedAt()
         ) for user_side_effect_update in user_side_effect_updates]
         side_effect_severities = SideEffectSeverity.objects.all()
