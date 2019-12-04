@@ -50,7 +50,7 @@ class UserSideEffectUpdateAdmin(admin.ModelAdmin):
 
 
 class UserSymptomAdmin(admin.ModelAdmin):
-    list_display = ['user', 'symptom']
+    list_display = ['user', 'symptom', 'created_at']
     search_fields = ['user__name', 'symptom__name']
 
 

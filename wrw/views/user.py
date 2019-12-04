@@ -28,30 +28,29 @@ class UserPage(View):
             user_method_trial_starts = UserMethodTrialStart.objects.filter(
                 user=user, method=method)
 
-            for user_method_trial_start in user_method_trial_starts:
-                user_symptom_updates = []
-                started_at = user_method_trial_start.getStartedAt()
-                ended_at = user_method_trial_start.getEndedAt()
+            user_symptom_updates = []
+            started_at = user_method_trial_starts.first().getStartedAt()
+            ended_at = user_method_trial_starts.last().getEndedAt()
 
-                if ended_at is None:
-                    ended_at = timezone.now().date()
+            if ended_at is None:
+                ended_at = timezone.now().date()
 
-                user_symptom_updates += UserSymptomUpdate.objects.filter(
-                    user_symptom__user=user, created_at__range=[started_at, ended_at])
+            user_symptom_updates += UserSymptomUpdate.objects.filter(
+                user_symptom__user=user, created_at__range=[started_at, ended_at])
 
-                if user_symptom_updates:
-                    user_symptom_updates.sort(key=lambda x: x.getCreatedAt())
+            if user_symptom_updates:
+                user_symptom_updates.sort(key=lambda x: x.getCreatedAt())
 
-                    annotation_at = started_at+(ended_at-started_at)/2
+                annotation_at = started_at+(ended_at-started_at)/2
 
-                    treatment_timelines.append(dict(
-                        dict(
-                            method=str(method),
-                            started_at=started_at,
-                            ended_at=ended_at,
-                            annotation_at=annotation_at
-                        )
-                    ))
+                treatment_timelines.append(dict(
+                    dict(
+                        method=str(method),
+                        started_at=started_at,
+                        ended_at=ended_at,
+                        annotation_at=annotation_at
+                    )
+                ))
 
         dataframe += [dict(
             Task=treatment_timeline['method'],

@@ -28,7 +28,7 @@ $(document).ready(function () {
         clearInterval(checkOffSymptomInterval);
 
         if ($("form#new_treatment.was-validated .form-control:invalid").length > 0) {
-            $("input[class*=filled-out-]").prop("checked", false);
+            // $("input[class*=filled-out-]").prop("checked", false);
             return false;
         }
 
@@ -56,6 +56,7 @@ $(document).ready(function () {
 
     $("select#user_symptom_id").change(function () {
         $("select#start_symptom_severity_id").val("");
+        $("select#end_symptom_severity_id").val("");
         $("form#new_treatment").removeClass("was-validated").addClass("needs-validation");
     });
 
