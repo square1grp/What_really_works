@@ -45,12 +45,12 @@ $(document).ready(function () {
     $("#is_ended").change(function () {
         if ($(this).prop("checked")) {
             $(".form-group.end .form-control").prop("required", true);
-            $(".form-group.end").slideToggle("fast");
         } else {
             $(".form-group.end .form-control").prop("required", false);
-            $(".form-group.end").slideToggle("fast");
         }
 
+        $(".form-group.end .form-control[name=end_title], .form-group.end .form-control[name=end_description]").prop("required", false);
+        $(".form-group.end").slideToggle("fast");
         checkOffSymptom()
     });
 
@@ -74,10 +74,9 @@ $(document).ready(function () {
         $.each($("input[class*=filled-out-]"), function (idx, selector) {
             if (!$(selector).prop("checked")) {
                 $("form#new_treatment button").prop("disabled", true);
-                return false;
+            } else {
+                $("form#new_treatment button").prop("disabled", false);
             }
-
-            $("form#new_treatment button").prop("disabled", false);
         });
     }, 500);
 });
