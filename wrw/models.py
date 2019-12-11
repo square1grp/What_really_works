@@ -122,10 +122,10 @@ class User(models.Model):
             ended_at = user_method_trial_start.getEndedAt()
 
             if ended_at is None:
-                ended_at = timezone.now().date()
+                ended_at = timezone.now()
 
             user_symptom_updates += UserSymptomUpdate.objects.filter(
-                user_symptom=user_symptom, created_at__range=[started_at, ended_at])
+                user_symptom=user_symptom, user_method_trial_start=user_method_trial_start, created_at__range=[started_at, ended_at])
 
         if not user_symptom_updates:
             return None
@@ -156,18 +156,16 @@ class User(models.Model):
         user_method_trial_starts = UserMethodTrialStart.objects.filter(
             user=self, method=method)
 
-        user_side_effect_updates = UserSideEffectUpdate.objects.filter(
-            user=self).order_by('created_at')
-
         user_side_effect_updates = []
         for user_method_trial_start in user_method_trial_starts:
             started_at = user_method_trial_start.getStartedAt()
             ended_at = user_method_trial_start.getEndedAt()
 
             if ended_at is None:
-                ended_at = timezone.now().date()
+                ended_at = timezone.now()
 
             user_side_effect_updates += UserSideEffectUpdate.objects.filter(
+                user_method_trial_start=user_method_trial_start,
                 created_at__range=[started_at, ended_at])
 
         if not user_side_effect_updates:
@@ -372,7 +370,7 @@ class SideEffectSeverity(models.Model):
 class UserSymptom(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     symptom = models.ForeignKey(Symptom, on_delete=models.CASCADE)
-    created_at = models.DateField('Created at', default=timezone.now)
+    created_at = models.DateTimeField('Created at', default=timezone.now)
 
     class Meta:
         verbose_name = 'User Symptom'
@@ -398,60 +396,6 @@ class UserSymptom(models.Model):
 
 '''
 /************************************************************
-************* User Side Effect Update
-************************************************************/
-'''
-
-
-class UserSideEffectUpdate(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    side_effect_severity = models.ForeignKey(
-        SideEffectSeverity, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    created_at = models.DateField('Updated at', default=timezone.now)
-
-    class Meta:
-        verbose_name = 'User Severity Update (Side Effect)'
-        verbose_name_plural = 'User Severity Updates (Side Effect)'
-
-    def __str__(self):
-        return '%s : %s at %s' % (self.getUserName(), self.getSeverityAsText(), self.created_at)
-
-    def getUserName(self):
-        return str(self.user)
-
-    def getSeverityAsText(self):
-        try:
-            return self.side_effect_severity.getSeverityAsText()
-        except ObjectDoesNotExist:
-            return None
-    getSeverityAsText.short_description = 'Severity'
-
-    def getSeverityRating(self):
-        try:
-            return self.side_effect_severity.getRating()
-        except ObjectDoesNotExist:
-            return None
-
-    def getSeverity(self):
-        try:
-            return self.side_effect_severity
-        except ObjectDoesNotExist:
-            return None
-
-    def getTitle(self):
-        return self.title
-
-    def getDescription(self):
-        return self.description
-
-    def getCreatedAt(self):
-        return self.created_at
-
-
-'''
-/************************************************************
 ************* Method Trial Start
 ************************************************************/
 '''
@@ -460,7 +404,7 @@ class UserSideEffectUpdate(models.Model):
 class UserMethodTrialStart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     method = models.ForeignKey(Method, on_delete=models.CASCADE)
-    created_at = models.DateField('Started at', default=timezone.now)
+    created_at = models.DateTimeField('Started at', default=timezone.now)
 
     class Meta:
         verbose_name = 'User Method Trial Start'
@@ -515,7 +459,7 @@ class UserMethodTrialStart(models.Model):
 class UserMethodTrialEnd(models.Model):
     user_method_trial_start = models.OneToOneField(
         UserMethodTrialStart, on_delete=models.CASCADE)
-    created_at = models.DateField('Ended at', default=timezone.now)
+    created_at = models.DateTimeField('Ended at', default=timezone.now)
 
     class Meta:
         verbose_name = 'User Method Trial End'
@@ -539,6 +483,65 @@ class UserMethodTrialEnd(models.Model):
 
 '''
 /************************************************************
+************* User Side Effect Update
+************************************************************/
+'''
+
+
+class UserSideEffectUpdate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    side_effect_severity = models.ForeignKey(
+        SideEffectSeverity, on_delete=models.CASCADE)
+    user_method_trial_start = models.ForeignKey(
+        UserMethodTrialStart, on_delete=models.CASCADE, blank=True, null=True)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField('Updated at', default=timezone.now)
+
+    class Meta:
+        verbose_name = 'User Severity Update (Side Effect)'
+        verbose_name_plural = 'User Severity Updates (Side Effect)'
+
+    def __str__(self):
+        return '%s : %s at %s' % (self.getUserName(), self.getSeverityAsText(), self.created_at)
+
+    def getUserName(self):
+        return str(self.user)
+
+    def getSeverityAsText(self):
+        try:
+            return self.side_effect_severity.getSeverityAsText()
+        except ObjectDoesNotExist:
+            return None
+    getSeverityAsText.short_description = 'Severity'
+
+    def getSeverityRating(self):
+        try:
+            return self.side_effect_severity.getRating()
+        except ObjectDoesNotExist:
+            return None
+
+    def getSeverity(self):
+        try:
+            return self.side_effect_severity
+        except ObjectDoesNotExist:
+            return None
+
+    def getTitle(self):
+        return self.title
+
+    def getDescription(self):
+        return self.description
+
+    def getCreatedAt(self):
+        return self.created_at
+
+    def getUserMethodTrialEnd(self):
+        return self.user_method_trial_start.getEnded()
+
+
+'''
+/************************************************************
 ************* User Symptom Update
 ************************************************************/
 '''
@@ -548,9 +551,11 @@ class UserSymptomUpdate(models.Model):
     user_symptom = models.ForeignKey(UserSymptom, on_delete=models.CASCADE)
     symptom_severity = models.ForeignKey(
         SymptomSeverity, on_delete=models.CASCADE)
+    user_method_trial_start = models.ForeignKey(
+        UserMethodTrialStart, on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    created_at = models.DateField('Updated at', default=timezone.now)
+    created_at = models.DateTimeField('Updated at', default=timezone.now)
 
     class Meta:
         verbose_name = 'User Severity Update (Symptom)'
@@ -597,3 +602,6 @@ class UserSymptomUpdate(models.Model):
 
     def getCreatedAt(self):
         return self.created_at
+
+    def getUserMethodTrialEnd(self):
+        return self.user_method_trial_start.getEnded()

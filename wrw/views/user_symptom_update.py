@@ -22,7 +22,7 @@ class UserSymptomUpdatePage(View):
                 user_symptom = UserSymptom.objects.get(
                     id=params['user_symptom_id'])
                 created_at = datetime.strptime(
-                    params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+                    params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
                 symptom_severity = SymptomSeverity.objects.get(
                     id=params['symptom_severity_id'])
 
@@ -53,7 +53,7 @@ class UserSymptomUpdatePage(View):
             id=user_symptom_update.id,
             title=user_symptom_update.getTitle(),
             symptom_severity=user_symptom_update.getSeverityAsText(),
-            created_at=user_symptom_update.getCreatedAt()
+            created_at=user_symptom_update.getCreatedAt().strftime('%Y-%m-%d %H:%M:%S')
         ) for user_symptom_update in user_symptom_updates]
         symptom_severities = SymptomSeverity.objects.all()
 

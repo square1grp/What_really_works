@@ -24,7 +24,7 @@ class UserSideEffectUpdatePage(View):
                 side_effect_severity = SideEffectSeverity.objects.get(
                     id=params['side_effect_severity_id'])
                 created_at = datetime.strptime(
-                    params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+                    params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
                 user_side_effect_update = UserSideEffectUpdate(user=user, side_effect_severity=side_effect_severity,
                                                                created_at=created_at, title=params['title'], description=params['description'])
@@ -51,7 +51,7 @@ class UserSideEffectUpdatePage(View):
             id=user_side_effect_update.id,
             title=user_side_effect_update.getTitle(),
             side_effect_severity=user_side_effect_update.getSeverityAsText(),
-            created_at=user_side_effect_update.getCreatedAt()
+            created_at=user_side_effect_update.getCreatedAt().strftime('%Y-%m-%d %H:%M:%S')
         ) for user_side_effect_update in user_side_effect_updates]
         side_effect_severities = SideEffectSeverity.objects.all()
 

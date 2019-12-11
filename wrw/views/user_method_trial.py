@@ -4,7 +4,6 @@ from django.views import View
 from wrw.models import User, UserSymptom, Method, SymptomSeverity, SideEffectSeverity, UserSideEffectUpdate, UserSymptomUpdate, UserMethodTrialStart, UserMethodTrialEnd
 from datetime import datetime
 import pytz
-from django.utils import timezone
 from datetime import timedelta
 
 
@@ -30,10 +29,11 @@ class UserMethodTrialPage(View):
 
         return user_method_trial_end
 
-    def addUserSymptomUpdate(self, user_symptom, symptom_severity, created_at, title, description):
+    def addUserSymptomUpdate(self, user_symptom, symptom_severity, user_method_trial_start, created_at, title, description):
         user_symptom_update = UserSymptomUpdate(
             user_symptom=user_symptom,
             symptom_severity=symptom_severity,
+            user_method_trial_start=user_method_trial_start,
             created_at=created_at,
             title=title,
             description=description)
@@ -41,10 +41,11 @@ class UserMethodTrialPage(View):
 
         return user_symptom_update
 
-    def addUserSideEffectUpdate(self, user, side_effect_severity, created_at, title, description):
+    def addUserSideEffectUpdate(self, user, side_effect_severity, user_method_trial_start, created_at, title, description):
         user_side_effect_update = UserSideEffectUpdate(
             user=user,
             side_effect_severity=side_effect_severity,
+            user_method_trial_start=user_method_trial_start,
             created_at=created_at,
             title=title,
             description=description)
@@ -103,7 +104,7 @@ class UserMethodTrialPage(View):
             if params['action'] == 'add':
                 method = Method.objects.get(id=params['method_id'])
                 started_at = datetime.strptime(
-                    params['started_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+                    params['started_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
                 start_side_effect_severity = SideEffectSeverity.objects.get(
                     id=params['start_side_effect_severity_id'])
 
@@ -111,13 +112,13 @@ class UserMethodTrialPage(View):
                     user, method, started_at)
 
                 self.addUserSideEffectUpdate(
-                    user, start_side_effect_severity, started_at, params['start_title'], params['start_description'])
+                    user, start_side_effect_severity, user_method_trial_start, started_at, params['start_title'], params['start_description'])
 
                 if 'is_ended' in params and params['is_ended'] == 'yes':
                     end_side_effect_severity = SideEffectSeverity.objects.get(
                         id=params['end_side_effect_severity_id'])
                     ended_at = datetime.strptime(
-                        params['ended_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+                        params['ended_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
                     if started_at == ended_at:
                         ended_at = ended_at + timedelta(days=1)
@@ -126,7 +127,7 @@ class UserMethodTrialPage(View):
                         user_method_trial_start, ended_at)
 
                     self.addUserSideEffectUpdate(
-                        user, end_side_effect_severity, ended_at, params['end_title'], params['end_description'])
+                        user, end_side_effect_severity, user_method_trial_start, ended_at, params['end_title'], params['end_description'])
 
                 for symptom in user.getSymptoms():
                     user_symptom = UserSymptom.objects.get(
@@ -138,7 +139,7 @@ class UserMethodTrialPage(View):
                         id=start_symptom_severity_id)
 
                     self.addUserSymptomUpdate(
-                        user_symptom, start_symptom_severity, started_at, params['start_title'], params['start_description'])
+                        user_symptom, start_symptom_severity, user_method_trial_start, started_at, params['start_title'], params['start_description'])
 
                     if 'is_ended' in params and params['is_ended'] == 'yes':
                         end_symptom_severity_id = params['end_symptom_severity_id_%s' %
@@ -147,7 +148,7 @@ class UserMethodTrialPage(View):
                             id=end_symptom_severity_id)
 
                         self.addUserSymptomUpdate(
-                            user_symptom, end_symptom_severity, ended_at, params['end_title'], params['end_description'])
+                            user_symptom, end_symptom_severity, user_method_trial_start, ended_at, params['end_title'], params['end_description'])
 
             elif params['action'] == 'delete':
                 self.deleteUserTreatment(user, params['id'])
@@ -186,11 +187,13 @@ class UserMethodTrialPage(View):
                 user=user, method=method)
 
             for user_method_trial_start in user_method_trial_starts:
+                ended_at = user_method_trial_start.getEndedAt()
+
                 user_treatments.append(dict(
                     id=user_method_trial_start.id,
                     method_name=user_method_trial_start.getMethodName(),
-                    started_at=user_method_trial_start.getStartedAt(),
-                    ended_at=user_method_trial_start.getEndedAt()
+                    started_at=user_method_trial_start.getStartedAt().strftime('%Y-%m-%d %H:%M:%S'),
+                    ended_at=ended_at.strftime('%Y-%m-%d %H:%M:%S') if ended_at is not None else None
                 ))
 
         user_treatments.sort(key=lambda x: x['started_at'])

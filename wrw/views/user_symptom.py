@@ -13,7 +13,7 @@ class UserSymptomPage(View):
         user = User.objects.get(id=params['user_id'])
         symptom = Symptom.objects.get(id=params['symptom_id'])
         created_at = datetime.strptime(
-            params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC')).date()
+            params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
 
         try:
             user_symptom = UserSymptom(
@@ -57,7 +57,7 @@ class UserSymptomPage(View):
         user_symptoms = [dict(
             id=user_symptom.id,
             symptom=user_symptom.getSymptomName(),
-            created_at=user_symptom.getCreatedAt()
+            created_at=user_symptom.getCreatedAt().strftime('%Y-%m-%d %H:%M:%S')
         ) for user_symptom in user_symptoms]
 
         user_symptoms.sort(key=lambda x: x['created_at'])

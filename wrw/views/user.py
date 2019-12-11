@@ -34,7 +34,7 @@ class UserPage(View):
             ended_at = user_method_trial_starts.last().getEndedAt()
 
             if ended_at is None:
-                ended_at = timezone.now().date() + timedelta(days=1)
+                ended_at = timezone.now() + timedelta(days=1)
 
             started_at = datetime.combine(started_at, datetime.min.time())
             ended_at = datetime.combine(ended_at, datetime.min.time())
