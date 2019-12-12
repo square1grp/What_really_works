@@ -14,35 +14,6 @@
     </div>
 
     <div class="row flex-column">
-        {% for user_treatment in user_treatments %}
-        <form class="added-treatment-form form-inline col-12 col-lg-7 mx-auto pb-3 border-bottom" method="POST">
-            {% csrf_token %}
-            <div class="col-10 row">
-                <h4>{{user_treatment.method_name}}</h4>
-                <p class="col-12">
-                    <b>Started at:</b> {{user_treatment.started_at}}
-                    {% if user_treatment.ended_at %}
-                    <br />
-                    <b>Ended at:</b> {{user_treatment.ended_at}}
-                    {% endif %}
-                </p>
-            </div>
-
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="id" value="{{user_treatment.id}}">
-
-            <a href="javascript:void(0)" class="edit ml-auto btn btn-outline-primary btn-sm">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-            </a>
-
-            <a href="javascript:void(0)" class="delete ml-2 btn btn-outline-danger btn-sm">
-                <i class="fa fa-times" aria-hidden="true"></i>
-            </a>
-        </form>
-        {% endfor %}
-    </div>
-
-    <div class="row flex-column">
         <form id="new_treatment" class="needs-validation col-12 col-lg-7 mx-auto mt-5" method="POST" novalidate>
             {% csrf_token %}
 
@@ -251,6 +222,35 @@
             {% endif %}
             <button type="submit" class="btn btn-primary d-block ml-auto" disabled>Add</button>
         </form>
+    </div>
+
+    <div class="row flex-column">
+        {% for user_treatment in user_treatments %}
+        <form class="added-treatment-form form-inline col-12 col-lg-7 mx-auto mt-5 pb-3 border-bottom" method="POST">
+            {% csrf_token %}
+            <div class="col-10 row">
+                <h4>{{user_treatment.method_name}}</h4>
+                <p class="col-12">
+                    <b>Started at:</b> {{user_treatment.started_at}}
+                    {% if user_treatment.ended_at %}
+                    <br />
+                    <b>Ended at:</b> {{user_treatment.ended_at}}
+                    {% endif %}
+                </p>
+            </div>
+
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="id" value="{{user_treatment.id}}">
+
+            <a href="javascript:void(0)" class="edit ml-auto btn btn-outline-primary btn-sm">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
+
+            <a href="javascript:void(0)" class="delete ml-2 btn btn-outline-danger btn-sm">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </a>
+        </form>
+        {% endfor %}
     </div>
 
 </div>

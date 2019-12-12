@@ -443,10 +443,10 @@ class UserMethodTrialStart(models.Model):
 
         return None
 
-    def getEndedAt(self):
+    def getEndedAt(self, default=None):
         user_method_trial_end = self.getEnded()
 
-        return None if user_method_trial_end is None else user_method_trial_end.getEndedAt()
+        return default if user_method_trial_end is None else user_method_trial_end.getEndedAt()
 
     def getStartedSymptomUpdate(self):
         try:

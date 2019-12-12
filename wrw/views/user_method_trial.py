@@ -177,7 +177,7 @@ class UserMethodTrialPage(View):
                         user=user, symptom=symptom)
 
                     start_symptom_severity_id = params['start_symptom_severity_id_%s' %
-                                                    user_symptom.id]
+                                                       user_symptom.id]
                     start_symptom_severity = SymptomSeverity.objects.get(
                         id=start_symptom_severity_id)
 
@@ -186,7 +186,7 @@ class UserMethodTrialPage(View):
 
                     if 'is_ended' in params and params['is_ended'] == 'yes':
                         end_symptom_severity_id = params['end_symptom_severity_id_%s' %
-                                                        user_symptom.id]
+                                                         user_symptom.id]
                         end_symptom_severity = SymptomSeverity.objects.get(
                             id=end_symptom_severity_id)
 

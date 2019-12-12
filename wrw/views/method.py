@@ -1,7 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
-from wrw.models import Symptom, Method
+from django.utils import timezone
+from wrw.models import Symptom, Method, UserMethodTrialStart
 from plotly.offline import plot
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -72,11 +73,18 @@ class MethodPage(View):
 
         return plot_div
 
-    def getSeverityTimelineChart(self, severities_data=[], height=250):
+    def getSeverityTimelineChart(self, user, method, severities_data=[], height=250):
         sizes = [10] * len(severities_data)
         line_colors = ['rgba(99, 110, 250, 0)'] * len(severities_data)
 
         fig = go.Figure()
+
+        umts = UserMethodTrialStart.objects.get(user=user, method=method)
+
+        fig.add_shape(
+            x0=umts.getStartedAt(), x1=umts.getEndedAt(timezone.now()),
+            y0=0, y1=1, line=dict(width=0), type="rect", xref="x", yref="paper", opacity=0.2, fillcolor="yellow")
+
         fig.add_trace(go.Scatter(x=[severity_data['created_at'] for severity_data in severities_data],
                                  y=[severity_data['severity']
                                      for severity_data in severities_data],
@@ -117,6 +125,7 @@ class MethodPage(View):
         user_timelines = [dict(
             user=user,
             chart=self.getSeverityTimelineChart(
+                user, method,
                 user.getSymptomSeverities(symptom))
         ) for user in method.getUsersHaveSymptom(symptom)]
 
