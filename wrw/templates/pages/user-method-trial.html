@@ -220,7 +220,7 @@
             {% if umts_id is not None %}
             <input type="hidden" name="umts_id" value="{{umts_id}}" />
             {% endif %}
-            <button type="submit" class="btn btn-primary d-block ml-auto" disabled>Add</button>
+            <button type="submit" class="btn btn-primary d-block ml-auto" disabled>{% if edit_umts %}Update{% else %}Add{% endif %}</button>
         </form>
     </div>
 
