@@ -20,6 +20,15 @@ class UserMethodTrialPage(View):
 
         return user_method_trial_start
 
+    def updateUserMethodTrialStart(self, umts_id, method, started_at):
+        user_method_trial_start = UserMethodTrialStart.objects.get(id=umts_id)
+        user_method_trial_start.method = method
+        user_method_trial_start.created_at = started_at
+
+        user_method_trial_start.save()
+
+        return user_method_trial_start
+
     def addUserMethodTrialEnd(self, user_method_trial_start, created_at):
         user_method_trial_end = UserMethodTrialEnd(
             user_method_trial_start=user_method_trial_start,
@@ -28,6 +37,27 @@ class UserMethodTrialPage(View):
         user_method_trial_end.save()
 
         return user_method_trial_end
+
+    def updateUserMethodTrialEnd(self, user_method_trial_start, created_at):
+        if not user_method_trial_start.isEnded():
+            return self.addUserMethodTrialEnd(user_method_trial_start, created_at)
+
+        user_method_trial_end = UserMethodTrialEnd.objects.get(
+            user_method_trial_start=user_method_trial_start)
+
+        user_method_trial_end.created_at = created_at
+        user_method_trial_end.save()
+
+        return user_method_trial_end
+
+    def deleteUserMethodTrialEnd(self, user_method_trial_start):
+        if not user_method_trial_start.isEnded():
+            return
+
+        user_method_trial_end = UserMethodTrialEnd.objects.get(
+            user_method_trial_start=user_method_trial_start)
+
+        user_method_trial_end.delete()
 
     def addUserSymptomUpdate(self, user_symptom, symptom_severity, user_method_trial_start, created_at, title, description):
         user_symptom_update = UserSymptomUpdate(
@@ -41,6 +71,13 @@ class UserMethodTrialPage(View):
 
         return user_symptom_update
 
+    def deleteUserSymptomUpdates(self, user_method_trial_start):
+        user_symptom_updates = UserSymptomUpdate.objects.filter(
+            user_method_trial_start=user_method_trial_start)
+
+        for user_symptom_update in user_symptom_updates:
+            user_symptom_update.delete()
+
     def addUserSideEffectUpdate(self, user, side_effect_severity, user_method_trial_start, created_at, title, description):
         user_side_effect_update = UserSideEffectUpdate(
             user=user,
@@ -53,40 +90,31 @@ class UserMethodTrialPage(View):
 
         return user_side_effect_update
 
+    def deleteUserSideEffectUpdates(self, user_method_trial_start):
+        user_side_effect_updates = UserSideEffectUpdate.objects.filter(
+            user_method_trial_start=user_method_trial_start)
+
+        for user_side_effect_update in user_side_effect_updates:
+            user_side_effect_update.delete()
+
     def deleteUserTreatment(self, user, id):
         user_method_trial_start = UserMethodTrialStart.objects.get(
             id=id)
 
         if user_method_trial_start.isEnded():
             user_method_trial_end = user_method_trial_start.getEnded()
-            '''
-            ended_at = user_method_trial_start.getEndedAt()
-
-            user_symptom_updates = UserSymptomUpdate.objects.filter(
-                user_symptom__user=user, created_at=ended_at)
-            for user_symptom_update in user_symptom_updates:
-                user_symptom_update.delete()
-
-            user_side_effect_updates = UserSideEffectUpdate.objects.filter(
-                user=user, created_at=ended_at)
-            for user_side_effect_update in user_side_effect_updates:
-                user_side_effect_update.delete()
-            '''
 
             user_method_trial_end.delete()
-        '''
-        started_at = user_method_trial_start.getStartedAt()
 
         user_symptom_updates = UserSymptomUpdate.objects.filter(
-            user_symptom__user=user, created_at=started_at)
+            user_method_trial_start=user_method_trial_start)
         for user_symptom_update in user_symptom_updates:
             user_symptom_update.delete()
 
         user_side_effect_updates = UserSideEffectUpdate.objects.filter(
-            user=user, created_at=started_at)
+            user_method_trial_start=user_method_trial_start)
         for user_side_effect_update in user_side_effect_updates:
             user_side_effect_update.delete()
-        '''
 
         user_method_trial_start.delete()
 
@@ -96,20 +124,29 @@ class UserMethodTrialPage(View):
         if user_id is None:
             return HttpResponse('Provided Parameter is invalid.')
 
+        user = User.objects.get(id=user_id)
+
+        params = request.POST
+
         try:
-            user = User.objects.get(id=user_id)
-
-            params = request.POST
-
             if params['action'] == 'add':
+                umts_id = params['umts_id'] if 'umts_id' in params else None
+
                 method = Method.objects.get(id=params['method_id'])
                 started_at = datetime.strptime(
                     params['started_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
                 start_side_effect_severity = SideEffectSeverity.objects.get(
                     id=params['start_side_effect_severity_id'])
 
-                user_method_trial_start = self.addUserMethodTrialStart(
-                    user, method, started_at)
+                if umts_id is not None:
+                    user_method_trial_start = self.updateUserMethodTrialStart(
+                        umts_id, method, started_at)
+
+                    self.deleteUserSideEffectUpdates(user_method_trial_start)
+                    self.deleteUserSymptomUpdates(user_method_trial_start)
+                else:
+                    user_method_trial_start = self.addUserMethodTrialStart(
+                        user, method, started_at)
 
                 self.addUserSideEffectUpdate(
                     user, start_side_effect_severity, user_method_trial_start, started_at, params['start_title'], params['start_description'])
@@ -123,18 +160,24 @@ class UserMethodTrialPage(View):
                     if started_at == ended_at:
                         ended_at = ended_at + timedelta(days=1)
 
-                    self.addUserMethodTrialEnd(
-                        user_method_trial_start, ended_at)
+                    if umts_id is not None:
+                        self.updateUserMethodTrialEnd(
+                            user_method_trial_start, ended_at)
+                    else:
+                        self.addUserMethodTrialEnd(
+                            user_method_trial_start, ended_at)
 
                     self.addUserSideEffectUpdate(
                         user, end_side_effect_severity, user_method_trial_start, ended_at, params['end_title'], params['end_description'])
+                elif umts_id is not None:
+                    self.deleteUserMethodTrialEnd(user_method_trial_start)
 
                 for symptom in user.getSymptoms():
                     user_symptom = UserSymptom.objects.get(
                         user=user, symptom=symptom)
 
                     start_symptom_severity_id = params['start_symptom_severity_id_%s' %
-                                                       user_symptom.id]
+                                                    user_symptom.id]
                     start_symptom_severity = SymptomSeverity.objects.get(
                         id=start_symptom_severity_id)
 
@@ -143,7 +186,7 @@ class UserMethodTrialPage(View):
 
                     if 'is_ended' in params and params['is_ended'] == 'yes':
                         end_symptom_severity_id = params['end_symptom_severity_id_%s' %
-                                                         user_symptom.id]
+                                                        user_symptom.id]
                         end_symptom_severity = SymptomSeverity.objects.get(
                             id=end_symptom_severity_id)
 
@@ -152,9 +195,10 @@ class UserMethodTrialPage(View):
 
             elif params['action'] == 'delete':
                 self.deleteUserTreatment(user, params['id'])
-
+            elif params['action'] == 'edit':
+                kwargs['umts_id'] = params['id']
         except:
-            return HttpResponse('Internal Server Error.')
+            pass
 
         return self.get(request, *args, **kwargs)
 
@@ -193,8 +237,36 @@ class UserMethodTrialPage(View):
                     id=user_method_trial_start.id,
                     method_name=user_method_trial_start.getMethodName(),
                     started_at=user_method_trial_start.getStartedAt().strftime('%Y-%m-%d %H:%M:%S'),
-                    ended_at=ended_at.strftime('%Y-%m-%d %H:%M:%S') if ended_at is not None else None
+                    ended_at=ended_at.strftime(
+                        '%Y-%m-%d %H:%M:%S') if ended_at is not None else None
                 ))
+
+        edit_umts = None
+        umts_id = kwargs['umts_id'] if 'umts_id' in kwargs else None
+
+        if umts_id is not None:
+            edit_umts = UserMethodTrialStart.objects.get(id=umts_id)
+
+            is_ended = edit_umts.isEnded()
+            ended_at = edit_umts.getEndedAt()
+            ended_symptom_severity = edit_umts.getEndedSymptomSeverity()
+            ended_side_effect_update = edit_umts.getEndedSideEffectUpdate()
+
+            edit_umts = dict(
+                method=edit_umts.getMethod(),
+                started_at=edit_umts.getStartedAt().strftime('%m/%d/%Y'),
+                is_ended=is_ended,
+                ended_at=ended_at.strftime(
+                    '%m/%d/%Y') if ended_at is not None else ended_at,
+                started_symptom_severity=edit_umts.getStartedSymptomSeverity(),
+                ended_symptom_severity=ended_symptom_severity,
+                started_side_effect_severity=edit_umts.getStartedSideEffectSeverity(),
+                started_title=edit_umts.getStartedSideEffectUpdate().getTitle(),
+                started_description=edit_umts.getStartedSideEffectUpdate().getDescription(),
+                ended_side_effect_severity=edit_umts.getEndedSideEffectSeverity(),
+                ended_title=ended_side_effect_update.getTitle(
+                ) if ended_side_effect_update is not None else '',
+                ended_description=ended_side_effect_update.getDescription() if ended_side_effect_update is not None else '')
 
         user_treatments.sort(key=lambda x: x['started_at'])
         user_treatments.reverse()
@@ -207,6 +279,8 @@ class UserMethodTrialPage(View):
             user_treatments=user_treatments,
             methods=methods,
             user_symptoms=user_symptoms,
+            umts_id=umts_id,
+            edit_umts=edit_umts,
             symptom_severities=symptom_severities,
             side_effect_severities=side_effect_severities
         ))

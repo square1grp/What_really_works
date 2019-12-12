@@ -432,7 +432,7 @@ class UserMethodTrialStart(models.Model):
 
             return True if user_method_trial_end else False
         except:
-            return None
+            return False
 
     def getEnded(self):
         if self.isEnded():
@@ -447,6 +447,46 @@ class UserMethodTrialStart(models.Model):
         user_method_trial_end = self.getEnded()
 
         return None if user_method_trial_end is None else user_method_trial_end.getEndedAt()
+
+    def getStartedSymptomUpdate(self):
+        try:
+            return UserSymptomUpdate.objects.filter(user_method_trial_start=self, created_at=self.getStartedAt())[0]
+        except:
+            return None
+
+    def getStartedSymptomSeverity(self):
+        if self.getStartedSymptomUpdate() is not None:
+            return self.getStartedSymptomUpdate().getSeverity()
+
+        return None
+
+    def getEndedSymptomUpdate(self):
+        if self.isEnded():
+            return UserSymptomUpdate.objects.filter(user_method_trial_start=self, created_at=self.getEndedAt())[0]
+
+        return None
+
+    def getEndedSymptomSeverity(self):
+        if self.isEnded():
+            return self.getEndedSymptomUpdate().getSeverity()
+
+        return None
+
+    def getStartedSideEffectUpdate(self):
+        return UserSideEffectUpdate.objects.filter(user_method_trial_start=self, created_at=self.getStartedAt())[0]
+
+    def getStartedSideEffectSeverity(self):
+        return self.getStartedSideEffectUpdate().getSeverity()
+
+    def getEndedSideEffectUpdate(self):
+        if self.isEnded():
+            return UserSideEffectUpdate.objects.filter(user_method_trial_start=self, created_at=self.getEndedAt())[0]
+
+    def getEndedSideEffectSeverity(self):
+        if self.isEnded():
+            return self.getEndedSideEffectUpdate().getSeverity()
+
+        return None
 
 
 '''

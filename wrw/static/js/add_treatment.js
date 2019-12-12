@@ -79,4 +79,17 @@ $(document).ready(function () {
             }
         });
     }, 500);
+
+    $(".added-treatment-form a").click(function () {
+        var action = "";
+
+        if ($(this).hasClass("edit")) {
+            action = "edit";
+        } else if ($(this).hasClass("delete")) {
+            action = "delete";
+        }
+
+        $(this).siblings("input[name=action]").val(action);
+        $(this).parent("form.added-treatment-form").submit();
+    })
 });

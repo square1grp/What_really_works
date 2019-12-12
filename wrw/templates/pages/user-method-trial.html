@@ -15,9 +15,9 @@
 
     <div class="row flex-column">
         {% for user_treatment in user_treatments %}
-        <form class="form-inline col-12 col-lg-7 mx-auto pb-3 border-bottom" method="POST">
+        <form class="added-treatment-form form-inline col-12 col-lg-7 mx-auto pb-3 border-bottom" method="POST">
             {% csrf_token %}
-            <div class="col-11 row">
+            <div class="col-10 row">
                 <h4>{{user_treatment.method_name}}</h4>
                 <p class="col-12">
                     <b>Started at:</b> {{user_treatment.started_at}}
@@ -30,9 +30,14 @@
 
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="{{user_treatment.id}}">
-            <button type="submit" class="delete ml-auto btn btn-outline-danger btn-sm">
+
+            <a href="javascript:void(0)" class="edit ml-auto btn btn-outline-primary btn-sm">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
+
+            <a href="javascript:void(0)" class="delete ml-2 btn btn-outline-danger btn-sm">
                 <i class="fa fa-times" aria-hidden="true"></i>
-            </button>
+            </a>
         </form>
         {% endfor %}
     </div>
@@ -50,7 +55,9 @@
                     <select name="method_id" id="method_id" class="form-control" required>
                         <option value="">Please select a treatment.</option>
                         {% for method in methods %}
-                        <option value="{{method.id}}">{{method.name}}</option>
+                        <option value="{{method.id}}"
+                            {% if edit_umts and edit_umts.method == method %}selected{% endif %}>
+                            {{method.name}}</option>
                         {% endfor %}
                     </select>
                     <div class="invalid-feedback">
@@ -67,9 +74,13 @@
 
                         <script>
                             var today = new Date();
-
                             $("#started_at").datepicker({ autoclose: true, maxDate: today });
+
+                            {% if edit_umts%}
+                            $("#started_at").datepicker("setDate", "{{ edit_umts.started_at }}");
+                            {% else %}
                             $("#started_at").datepicker("setDate", today);
+                            {% endif %}
                         </script>
                         <div class="invalid-feedback">
                             Please fill out this field.
@@ -78,22 +89,27 @@
                 </div>
 
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="yes" name="is_ended" id="is_ended">
+                    <input class="form-check-input" type="checkbox" value="yes" name="is_ended" id="is_ended" {% if edit_umts and edit_umts.is_ended %}checked{% endif %}>
                     <label class="form-check-label" for="is_ended">
                         Did you end the treatment?
                     </label>
                 </div>
 
-                <div class="form-group row end" style="display: none;">
+                <div class="form-group row end" style="{% if not edit_umts or not edit_umts.is_ended %}display: none;{% endif %}">
                     <label for="ended_at" class="col-sm-7 col-form-label">End Date</label>
                     <div class="col-sm-5">
                         <input type="" name="ended_at" id="ended_at" class="form-control" readonly required />
 
                         <script>
                             var today = new Date();
-
                             $("#ended_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#ended_at").datepicker("setDate", "{{ edit_umts.ended_at }}");
+                            
+                            {% if edit_umts and edit_umts.is_ended %}
+                            $("#ended_at").datepicker("setDate", "{{ edit_umts.ended_at }}");
+                            {% else %}
                             $("#ended_at").datepicker("setDate", today);
+                            {% endif %}
                         </script>
                         <div class="invalid-feedback">
                             Please fill out this field.
@@ -126,12 +142,12 @@
                         <div class="form-group form-check">
                             <input type="hidden" class="start_symptom_severity_id"
                                 name="start_symptom_severity_id_{{user_symptom.id}}" symptom-id="{{user_symptom.id}}"
-                                value="-1" />
+                                value="{% if edit_umts %}{{edit_umts.started_symptom_severity.id}}{% endif %}" />
                             <input type="hidden" class="end_symptom_severity_id"
                                 name="end_symptom_severity_id_{{user_symptom.id}}" symptom-id="{{user_symptom.id}}"
-                                value="-1" />
+                                value="{% if edit_umts and edit_umts.is_ended %}{{edit_umts.ended_symptom_severity.id}}{% endif %}" />
 
-                            <input type="checkbox" class="form-check-input filled-out-{{user_symptom.id}}" disabled
+                            <input type="checkbox" class="form-check-input filled-out-{{user_symptom.id}}" disabled {% if edit_umts %}checked{% endif %}
                                 required />
                             <label class="form-check-label">{{user_symptom.symptom}}</label>
                         </div>
@@ -147,7 +163,7 @@
                         <select id="start_symptom_severity_id" class="form-control" required>
                             <option value="">Please select a severity.</option>
                             {% for symptom_severity in symptom_severities %}
-                            <option value="{{symptom_severity.id}}">{{symptom_severity.title}}</option>
+                            <option value="{{symptom_severity.id}}" {% if edit_umts and edit_umts.started_symptom_severity == symptom_severity %}selected{% endif %}>{{symptom_severity.title}}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback">
@@ -156,7 +172,7 @@
                     </div>
                 </div>
 
-                <div class="form-group row end" style="display: none;">
+                <div class="form-group row end" style="{% if not edit_umts or not edit_umts.is_ended %}display: none;{% endif %}">
                     <label for="end_symptom_severity_id" class="col-sm-7 col-form-label">
                         Symptom Severity on End Date
                     </label>
@@ -164,7 +180,7 @@
                         <select id="end_symptom_severity_id" class="form-control">
                             <option value="">Please select a severity</option>
                             {% for symptom_severity in symptom_severities %}
-                            <option value="{{symptom_severity.id}}">{{symptom_severity.title}}</option>
+                            <option value="{{symptom_severity.id}}" {% if edit_umts and edit_umts.ended_symptom_severity == symptom_severity %}selected{% endif %}>{{symptom_severity.title}}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback">
@@ -183,7 +199,7 @@
                         <select name="start_side_effect_severity_id" class="form-control" required>
                             <option value="">Please select a severity</option>
                             {% for side_effect_severity in side_effect_severities %}
-                            <option value="{{side_effect_severity.id}}">{{side_effect_severity.title}}</option>
+                            <option value="{{side_effect_severity.id}}" {% if edit_umts and edit_umts.started_side_effect_severity == side_effect_severity %}selected{% endif %}>{{side_effect_severity.title}}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback">
@@ -194,15 +210,15 @@
 
                 <div class="form-group start">
                     <label for="start_title">Short Description of How You Felt</label>
-                    <input type="text" name="start_title" class="form-control" />
+                    <input type="text" name="start_title" class="form-control" value="{% if edit_umts %}{{edit_umts.started_title}}{% endif %}" />
                 </div>
 
                 <div class="form-group start">
                     <label for="start_description">Long Description of How You Felt</label>
-                    <textarea name="start_description" class="form-control"></textarea>
+                    <textarea name="start_description" class="form-control">{% if edit_umts %}{{edit_umts.started_description}}{% endif %}</textarea>
                 </div>
 
-                <div class="form-group row end" style="display: none;">
+                <div class="form-group row end" style="{% if not edit_umts or not edit_umts.is_ended %}display: none;{% endif %}">
                     <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label">
                         Side Effect Severity on End Date
                     </label>
@@ -210,7 +226,7 @@
                         <select name="end_side_effect_severity_id" class="form-control">
                             <option value="">Please select a severity</option>
                             {% for side_effect_severity in side_effect_severities %}
-                            <option value="{{side_effect_severity.id}}">{{side_effect_severity.title}}</option>
+                            <option value="{{side_effect_severity.id}}" {% if edit_umts and edit_umts.ended_side_effect_severity == side_effect_severity %}selected{% endif %}>{{side_effect_severity.title}}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback">
@@ -219,17 +235,20 @@
                     </div>
                 </div>
 
-                <div class="form-group end" style="display: none;">
+                <div class="form-group end" style="{% if not edit_umts or not edit_umts.is_ended %}display: none;{% endif %}">
                     <label for="end_title">Short Description of How You Felt</label>
-                    <input type="text" name="end_title" class="form-control" />
+                    <input type="text" name="end_title" class="form-control" value="{% if edit_umts and edit_umts.is_ended %}{{edit_umts.ended_title}}{% endif %}" />
                 </div>
 
-                <div class="form-group end" style="display: none;">
+                <div class="form-group end" style="{% if not edit_umts or not edit_umts.is_ended %}display: none;{% endif %}">
                     <label for="end_description">Long Description of How You Felt</label>
-                    <textarea name="end_description" class="form-control"></textarea>
+                    <textarea name="end_description" class="form-control">{% if edit_umts and edit_umts.is_ended %}{{edit_umts.ended_description}}{% endif %}</textarea>
                 </div>
             </fieldset>
 
+            {% if umts_id is not None %}
+            <input type="hidden" name="umts_id" value="{{umts_id}}" />
+            {% endif %}
             <button type="submit" class="btn btn-primary d-block ml-auto" disabled>Add</button>
         </form>
     </div>
