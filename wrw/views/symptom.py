@@ -22,6 +22,21 @@ class SymptomPage(View):
 
         return list(dict.fromkeys(methods))
 
+    def getFaceClassName(self, score):
+        if score > 60:
+            return 'ecstatic-face'
+
+        if score > 20:
+            return 'happy-face'
+
+        if score > -20:
+            return 'neutral-face'
+
+        if score > -60:
+            return 'sad-face'
+
+        return 'miserable-face'
+
     def get(self, request, *args, **kwargs):
         symptom_id = kwargs['symptom_id'] if 'symptom_id' in kwargs else None
 
@@ -32,12 +47,20 @@ class SymptomPage(View):
 
         methods = self.getMethodsUsedForSymptom(symptom)
 
-        rows = [dict(
-            method=method,
-            symptom_score=method.getAvgSymptomScore(symptom),
-            side_effect_score=method.getAvgSideEffectScore(symptom),
-            user_count=len(method.getUsersHaveSymptom(symptom))
-        ) for method in methods]
+        rows = []
+        for method in methods:
+            symptom_score = method.getAvgSymptomScore(symptom)
+            side_effect_score = method.getAvgSideEffectScore(symptom)
+            user_count = len(method.getUsersHaveSymptom(symptom))
+
+            rows.append(dict(
+                method=method,
+                symptom_score=symptom_score,
+                symptom_class=self.getFaceClassName(symptom_score),
+                side_effect_score=side_effect_score,
+                side_effect_class=self.getFaceClassName(side_effect_score),
+                user_count=user_count
+            ))
 
         return render(request, 'pages/symptom.html', dict(
             symptom=symptom,

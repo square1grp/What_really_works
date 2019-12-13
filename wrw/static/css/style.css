@@ -2,3 +2,35 @@
     max-width: 250px;
     width    : 100%;
 }
+
+.symptom-page #methods-table *[class*="-face"] {
+    background-size    : contain;
+    background-repeat  : no-repeat;
+    background-position: center;
+    color              : transparent;
+}
+
+.symptom-page #methods-table .ecstatic-face {
+    background-image: url('../images/EcstaticFace.png');
+}
+
+.symptom-page #methods-table .happy-face {
+    background-image: url('../images/HappyFace.png');
+}
+
+.symptom-page #methods-table .neutral-face {
+    background-image: url('../images/NeutralFace.png');
+}
+
+.symptom-page #methods-table .sad-face {
+    background-image: url('../images/SadFace.png');
+}
+
+.symptom-page #methods-table .miserable-face {
+    background-image: url('../images/MiserableFace.png');
+}
+
+.method-page g.xtick text,
+.method-page g.x2tick text {
+    fill: transparent !important;
+}

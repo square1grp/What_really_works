@@ -28,7 +28,7 @@ $(document).ready(function () {
         clearInterval(checkOffSymptomInterval);
 
         if ($("form#new_treatment.was-validated .form-control:invalid").length > 0) {
-            // $("input[class*=filled-out-]").prop("checked", false);
+            $("input[class*=filled-out-]").prop("checked", false);
             return false;
         }
 
@@ -49,7 +49,7 @@ $(document).ready(function () {
             $(".form-group.end .form-control").prop("required", false);
         }
 
-        $(".form-group.end .form-control[name=end_title], .form-group.end .form-control[name=end_description]").prop("required", false);
+        $(".form-group.end .form-control[name=end_description]").prop("required", false);
         $(".form-group.end").slideToggle("fast");
         checkOffSymptom()
     });
@@ -67,6 +67,8 @@ $(document).ready(function () {
     });
 
     $("form#new_treatment .form-control").change(function () {
+        checkOffSymptom();
+    }).keyup(function () {
         checkOffSymptom();
     });
 

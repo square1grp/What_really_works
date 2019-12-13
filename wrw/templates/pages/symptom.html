@@ -29,8 +29,8 @@
                                 <h5>{{row.method.name}}</h5>
                             </a>
                         </td>
-                        <td class="text-center">{{row.symptom_score}}</td>
-                        <td class="text-center">{{row.side_effect_score}}</td>
+                        <td class="text-center {{row.symptom_class}}">{{row.symptom_score}}</td>
+                        <td class="text-center {{row.side_effect_class}}">{{row.side_effect_score}}</td>
                         <td class="text-center">{{row.user_count}}</td>
                     </tr>
                     {% endfor %}

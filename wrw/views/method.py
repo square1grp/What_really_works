@@ -60,6 +60,42 @@ class MethodPage(View):
             fig.add_trace(
                 go.Bar(x=x_values, y=y_values, hoverinfo='skip', width=width, marker_color='#8BC8DB'), row=1, col=(index+1))
 
+            fig.add_layout_image(
+                dict(
+                    source="/static/images/MiserableFace.png",
+                    xref="paper", yref="paper",
+                    x=0+(index)*0.55, y=0,
+                    sizex=0.5, sizey=0.5
+                ))
+            fig.add_layout_image(
+                dict(
+                    source="/static/images/SadFace.png",
+                    xref="paper", yref="paper",
+                    x=0.09+(index)*0.55, y=0,
+                    sizex=0.5, sizey=0.5
+                ))
+            fig.add_layout_image(
+                dict(
+                    source="/static/images/NeutralFace.png",
+                    xref="paper", yref="paper",
+                    x=0.18+(index)*0.55, y=0,
+                    sizex=0.5, sizey=0.5
+                ))
+            fig.add_layout_image(
+                dict(
+                    source="/static/images/HappyFace.png",
+                    xref="paper", yref="paper",
+                    x=0.27+(index)*0.55, y=0,
+                    sizex=0.5, sizey=0.5
+                ))
+            fig.add_layout_image(
+                dict(
+                    source="/static/images/EcstaticFace.png",
+                    xref="paper", yref="paper",
+                    x=0.36+(index)*0.55, y=0,
+                    sizex=0.5, sizey=0.5
+                ))
+
         fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=20),
                           showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 
