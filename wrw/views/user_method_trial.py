@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.views import View
 from wrw.models import User, UserSymptom, Method, SymptomSeverity, SideEffectSeverity, UserSideEffectUpdate, UserSymptomUpdate, UserMethodTrialStart, UserMethodTrialEnd
 from datetime import datetime
-import pytz
 from datetime import timedelta
+from django.utils import timezone
 
 
 class UserMethodTrialPage(View):
@@ -133,8 +133,8 @@ class UserMethodTrialPage(View):
                 umts_id = params['umts_id'] if 'umts_id' in params else None
 
                 method = Method.objects.get(id=params['method_id'])
-                started_at = datetime.strptime(
-                    params['started_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+                started_at = datetime.strptime('%s %s:%s:%s' % (
+                    params['started_at'], params['started_at_h'], params['started_at_m'], params['started_at_s']), '%m/%d/%Y %H:%M:%S')
                 start_side_effect_severity = SideEffectSeverity.objects.get(
                     id=params['start_side_effect_severity_id'])
 
@@ -154,8 +154,8 @@ class UserMethodTrialPage(View):
                 if 'is_ended' in params and params['is_ended'] == 'yes':
                     end_side_effect_severity = SideEffectSeverity.objects.get(
                         id=params['end_side_effect_severity_id'])
-                    ended_at = datetime.strptime(
-                        params['ended_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+                    ended_at = datetime.strptime('%s %s:%s:%s' % (
+                        params['ended_at'], params['ended_at_h'], params['ended_at_m'], params['ended_at_s']), '%m/%d/%Y %H:%M:%S')
 
                     if started_at == ended_at:
                         ended_at = ended_at + timedelta(days=1)
@@ -244,17 +244,30 @@ class UserMethodTrialPage(View):
         edit_umts = None
         umts_id = kwargs['umts_id'] if 'umts_id' in kwargs else None
 
+        started_at_time = ended_at_time = dict(h=datetime.now().hour,
+                                               m=datetime.now().minute,
+                                               s=datetime.now().second)
+
         if umts_id is not None:
             edit_umts = UserMethodTrialStart.objects.get(id=umts_id)
+
+            started_at = edit_umts.getStartedAt()
 
             is_ended = edit_umts.isEnded()
             ended_at = edit_umts.getEndedAt()
             ended_symptom_severity = edit_umts.getEndedSymptomSeverity()
             ended_side_effect_update = edit_umts.getEndedSideEffectUpdate()
 
+            started_at_time = dict(h=started_at.hour,
+                                   m=started_at.minute,
+                                   s=started_at.second)
+
+            ended_at_time = dict(h=ended_at.hour,
+                                 m=ended_at.minute,
+                                 s=ended_at.second)
             edit_umts = dict(
                 method=edit_umts.getMethod(),
-                started_at=edit_umts.getStartedAt().strftime('%m/%d/%Y'),
+                started_at=started_at.strftime('%m/%d/%Y'),
                 is_ended=is_ended,
                 ended_at=ended_at.strftime(
                     '%m/%d/%Y') if ended_at is not None else ended_at,
@@ -282,5 +295,13 @@ class UserMethodTrialPage(View):
             umts_id=umts_id,
             edit_umts=edit_umts,
             symptom_severities=symptom_severities,
-            side_effect_severities=side_effect_severities
+            side_effect_severities=side_effect_severities,
+            hours=[dict(value=hour, title="{0:0=2d}".format(
+                hour)) for hour in range(24)],
+            minutes=[dict(value=minute, title="{0:0=2d}".format(
+                minute)) for minute in range(60)],
+            seconds=[dict(value=second, title="{0:0=2d}".format(
+                second)) for second in range(60)],
+            started_at_time=started_at_time,
+            ended_at_time=ended_at_time
         ))

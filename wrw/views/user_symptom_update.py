@@ -21,8 +21,8 @@ class UserSymptomUpdatePage(View):
             if params['action'] == 'add':
                 user_symptom = UserSymptom.objects.get(
                     id=params['user_symptom_id'])
-                created_at = datetime.strptime(
-                    params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+                created_at = datetime.strptime('%s %s:%s:%s' % (
+                    params['created_at'], params['created_at_h'], params['created_at_m'], params['created_at_s']), '%m/%d/%Y %H:%M:%S')
                 symptom_severity = SymptomSeverity.objects.get(
                     id=params['symptom_severity_id'])
 
@@ -61,5 +61,14 @@ class UserSymptomUpdatePage(View):
             user_id=user_id,
             user_symptom_updates=user_symptom_updates,
             user_symptoms=user_symptoms,
-            symptom_severities=symptom_severities
+            symptom_severities=symptom_severities,
+            hours=[dict(value=hour, title="{0:0=2d}".format(
+                hour)) for hour in range(24)],
+            minutes=[dict(value=minute, title="{0:0=2d}".format(
+                minute)) for minute in range(60)],
+            seconds=[dict(value=second, title="{0:0=2d}".format(
+                second)) for second in range(60)],
+            current_time=dict(h=datetime.now().hour,
+                              m=datetime.now().minute,
+                              s=datetime.now().second)
         ))

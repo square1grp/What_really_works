@@ -39,8 +39,8 @@
 
             <fieldset class="mb-4 p-3 border">
                 <div class="form-group row start">
-                    <label for="started_at" class="col-sm-7 col-form-label">Start Date</label>
-                    <div class="col-sm-5">
+                    <label for="started_at" class="col-sm-3 col-form-label">Start Date</label>
+                    <div class="col-sm-3">
                         <input type="" name="started_at" id="started_at" class="form-control" readonly required />
 
                         <script>
@@ -57,6 +57,34 @@
                             Please fill out this field.
                         </div>
                     </div>
+                
+                    <div class="col">
+                        <select name="started_at_h" class="form-control px-2">
+                            {% for h in hours %}
+                            <option value="{{h.title}}" {% if h.value == started_at_time.h %}selected{% endif %}>{{h.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <span class="d-flex align-items-center">:</span>
+                    
+                    <div class="col">
+                        <select name="started_at_m" class="form-control px-2">
+                            {% for m in minutes %}
+                            <option value="{{m.title}}" {% if m.value == started_at_time.m %}selected{% endif %}>{{m.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <span class="d-flex align-items-center">:</span>
+
+                    <div class="col">
+                        <select name="started_at_s" class="form-control px-2">
+                            {% for s in seconds %}
+                            <option value="{{s.title}}" {% if s.value == started_at_time.s %}selected{% endif %}>{{s.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-check">
@@ -67,8 +95,8 @@
                 </div>
 
                 <div class="form-group row end" style="{% if not edit_umts or not edit_umts.is_ended %}display: none;{% endif %}">
-                    <label for="ended_at" class="col-sm-7 col-form-label">End Date</label>
-                    <div class="col-sm-5">
+                    <label for="ended_at" class="col-sm-3 col-form-label">End Date</label>
+                    <div class="col-sm-3">
                         <input type="" name="ended_at" id="ended_at" class="form-control" readonly required />
 
                         <script>
@@ -85,6 +113,34 @@
                         <div class="invalid-feedback">
                             Please fill out this field.
                         </div>
+                    </div>
+                
+                    <div class="col">
+                        <select name="ended_at_h" class="form-control px-2">
+                            {% for h in hours %}
+                            <option value="{{h.title}}" {% if h.value == ended_at_time.h %}selected{% endif %}>{{h.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <span class="d-flex align-items-center">:</span>
+                    
+                    <div class="col">
+                        <select name="ended_at_m" class="form-control px-2">
+                            {% for m in minutes %}
+                            <option value="{{m.title}}" {% if m.value == ended_at_time.m %}selected{% endif %}>{{m.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <span class="d-flex align-items-center">:</span>
+
+                    <div class="col">
+                        <select name="ended_at_s" class="form-control px-2">
+                            {% for s in seconds %}
+                            <option value="{{s.title}}" {% if s.value == ended_at_time.s %}selected{% endif %}>{{s.title}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
             </fieldset>

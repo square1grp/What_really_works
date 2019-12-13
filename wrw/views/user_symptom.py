@@ -3,7 +3,6 @@ from django.shortcuts import render
 from django.views import View
 from wrw.models import User, Symptom, UserSymptom
 from datetime import datetime
-import pytz
 
 
 class UserSymptomPage(View):
@@ -12,8 +11,8 @@ class UserSymptomPage(View):
     def addUserSymptom(self, params):
         user = User.objects.get(id=params['user_id'])
         symptom = Symptom.objects.get(id=params['symptom_id'])
-        created_at = datetime.strptime(
-            params['created_at'], '%m/%d/%Y').astimezone(pytz.timezone('UTC'))
+        created_at = datetime.strptime('%s %s:%s:%s' % (
+            params['created_at'], params['created_at_h'], params['created_at_m'], params['created_at_s']), '%m/%d/%Y %H:%M:%S')
 
         try:
             user_symptom = UserSymptom(
@@ -65,5 +64,14 @@ class UserSymptomPage(View):
         return render(request, self.template_name, dict(
             user_id=user_id,
             user_symptoms=user_symptoms,
+            hours=[dict(value=hour, title="{0:0=2d}".format(
+                hour)) for hour in range(24)],
+            minutes=[dict(value=minute, title="{0:0=2d}".format(
+                minute)) for minute in range(60)],
+            seconds=[dict(value=second, title="{0:0=2d}".format(
+                second)) for second in range(60)],
+            current_time=dict(h=datetime.now().hour,
+                              m=datetime.now().minute,
+                              s=datetime.now().second),
             symptoms=symptoms
         ))
