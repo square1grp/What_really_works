@@ -96,11 +96,11 @@ class MethodPage(View):
                     sizex=0.5, sizey=0.5
                 ))
 
-        fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=20),
+        fig.update_layout(height=250, margin=dict(b=80, t=20, r=20, l=20),
                           showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
-                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='Scores')
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='Scores', title_standoff = 45, tickfont_size=10)
         fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value], title_text='# of Users')
 

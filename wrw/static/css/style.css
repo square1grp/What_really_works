@@ -3,11 +3,16 @@
     width    : 100%;
 }
 
+.symptom-page #methods-table div.face {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+
 .symptom-page #methods-table *[class*="-face"] {
     background-size    : contain;
     background-repeat  : no-repeat;
     background-position: center;
-    color              : transparent;
 }
 
 .symptom-page #methods-table .ecstatic-face {
@@ -30,7 +35,7 @@
     background-image: url('../images/MiserableFace.png');
 }
 
-.method-page g.xtick text,
-.method-page g.x2tick text {
-    fill: transparent !important;
+
+text.annotation-text {
+    font-weight: bold;
 }
