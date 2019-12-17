@@ -45,7 +45,12 @@
 
                         <script>
                             var today = new Date();
-                            $("#started_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#started_at").datepicker({ 
+                                autoclose: true, 
+                                maxDate: today,
+                                changeMonth: true,
+                                changeYear: true 
+                            });
 
                             {% if edit_umts%}
                             $("#started_at").datepicker("setDate", "{{ edit_umts.started_at }}");
@@ -101,7 +106,12 @@
 
                         <script>
                             var today = new Date();
-                            $("#ended_at").datepicker({ autoclose: true, maxDate: today });
+                            $("#ended_at").datepicker({ 
+                                autoclose: true, 
+                                maxDate: today,
+                                changeMonth: true,
+                                changeYear: true 
+                            });
                             $("#ended_at").datepicker("setDate", "{{ edit_umts.ended_at }}");
                             
                             {% if edit_umts and edit_umts.is_ended %}

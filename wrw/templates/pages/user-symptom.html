@@ -39,7 +39,12 @@
                     <input type="" name="created_at" id="created_at" class="form-control" readonly required />
 
                     <script>
-                        $("#created_at").datepicker({ autoclose: true, maxDate: new Date() });
+                        $("#created_at").datepicker({ 
+                            autoclose: true, 
+                            maxDate: new Date(),
+                            changeMonth: true,
+                            changeYear: true 
+                        });
                         $("#created_at").datepicker("setDate", new Date())
                     </script>
                     <div class="invalid-feedback">

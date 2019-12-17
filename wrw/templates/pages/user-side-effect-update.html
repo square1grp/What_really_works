@@ -29,7 +29,14 @@
                         var yesterday = new Date()
                         yesterday.setDate(today.getDate() - 1)
 
-                        $("#created_at").datepicker({ autoclose: true, minDate: yesterday, maxDate: today, defaultDate: today });
+                        $("#created_at").datepicker({ 
+                            autoclose: true, 
+                            minDate: yesterday, 
+                            maxDate: today, 
+                            defaultDate: today,
+                            changeMonth: true,
+                            changeYear: true 
+                        });
                         $("#created_at").datepicker("setDate", today);
                     </script>
                     <div class="invalid-feedback">
