@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from statistics import mean
+from datetime import datetime
 
 RATING_CHOICES = [
     (0, 'None'),
@@ -482,11 +483,33 @@ class UserMethodTrialStart(models.Model):
         if self.isEnded():
             return UserSideEffectUpdate.objects.filter(user_method_trial_start=self, created_at=self.getEndedAt())[0]
 
-    def getEndedSideEffectSeverity(self):
-        if self.isEnded():
-            return self.getEndedSideEffectUpdate().getSeverity()
-
         return None
+
+    def getEndedSideEffectSeverity(self):
+        ended_side_effect_update = self.getEndedSideEffectUpdate()
+
+        return ended_side_effect_update.getSeverity() if ended_side_effect_update else None
+
+    def getTodaySymptomSeverity(self):
+        user_symptom_updates = UserSymptomUpdate.objects.filter(user_method_trial_start=self, created_at__range=[
+            datetime.combine(datetime.now(), datetime.min.time()),
+            datetime.combine(datetime.now(), datetime.max.time())
+        ]).order_by('created_at')
+
+        return user_symptom_updates.last().getSeverity() if len(user_symptom_updates) else None
+
+    def getTodaySideEffectUpdate(self):
+        user_side_effect_updates = UserSideEffectUpdate.objects.filter(user_method_trial_start=self, created_at__range=[
+            datetime.combine(datetime.now(), datetime.min.time()),
+            datetime.combine(datetime.now(), datetime.max.time())
+        ])
+
+        return user_side_effect_updates.last() if len(user_side_effect_updates) else None
+
+    def getTodaySideEffectSeverity(self):
+        today_side_effect_update = self.getTodaySideEffectUpdate()
+
+        return today_side_effect_update.getSeverity() if today_side_effect_update else None
 
 
 '''

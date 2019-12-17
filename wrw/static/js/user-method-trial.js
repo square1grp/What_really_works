@@ -3,13 +3,13 @@ var func_checkBoxesStatesCheck = function () {
         var user_symptom_id = $(selector).val();
 
         var start_symptom_severity_id = $("input.start_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val();
-        var end_symptom_severity_id = $("input.end_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val();
+        var today_symptom_severity_id = $("input.today_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val();
 
         if (start_symptom_severity_id && start_symptom_severity_id != -1) {
 
             if (
                 !$("#is_ended").prop("checked") ||
-                $("#is_ended").prop("checked") && (end_symptom_severity_id && end_symptom_severity_id != -1)
+                $("#is_ended").prop("checked") && (today_symptom_severity_id && today_symptom_severity_id != -1)
             ) {
                 $("input.filled-out-" + user_symptom_id).prop("checked", true);
 
@@ -36,10 +36,10 @@ $(document).ready(function () {
 
         var user_symptom_id = $("select#user_symptom_id").val();
         var start_symptom_severity_id = $("select#start_symptom_severity_id").val();
-        var end_symptom_severity_id = $("select#end_symptom_severity_id").val();
+        var today_symptom_severity_id = $("select#today_symptom_severity_id").val();
 
         $("input.start_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val(start_symptom_severity_id);
-        $("input.end_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val(end_symptom_severity_id);
+        $("input.today_symptom_severity_id[symptom-id=" + user_symptom_id + "]").val(today_symptom_severity_id);
     };
 
     $("#is_ended").change(function () {
@@ -49,14 +49,13 @@ $(document).ready(function () {
             $(".form-group.end .form-control").prop("required", false);
         }
 
-        $(".form-group.end .form-control[name=end_description]").prop("required", false);
         $(".form-group.end").slideToggle("fast");
         checkOffSymptom()
     });
 
     $("select#user_symptom_id").change(function () {
         $("select#start_symptom_severity_id").val("");
-        $("select#end_symptom_severity_id").val("");
+        $("select#today_symptom_severity_id").val("");
         $("form#new_treatment").removeClass("was-validated").addClass("needs-validation");
     });
 

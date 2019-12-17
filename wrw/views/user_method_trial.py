@@ -151,9 +151,13 @@ class UserMethodTrialPage(View):
                 self.addUserSideEffectUpdate(
                     user, start_side_effect_severity, user_method_trial_start, started_at, params['start_title'], params['start_description'])
 
+                today_side_effect_severity = SideEffectSeverity.objects.get(
+                    id=params['today_side_effect_severity_id'])
+
+                self.addUserSideEffectUpdate(
+                    user, today_side_effect_severity, user_method_trial_start, datetime.now(), params['today_title'], params['today_description'])
+
                 if 'is_ended' in params and params['is_ended'] == 'yes':
-                    end_side_effect_severity = SideEffectSeverity.objects.get(
-                        id=params['end_side_effect_severity_id'])
                     ended_at = datetime.strptime('%s %s:%s:%s' % (
                         params['ended_at'], params['ended_at_h'], params['ended_at_m'], params['ended_at_s']), '%m/%d/%Y %H:%M:%S')
 
@@ -167,8 +171,6 @@ class UserMethodTrialPage(View):
                         self.addUserMethodTrialEnd(
                             user_method_trial_start, ended_at)
 
-                    self.addUserSideEffectUpdate(
-                        user, end_side_effect_severity, user_method_trial_start, ended_at, params['end_title'], params['end_description'])
                 elif umts_id is not None:
                     self.deleteUserMethodTrialEnd(user_method_trial_start)
 
@@ -184,14 +186,13 @@ class UserMethodTrialPage(View):
                     self.addUserSymptomUpdate(
                         user_symptom, start_symptom_severity, user_method_trial_start, started_at, params['start_title'], params['start_description'])
 
-                    if 'is_ended' in params and params['is_ended'] == 'yes':
-                        end_symptom_severity_id = params['end_symptom_severity_id_%s' %
-                                                         user_symptom.id]
-                        end_symptom_severity = SymptomSeverity.objects.get(
-                            id=end_symptom_severity_id)
+                    today_symptom_severity_id = params['today_symptom_severity_id_%s' %
+                                                       user_symptom.id]
+                    today_symptom_severity = SymptomSeverity.objects.get(
+                        id=today_symptom_severity_id)
 
-                        self.addUserSymptomUpdate(
-                            user_symptom, end_symptom_severity, user_method_trial_start, ended_at, params['end_title'], params['end_description'])
+                    self.addUserSymptomUpdate(
+                        user_symptom, today_symptom_severity, user_method_trial_start, datetime.now(), params['today_title'], params['today_description'])
 
             elif params['action'] == 'delete':
                 self.deleteUserTreatment(user, params['id'])
@@ -252,19 +253,20 @@ class UserMethodTrialPage(View):
             edit_umts = UserMethodTrialStart.objects.get(id=umts_id)
 
             started_at = edit_umts.getStartedAt()
-
-            is_ended = edit_umts.isEnded()
-            ended_at = edit_umts.getEndedAt()
-            ended_symptom_severity = edit_umts.getEndedSymptomSeverity()
-            ended_side_effect_update = edit_umts.getEndedSideEffectUpdate()
-
             started_at_time = dict(h=started_at.hour,
                                    m=started_at.minute,
                                    s=started_at.second)
 
-            ended_at_time = dict(h=ended_at.hour,
-                                 m=ended_at.minute,
-                                 s=ended_at.second)
+            is_ended = edit_umts.isEnded()
+            if is_ended:
+                ended_at = edit_umts.getEndedAt()
+                ended_at_time = dict(h=ended_at.hour,
+                                     m=ended_at.minute,
+                                     s=ended_at.second)
+
+            today_symptom_severity = edit_umts.getTodaySymptomSeverity()
+            today_side_effect_update = edit_umts.getTodaySideEffectUpdate()
+
             edit_umts = dict(
                 method=edit_umts.getMethod(),
                 started_at=started_at.strftime('%m/%d/%Y'),
@@ -272,14 +274,14 @@ class UserMethodTrialPage(View):
                 ended_at=ended_at.strftime(
                     '%m/%d/%Y') if ended_at is not None else ended_at,
                 started_symptom_severity=edit_umts.getStartedSymptomSeverity(),
-                ended_symptom_severity=ended_symptom_severity,
                 started_side_effect_severity=edit_umts.getStartedSideEffectSeverity(),
                 started_title=edit_umts.getStartedSideEffectUpdate().getTitle(),
                 started_description=edit_umts.getStartedSideEffectUpdate().getDescription(),
-                ended_side_effect_severity=edit_umts.getEndedSideEffectSeverity(),
-                ended_title=ended_side_effect_update.getTitle(
-                ) if ended_side_effect_update is not None else '',
-                ended_description=ended_side_effect_update.getDescription() if ended_side_effect_update is not None else '')
+                today_symptom_severity=today_symptom_severity,
+                today_side_effect_severity=edit_umts.getTodaySideEffectSeverity(),
+                today_title=today_side_effect_update.getTitle(
+                ) if today_side_effect_update is not None else '',
+                today_description=today_side_effect_update.getDescription() if today_side_effect_update is not None else '')
 
         user_treatments.sort(key=lambda x: x['started_at'])
         user_treatments.reverse()
