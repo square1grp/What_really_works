@@ -286,6 +286,11 @@
             {% if umts_id is not None %}
             <input type="hidden" name="umts_id" value="{{umts_id}}" />
             {% endif %}
+
+            <input type="hidden" name="current_time_h" value="{{current_time.h}}" />
+            <input type="hidden" name="current_time_m" value="{{current_time.m}}" />
+            <input type="hidden" name="current_time_s" value="{{current_time.s}}" />
+            
             <button type="submit" class="btn btn-primary d-block ml-auto" disabled>{% if edit_umts %}Update{% else %}Add{% endif %}</button>
         </form>
     </div>

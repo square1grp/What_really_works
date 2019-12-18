@@ -154,8 +154,11 @@ class UserMethodTrialPage(View):
                 today_side_effect_severity = SideEffectSeverity.objects.get(
                     id=params['today_side_effect_severity_id'])
 
+                today = datetime.strptime('%s/%s/%s %s:%s:%s' % (
+                    datetime.today().month, datetime.today().day, datetime.today().year,
+                    params['current_time_h'], params['current_time_m'], params['current_time_s']), '%m/%d/%Y %H:%M:%S')
                 self.addUserSideEffectUpdate(
-                    user, today_side_effect_severity, user_method_trial_start, datetime.now(), params['today_title'], params['today_description'])
+                    user, today_side_effect_severity, user_method_trial_start, today, params['today_title'], params['today_description'])
 
                 if 'is_ended' in params and params['is_ended'] == 'yes':
                     ended_at = datetime.strptime('%s %s:%s:%s' % (
@@ -245,9 +248,9 @@ class UserMethodTrialPage(View):
         edit_umts = None
         umts_id = kwargs['umts_id'] if 'umts_id' in kwargs else None
 
-        started_at_time = ended_at_time = dict(h=datetime.now().hour,
-                                               m=datetime.now().minute,
-                                               s=datetime.now().second)
+        started_at_time = ended_at_time = current_time = dict(h=datetime.now().hour,
+                                                              m=datetime.now().minute,
+                                                              s=datetime.now().second)
 
         if umts_id is not None:
             edit_umts = UserMethodTrialStart.objects.get(id=umts_id)
@@ -305,5 +308,6 @@ class UserMethodTrialPage(View):
             seconds=[dict(value=second, title="{0:0=2d}".format(
                 second)) for second in range(60)],
             started_at_time=started_at_time,
-            ended_at_time=ended_at_time
+            ended_at_time=ended_at_time,
+            current_time=current_time
         ))
