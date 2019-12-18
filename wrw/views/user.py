@@ -7,6 +7,8 @@ from plotly.offline import plot
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from datetime import datetime, timedelta
+from random import randrange
+import colorlover
 
 
 class UserPage(View):
@@ -96,41 +98,51 @@ class UserPage(View):
 
         return plot_div
 
-    def getSeverityTimelineChart(self, severities_data=[], height=250):
-        sizes = [10] * len(severities_data)
-        line_colors = ['rgba(99, 110, 250, 0)'] * len(severities_data)
+    def getSeverityTimelines(self, user):
+        symptoms = user.getSymptoms()
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=[severity_data['created_at'] for severity_data in severities_data],
-                                 y=[severity_data['severity']
-                                     for severity_data in severities_data],
-                                 hoverinfo='text',
-                                 hovertext=[severity_data['title']
-                                            for severity_data in severities_data],
-                                 mode='lines+markers',
-                                 marker=dict(size=sizes, opacity=1, color='rgb(99, 110, 250)', line=dict(
-                                     width=12, color=line_colors)),
-                                 customdata=severities_data))
+        severity_dict_list = []
 
-        fig.update_layout(height=height, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
-                          paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
-        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
-                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
-        fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
-                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5], title_text='Severity')
+        severity_dict_list.append(
+            dict(name="Side Effect", data=user.getSideEffectSeverities()))
 
-        return plot(fig, output_type='div', include_plotlyjs=False,
-                    config=dict(displayModeBar=False))
+        for symptom in symptoms:
+            severity_dict_list.append(
+                dict(name=symptom.name, data=user.getSymptomSeverities(symptom)))
 
-    def getSideEffectTimelineChart(self, user):
-        severities_data = user.getSideEffectSeverities()
+        colors = colorlover.scales['10']['qual']['Paired']
+        colors = ['255, 0, 0'] + [text[4:-2] for text in colors]
+        if len(severity_dict_list):
+            fig = go.Figure()
 
-        return self.getSeverityTimelineChart(severities_data)
+            for index, severity_dict in enumerate(severity_dict_list):
+                item_list = severity_dict['data']
 
-    def getSymptomTimelineChart(self, user, symptom):
-        severities_data = user.getSymptomSeverities(symptom)
+                sizes = [10] * len(item_list)
 
-        return self.getSeverityTimelineChart(severities_data)
+                line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
+                fig.add_trace(go.Scatter(x=[item['created_at'] for item in item_list],
+                                         y=[item['severity']
+                                            for item in item_list],
+                                         hoverinfo='text',
+                                         hovertext=[item['title']
+                                                    for item in item_list],
+                                         mode='lines+markers',
+                                         marker=dict(size=sizes, opacity=1, color='rgb(%s)' % colors[index], line=dict(
+                                             width=12, color=line_colors)),
+                                         line_color='rgb(%s)' % colors[index],
+                                         customdata=item_list,
+                                         name=severity_dict['name']))
+
+            fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=20), showlegend=True,
+                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
+            fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+                             showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+            fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
+                             showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5], title_text='Severity')
+
+            return plot(fig, output_type='div', include_plotlyjs=False,
+                        config=dict(displayModeBar=False))
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs['user_id'] if 'user_id' in kwargs else None
@@ -155,11 +167,7 @@ class UserPage(View):
             False if len(user.getSymptoms()) > 0 else True)
 
         treatment_timeline_chart = self.getTreatmentGanttChart(user)
-        side_effect_timeline_chart = self.getSideEffectTimelineChart(user)
-        symptom_timelines = [dict(
-            symptom=symptom,
-            chart=self.getSymptomTimelineChart(user, symptom)
-        ) for symptom in symptoms]
+        severity_timelines = self.getSeverityTimelines(user)
 
         return render(request, self.template_name, dict(
             user=user,
@@ -168,6 +176,5 @@ class UserPage(View):
             is_no_user_symptom=is_no_user_symptom,
             symptoms=Symptom.objects.all(),
             treatment_timeline_chart=treatment_timeline_chart,
-            side_effect_timeline_chart=side_effect_timeline_chart,
-            symptom_timelines=symptom_timelines
+            severity_timelines=severity_timelines
         ))

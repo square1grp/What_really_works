@@ -74,26 +74,11 @@
 
     <div class="row mb-3">
         <div class="col-12">
-            <h3 class="text-center">Side Effect Timeline</h3>
+            <h3 class="text-center">Side Effect & Symptom Timelines</h3>
         </div>
 
-        <div class="col-12 mx-auto">
-            {{side_effect_timeline_chart|safe}}
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-12">
-            <h3 class="text-center">Symptom Timeline</h3>
-        </div>
-
-        <div class="w-100">
-            {% for symptom_timeline in symptom_timelines %}
-
-            <h5><b>- {{symptom_timeline.symptom}}</b></h5>
-            <div class="symptom_timeline col-12 mx-auto">{{symptom_timeline.chart|safe}}</div>
-
-            {% endfor %}
+        <div class="col-12 mx-auto timeline-charts">
+            {{severity_timelines|safe}}
         </div>
     </div>
 </div>
