@@ -170,7 +170,7 @@ class UserPage(View):
                     sizex=0.15, sizey=0.15
                 ))
 
-            fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=80), showlegend=True,
+            fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=60), showlegend=True,
                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
             fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                              showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
