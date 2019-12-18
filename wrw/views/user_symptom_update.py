@@ -52,6 +52,7 @@ class UserSymptomUpdatePage(View):
         user_symptom_updates = [dict(
             id=user_symptom_update.id,
             title=user_symptom_update.getTitle(),
+            symptom_name=user_symptom_update.getSymptomName(),
             symptom_severity=user_symptom_update.getSeverityAsText(),
             created_at=user_symptom_update.getCreatedAt().strftime('%Y-%m-%d %H:%M:%S')
         ) for user_symptom_update in user_symptom_updates]
