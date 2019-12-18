@@ -132,12 +132,48 @@ class MethodPage(View):
                                      width=12, color=line_colors)),
                                  customdata=severities_data))
 
-        fig.update_layout(height=height, margin=dict(b=20, t=20, r=20, l=20), showlegend=False,
+        fig.add_layout_image(
+            dict(
+                source="/static/images/MiserableFace.png",
+                xref="paper", yref="paper",
+                x=-0.1, y=0.9,
+                sizex=0.15, sizey=0.15
+            ))
+        fig.add_layout_image(
+            dict(
+                source="/static/images/SadFace.png",
+                xref="paper", yref="paper",
+                x=-0.1, y=0.7,
+                sizex=0.15, sizey=0.15
+            ))
+        fig.add_layout_image(
+            dict(
+                source="/static/images/NeutralFace.png",
+                xref="paper", yref="paper",
+                x=-0.1, y=0.5,
+                sizex=0.15, sizey=0.15
+            ))
+        fig.add_layout_image(
+            dict(
+                source="/static/images/HappyFace.png",
+                xref="paper", yref="paper",
+                x=-0.1, y=0.3,
+                sizex=0.15, sizey=0.15
+            ))
+        fig.add_layout_image(
+            dict(
+                source="/static/images/EcstaticFace.png",
+                xref="paper", yref="paper",
+                x=-0.1, y=0.1,
+                sizex=0.15, sizey=0.15
+            ))
+
+        fig.update_layout(height=height, margin=dict(b=20, t=20, r=20, l=60), showlegend=False,
                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
         fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
-                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5], title_text='Severity')
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5])
 
         return plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
