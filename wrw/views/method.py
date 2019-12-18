@@ -64,36 +64,36 @@ class MethodPage(View):
                 dict(
                     source="/static/images/MiserableFace.png",
                     xref="paper", yref="paper",
-                    x=0+(index)*0.55, y=0,
-                    sizex=0.5, sizey=0.5
+                    x=0.025+(index)*0.55, y=-0.15,
+                    sizex=0.25, sizey=0.25
                 ))
             fig.add_layout_image(
                 dict(
                     source="/static/images/SadFace.png",
                     xref="paper", yref="paper",
-                    x=0.09+(index)*0.55, y=0,
-                    sizex=0.5, sizey=0.5
+                    x=0.115+(index)*0.55, y=-0.15,
+                    sizex=0.25, sizey=0.25
                 ))
             fig.add_layout_image(
                 dict(
                     source="/static/images/NeutralFace.png",
                     xref="paper", yref="paper",
-                    x=0.18+(index)*0.55, y=0,
-                    sizex=0.5, sizey=0.5
+                    x=0.205+(index)*0.55, y=-0.15,
+                    sizex=0.25, sizey=0.25
                 ))
             fig.add_layout_image(
                 dict(
                     source="/static/images/HappyFace.png",
                     xref="paper", yref="paper",
-                    x=0.27+(index)*0.55, y=0,
-                    sizex=0.5, sizey=0.5
+                    x=0.295+(index)*0.55, y=-0.15,
+                    sizex=0.25, sizey=0.25
                 ))
             fig.add_layout_image(
                 dict(
                     source="/static/images/EcstaticFace.png",
                     xref="paper", yref="paper",
-                    x=0.36+(index)*0.55, y=0,
-                    sizex=0.5, sizey=0.5
+                    x=0.39+(index)*0.55, y=-0.15,
+                    sizex=0.25, sizey=0.25
                 ))
 
         fig.update_layout(height=250, margin=dict(b=80, t=20, r=20, l=20),
