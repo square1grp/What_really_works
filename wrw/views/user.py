@@ -64,6 +64,12 @@ class UserPage(View):
             Finish=treatment_timeline['ended_at']
         ) for treatment_timeline in reversed(treatment_timelines)]
 
+        dataframe.append(dict(
+            Task='',
+            Start=datetime.today(),
+            Finish=datetime.today()
+        ))
+
         if not dataframe:
             return ''
 
@@ -86,7 +92,7 @@ class UserPage(View):
 
         # plot figure
         fig['layout']['annotations'] = annotations
-        fig.update_layout(height=350, margin=dict(b=20, t=20, r=20, l=20),
+        fig.update_layout(height=350, margin=dict(b=20, t=20, r=180, l=60),
                           showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
@@ -134,6 +140,11 @@ class UserPage(View):
                                          customdata=item_list,
                                          name=severity_dict['name']))
 
+            fig.add_trace(go.Scatter(x=[datetime.today()],
+                                     y=[0],
+                                     hoverinfo='none',
+                                     mode='markers',
+                                     marker=dict(size=sizes, opacity=0, line=dict(width=0))))
             fig.add_layout_image(
                 dict(
                     source="/static/images/MiserableFace.png",
@@ -170,7 +181,7 @@ class UserPage(View):
                     sizex=0.15, sizey=0.15
                 ))
 
-            fig.update_layout(height=250, margin=dict(b=20, t=20, r=20, l=60), showlegend=True,
+            fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=True,
                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
             fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                              showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)

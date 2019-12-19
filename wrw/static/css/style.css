@@ -39,3 +39,8 @@
 text.annotation-text {
     font-weight: bold;
 }
+
+
+.user-page .timeline-charts .legend .groups g:last-child {
+    display: none;
+}
