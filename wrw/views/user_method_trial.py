@@ -253,16 +253,23 @@ class UserMethodTrialPage(View):
                 started_at = user_method_trial_start.getStartedAt().strftime('%Y-%m-%d %H:%M:%S')
                 ended_at = user_method_trial_start.getEndedAt()
 
+                user_treatments.append(dict(
+                    id=user_method_trial_start.id,
+                    method_name=user_method_trial_start.getMethodName(),
+                    started_at=started_at,
+                    ended_at=ended_at
+                ))
+
                 if ended_at is None:
                     ended_at = datetime.now()
-
+                
                 ended_at = ended_at.strftime('%Y-%m-%d %H:%M:%S')
 
                 is_add_mdfv = False
                 if umts_id is not None:
                     is_add_mdfv = int(umts_id) != user_method_trial_start.id
                 else:
-                    is_add_mdfv = ended_at is not None
+                    is_add_mdfv = True
 
                 if is_add_mdfv:
                     if mdfv_key not in mdfv:
@@ -271,13 +278,6 @@ class UserMethodTrialPage(View):
                     mdfv[mdfv_key].append(dict(
                         started_at=started_at,
                         ended_at=ended_at))
-
-                user_treatments.append(dict(
-                    id=user_method_trial_start.id,
-                    method_name=user_method_trial_start.getMethodName(),
-                    started_at=started_at,
-                    ended_at=ended_at
-                ))
 
         edit_umts = None
         current_time = dict(h=datetime.now().hour,
