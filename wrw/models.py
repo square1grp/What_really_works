@@ -126,7 +126,9 @@ class User(models.Model):
                 ended_at = timezone.now()
 
             user_symptom_updates += UserSymptomUpdate.objects.filter(
-                user_symptom=user_symptom, user_method_trial_start=user_method_trial_start, created_at__range=[started_at, ended_at])
+                user_symptom=user_symptom, 
+                # user_method_trial_start=user_method_trial_start, 
+                created_at__range=[started_at, ended_at])
 
         if not user_symptom_updates:
             return None
@@ -166,7 +168,7 @@ class User(models.Model):
                 ended_at = timezone.now()
 
             user_side_effect_updates += UserSideEffectUpdate.objects.filter(
-                user_method_trial_start=user_method_trial_start,
+                # user_method_trial_start=user_method_trial_start,
                 created_at__range=[started_at, ended_at])
 
         if not user_side_effect_updates:

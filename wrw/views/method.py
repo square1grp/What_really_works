@@ -100,7 +100,7 @@ class MethodPage(View):
                           showlegend=False, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
-                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='Scores', title_standoff = 45, tickfont_size=10)
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, title_text='Scores', title_standoff=45, tickfont_size=10)
         fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, max_value], title_text='# of Users')
 
@@ -121,15 +121,15 @@ class MethodPage(View):
                 y0=0, y1=1, line=dict(width=0), type="rect", xref="x", yref="paper", opacity=0.2, fillcolor="yellow")
 
             fig.add_trace(go.Scatter(x=[severity_data['created_at'] for severity_data in severities_data],
-                                    y=[severity_data['severity']
+                                     y=[severity_data['severity']
                                         for severity_data in severities_data],
-                                    hoverinfo='text',
-                                    hovertext=[severity_data['title']
+                                     hoverinfo='text',
+                                     hovertext=[severity_data['title']
                                                 for severity_data in severities_data],
-                                    mode='lines+markers',
-                                    marker=dict(size=sizes, opacity=1, color='rgb(99, 110, 250)', line=dict(
-                                        width=12, color=line_colors)),
-                                    customdata=severities_data))
+                                     mode='lines+markers',
+                                     marker=dict(size=sizes, opacity=1, color='rgb(99, 110, 250)', line=dict(
+                                         width=12, color=line_colors)),
+                                     customdata=severities_data))
 
         fig.add_layout_image(
             dict(
