@@ -197,10 +197,10 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label today">
+                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label today" style="{% if edit_umts and edit_umts.is_ended %}{{'display: none'}}{% endif %}">
                         Symptom Severity Today
                     </label>
-                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label end_date" style="display: none">
+                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label end_date" style="{% if edit_umts and edit_umts.is_ended %}{{''}}{% else %}{{'display: none'}}{% endif %}">
                         Symptom Severity End Date
                     </label>
                     <div class="col-sm-5">
@@ -246,10 +246,10 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label today">
+                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label today" style="{% if edit_umts and edit_umts.is_ended %}{{'display: none'}}{% endif %}">
                         Side Effect Severity Today
                     </label>
-                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label end_date" style="display: none">
+                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label end_date" style="{% if edit_umts and edit_umts.is_ended %}{{''}}{% else %}{{'display: none'}}{% endif %}">
                         Side Effect Severity End Date
                     </label>
                     <div class="col-sm-5">
@@ -266,14 +266,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="end_title" class="today">Short Description of How You Felt Today</label>
-                    <label for="end_title" class="end_date" style="display: none;">Short Description of How You Felt on End Date</label>
+                    <label for="end_title" class="today" style="{% if edit_umts and edit_umts.is_ended %}{{'display: none'}}{% endif %}">Short Description of How You Felt Today</label>
+                    <label for="end_title" class="end_date" style="{% if edit_umts and edit_umts.is_ended %}{{''}}{% else %}{{'display: none'}}{% endif %}">Short Description of How You Felt on End Date</label>
                     <input type="text" name="end_title" class="form-control" value="{% if edit_umts %}{{edit_umts.end_title}}{% endif %}" required/>
                 </div>
 
                 <div class="form-group">
-                    <label for="end_description" class="today">Long Description of How You Felt Today</label>
-                    <label for="end_description" class="end_date" style="display: none;">Long Description of How You Felt on End Date</label>
+                    <label for="end_description" class="today" style="{% if edit_umts and edit_umts.is_ended %}{{'display: none'}}{% endif %}">Long Description of How You Felt Today</label>
+                    <label for="end_description" class="end_date" style="{% if edit_umts and edit_umts.is_ended %}{{''}}{% else %}{{'display: none'}}{% endif %}">Long Description of How You Felt on End Date</label>
                     <textarea name="end_description" class="form-control">{% if edit_umts %}{{edit_umts.end_description}}{% endif %}</textarea>
                 </div>
             </fieldset>
