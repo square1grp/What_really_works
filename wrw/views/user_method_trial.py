@@ -252,8 +252,11 @@ class UserMethodTrialPage(View):
             for user_method_trial_start in user_method_trial_starts:
                 started_at = user_method_trial_start.getStartedAt().strftime('%Y-%m-%d %H:%M:%S')
                 ended_at = user_method_trial_start.getEndedAt()
-                ended_at = ended_at.strftime(
-                    '%Y-%m-%d %H:%M:%S') if ended_at is not None else None
+
+                if ended_at is None:
+                    ended_at = datetime.now()
+
+                ended_at = ended_at.strftime('%Y-%m-%d %H:%M:%S')
 
                 is_add_mdfv = False
                 if umts_id is not None:
@@ -296,22 +299,27 @@ class UserMethodTrialPage(View):
                 ended_at_time = dict(h=ended_at.hour,
                                      m=ended_at.minute,
                                      s=ended_at.second)
+                ended_at = ended_at.strftime('%m/%d/%Y')
 
-            end_symptom_severity = edit_umts.getTodaySymptomSeverity()
-            end_side_effect_update = edit_umts.getTodaySideEffectUpdate()
+                end_symptom_severity = edit_umts.getEndedSymptomSeverity()
+                end_side_effect_update = edit_umts.getEndedSideEffectUpdate()
+                end_side_effect_severity=edit_umts.getEndedSideEffectSeverity()
+            else:
+                end_symptom_severity = edit_umts.getTodaySymptomSeverity()
+                end_side_effect_update = edit_umts.getTodaySideEffectUpdate()
+                end_side_effect_severity=edit_umts.getTodaySideEffectSeverity()
 
             edit_umts = dict(
                 method=edit_umts.getMethod(),
                 started_at=started_at.strftime('%m/%d/%Y'),
                 is_ended=is_ended,
-                ended_at=ended_at.strftime(
-                    '%m/%d/%Y') if ended_at is not None else ended_at,
+                ended_at=ended_at,
                 started_symptom_severity=edit_umts.getStartedSymptomSeverity(),
                 started_side_effect_severity=edit_umts.getStartedSideEffectSeverity(),
                 started_title=edit_umts.getStartedSideEffectUpdate().getTitle(),
                 started_description=edit_umts.getStartedSideEffectUpdate().getDescription(),
                 end_symptom_severity=end_symptom_severity,
-                end_side_effect_severity=edit_umts.getTodaySideEffectSeverity(),
+                end_side_effect_severity=end_side_effect_severity,
                 end_title=end_side_effect_update.getTitle(
                 ) if end_side_effect_update is not None else '',
                 end_description=end_side_effect_update.getDescription() if end_side_effect_update is not None else '')

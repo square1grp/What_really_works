@@ -236,12 +236,12 @@
                 </div>
 
                 <div class="form-group start">
-                    <label for="start_title">Short Description of How You Felt</label>
+                    <label for="start_title">Short Description of How You Felt on Start Date</label>
                     <input type="text" name="start_title" class="form-control" value="{% if edit_umts %}{{edit_umts.started_title}}{% endif %}" required />
                 </div>
 
                 <div class="form-group start">
-                    <label for="start_description">Long Description of How You Felt</label>
+                    <label for="start_description">Long Description of How You Felt on Start Date</label>
                     <textarea name="start_description" class="form-control">{% if edit_umts %}{{edit_umts.started_description}}{% endif %}</textarea>
                 </div>
 
@@ -266,12 +266,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="end_title">Short Description of How You Felt</label>
+                    <label for="end_title" class="today">Short Description of How You Felt Today</label>
+                    <label for="end_title" class="end_date" style="display: none;">Short Description of How You Felt on End Date</label>
                     <input type="text" name="end_title" class="form-control" value="{% if edit_umts %}{{edit_umts.end_title}}{% endif %}" required/>
                 </div>
 
                 <div class="form-group">
-                    <label for="end_description">Long Description of How You Felt</label>
+                    <label for="end_description" class="today">Long Description of How You Felt Today</label>
+                    <label for="end_description" class="end_date" style="display: none;">Long Description of How You Felt on End Date</label>
                     <textarea name="end_description" class="form-control">{% if edit_umts %}{{edit_umts.end_description}}{% endif %}</textarea>
                 </div>
             </fieldset>
