@@ -5,6 +5,10 @@
 {% load static %}
 <script src="{% static 'js/user-method-trial.js' %}"></script>
 
+<script>
+    var mdfv = {{mdfv|safe}};
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -44,18 +48,10 @@
                         <input type="" name="started_at" id="started_at" class="form-control" readonly required />
 
                         <script>
-                            var today = new Date();
-                            $("#started_at").datepicker({ 
-                                autoclose: true, 
-                                maxDate: today,
-                                changeMonth: true,
-                                changeYear: true 
-                            });
+                            var started_at_date = new Date();
 
                             {% if edit_umts%}
-                            $("#started_at").datepicker("setDate", "{{ edit_umts.started_at }}");
-                            {% else %}
-                            $("#started_at").datepicker("setDate", today);
+                            started_at_date = "{{ edit_umts.started_at }}";
                             {% endif %}
                         </script>
                         <div class="invalid-feedback">
@@ -105,19 +101,10 @@
                         <input type="" name="ended_at" id="ended_at" class="form-control" readonly required />
 
                         <script>
-                            var today = new Date();
-                            $("#ended_at").datepicker({ 
-                                autoclose: true, 
-                                maxDate: today,
-                                changeMonth: true,
-                                changeYear: true 
-                            });
-                            $("#ended_at").datepicker("setDate", "{{ edit_umts.ended_at }}");
+                            var ended_at_date = new Date();
                             
                             {% if edit_umts and edit_umts.is_ended %}
-                            $("#ended_at").datepicker("setDate", "{{ edit_umts.ended_at }}");
-                            {% else %}
-                            $("#ended_at").datepicker("setDate", today);
+                            ended_at_date = "{{ edit_umts.ended_at }}";
                             {% endif %}
                         </script>
                         <div class="invalid-feedback">

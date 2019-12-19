@@ -29,7 +29,7 @@ class UserPage(View):
         treatment_timelines = []
         for method in methods:
             user_method_trial_starts = UserMethodTrialStart.objects.filter(
-                user=user, method=method)
+                user=user, method=method).order_by('created_at')
 
             user_symptom_updates = []
             started_at = user_method_trial_starts.first().getStartedAt()

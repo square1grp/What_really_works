@@ -228,29 +228,51 @@ class UserMethodTrialPage(View):
             created_at=user_symptom.getCreatedAt()
         ) for user_symptom in user_symptoms]
 
+        umts_id = kwargs['umts_id'] if 'umts_id' in kwargs else None
+
+        # Method Dates for the validation
+        mdfv = dict()
+
         methods = Method.objects.all()
         user_treatments = []
         for method in methods:
             user_method_trial_starts = UserMethodTrialStart.objects.filter(
                 user=user, method=method)
 
+            mdfv_key = 'method_%s' % method.id
+
             for user_method_trial_start in user_method_trial_starts:
+                started_at = user_method_trial_start.getStartedAt().strftime('%Y-%m-%d %H:%M:%S')
                 ended_at = user_method_trial_start.getEndedAt()
+                ended_at = ended_at.strftime(
+                    '%Y-%m-%d %H:%M:%S') if ended_at is not None else None
+
+                is_add_mdfv = False
+                if umts_id is not None:
+                    is_add_mdfv = int(umts_id) != user_method_trial_start.id
+                else:
+                    is_add_mdfv = ended_at is not None
+
+                if is_add_mdfv:
+                    if mdfv_key not in mdfv:
+                        mdfv[mdfv_key] = []
+
+                    mdfv[mdfv_key].append(dict(
+                        started_at=started_at,
+                        ended_at=ended_at))
 
                 user_treatments.append(dict(
                     id=user_method_trial_start.id,
                     method_name=user_method_trial_start.getMethodName(),
-                    started_at=user_method_trial_start.getStartedAt().strftime('%Y-%m-%d %H:%M:%S'),
-                    ended_at=ended_at.strftime(
-                        '%Y-%m-%d %H:%M:%S') if ended_at is not None else None
+                    started_at=started_at,
+                    ended_at=ended_at
                 ))
 
         edit_umts = None
-        umts_id = kwargs['umts_id'] if 'umts_id' in kwargs else None
-
-        started_at_time = ended_at_time = current_time = dict(h=datetime.now().hour,
-                                                              m=datetime.now().minute,
-                                                              s=datetime.now().second)
+        current_time = dict(h=datetime.now().hour,
+                            m=datetime.now().minute,
+                            s=datetime.now().second)
+        started_at_time = ended_at_time = current_time
 
         if umts_id is not None:
             edit_umts = UserMethodTrialStart.objects.get(id=umts_id)
@@ -309,5 +331,6 @@ class UserMethodTrialPage(View):
                 second)) for second in range(60)],
             started_at_time=started_at_time,
             ended_at_time=ended_at_time,
-            current_time=current_time
+            current_time=current_time,
+            mdfv=mdfv
         ))

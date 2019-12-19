@@ -115,22 +115,21 @@ class MethodPage(View):
 
         fig = go.Figure()
 
-        umts = UserMethodTrialStart.objects.get(user=user, method=method)
+        for umts in UserMethodTrialStart.objects.filter(user=user, method=method):
+            fig.add_shape(
+                x0=umts.getStartedAt(), x1=umts.getEndedAt(timezone.now()),
+                y0=0, y1=1, line=dict(width=0), type="rect", xref="x", yref="paper", opacity=0.2, fillcolor="yellow")
 
-        fig.add_shape(
-            x0=umts.getStartedAt(), x1=umts.getEndedAt(timezone.now()),
-            y0=0, y1=1, line=dict(width=0), type="rect", xref="x", yref="paper", opacity=0.2, fillcolor="yellow")
-
-        fig.add_trace(go.Scatter(x=[severity_data['created_at'] for severity_data in severities_data],
-                                 y=[severity_data['severity']
-                                     for severity_data in severities_data],
-                                 hoverinfo='text',
-                                 hovertext=[severity_data['title']
-                                            for severity_data in severities_data],
-                                 mode='lines+markers',
-                                 marker=dict(size=sizes, opacity=1, color='rgb(99, 110, 250)', line=dict(
-                                     width=12, color=line_colors)),
-                                 customdata=severities_data))
+            fig.add_trace(go.Scatter(x=[severity_data['created_at'] for severity_data in severities_data],
+                                    y=[severity_data['severity']
+                                        for severity_data in severities_data],
+                                    hoverinfo='text',
+                                    hovertext=[severity_data['title']
+                                                for severity_data in severities_data],
+                                    mode='lines+markers',
+                                    marker=dict(size=sizes, opacity=1, color='rgb(99, 110, 250)', line=dict(
+                                        width=12, color=line_colors)),
+                                    customdata=severities_data))
 
         fig.add_layout_image(
             dict(
