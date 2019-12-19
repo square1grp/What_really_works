@@ -167,9 +167,9 @@
                             <input type="hidden" class="start_symptom_severity_id"
                                 name="start_symptom_severity_id_{{user_symptom.id}}" symptom-id="{{user_symptom.id}}"
                                 value="{% if edit_umts %}{{edit_umts.started_symptom_severity.id}}{% endif %}" />
-                            <input type="hidden" class="today_symptom_severity_id"
-                                name="today_symptom_severity_id_{{user_symptom.id}}" symptom-id="{{user_symptom.id}}"
-                                value="{% if edit_umts and edit_umts.is_ended %}{{edit_umts.today_symptom_severity.id}}{% endif %}" />
+                            <input type="hidden" class="end_symptom_severity_id"
+                                name="end_symptom_severity_id_{{user_symptom.id}}" symptom-id="{{user_symptom.id}}"
+                                value="{% if edit_umts and edit_umts.is_ended %}{{edit_umts.end_symptom_severity.id}}{% endif %}" />
 
                             <input type="checkbox" class="form-check-input filled-out-{{user_symptom.id}}" disabled {% if edit_umts %}checked{% endif %}
                                 required />
@@ -197,14 +197,17 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="today_symptom_severity_id" class="col-sm-7 col-form-label">
+                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label today">
                         Symptom Severity Today
                     </label>
+                    <label for="end_symptom_severity_id" class="col-sm-7 col-form-label end_date" style="display: none">
+                        Symptom Severity End Date
+                    </label>
                     <div class="col-sm-5">
-                        <select id="today_symptom_severity_id" class="form-control" required>
+                        <select id="end_symptom_severity_id" class="form-control" required>
                             <option value="">Please select a severity</option>
                             {% for symptom_severity in symptom_severities %}
-                            <option value="{{symptom_severity.id}}" {% if edit_umts and edit_umts.today_symptom_severity == symptom_severity %}selected{% endif %}>{{symptom_severity.title}}</option>
+                            <option value="{{symptom_severity.id}}" {% if edit_umts and edit_umts.end_symptom_severity == symptom_severity %}selected{% endif %}>{{symptom_severity.title}}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback">
@@ -243,14 +246,17 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="today_side_effect_severity_id" class="col-sm-7 col-form-label">
+                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label today">
                         Side Effect Severity Today
                     </label>
+                    <label for="end_side_effect_severity_id" class="col-sm-7 col-form-label end_date" style="display: none">
+                        Side Effect Severity End Date
+                    </label>
                     <div class="col-sm-5">
-                        <select name="today_side_effect_severity_id" class="form-control" required>
+                        <select name="end_side_effect_severity_id" class="form-control" required>
                             <option value="">Please select a severity</option>
                             {% for side_effect_severity in side_effect_severities %}
-                            <option value="{{side_effect_severity.id}}" {% if edit_umts and edit_umts.today_side_effect_severity == side_effect_severity %}selected{% endif %}>{{side_effect_severity.title}}</option>
+                            <option value="{{side_effect_severity.id}}" {% if edit_umts and edit_umts.end_side_effect_severity == side_effect_severity %}selected{% endif %}>{{side_effect_severity.title}}</option>
                             {% endfor %}
                         </select>
                         <div class="invalid-feedback">
@@ -260,13 +266,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="today_title">Short Description of How You Felt</label>
-                    <input type="text" name="today_title" class="form-control" value="{% if edit_umts %}{{edit_umts.today_title}}{% endif %}" required/>
+                    <label for="end_title">Short Description of How You Felt</label>
+                    <input type="text" name="end_title" class="form-control" value="{% if edit_umts %}{{edit_umts.end_title}}{% endif %}" required/>
                 </div>
 
                 <div class="form-group">
-                    <label for="today_description">Long Description of How You Felt</label>
-                    <textarea name="today_description" class="form-control">{% if edit_umts %}{{edit_umts.today_description}}{% endif %}</textarea>
+                    <label for="end_description">Long Description of How You Felt</label>
+                    <textarea name="end_description" class="form-control">{% if edit_umts %}{{edit_umts.end_description}}{% endif %}</textarea>
                 </div>
             </fieldset>
 
