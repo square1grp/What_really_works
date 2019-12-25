@@ -10,7 +10,9 @@
 {% block content %}
 <div class="register-page container" style="margin-top: 85px;">
     <div class="row">
-        <form class="row mx-auto w-100 needs-validation" novalidate>
+        <form class="row mx-auto w-100 needs-validation" novalidate method="POST">
+            {% csrf_token %}
+            
             <div class="col-12 col-lg-5">
                 <div class="form-group row">
                     <label for="username" class="col-form-label col-lg-5">Username</label>

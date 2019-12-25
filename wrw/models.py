@@ -55,7 +55,7 @@ class User(models.Model):
     state = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
     password = models.CharField(max_length=100)
-    confirm_link = models.TextField(unique=True)
+    confirm_token = models.TextField(unique=True)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
