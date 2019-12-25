@@ -11,6 +11,10 @@ $(document).ready(function () {
 
     $("#password, #confirm_password").change(function () {
         var password = $(this).val();
+
+        if (password.length == 0)
+            return false;
+
         var is_valid = true;
 
         if (!/\d/.test(password)) {
@@ -33,5 +37,14 @@ $(document).ready(function () {
             this.setCustomValidity("invalid")
         }
 
+        if ($("#password").val() != $("#confirm_password").val()) {
+            $.each($("#password, #confirm_password"), function () {
+                this.setCustomValidity("invalid")
+            });
+        } else {
+            $.each($("#password, #confirm_password"), function () {
+                this.setCustomValidity("")
+            });
+        }
     });
 });
