@@ -1,0 +1,37 @@
+$(document).ready(function () {
+    $("#first_name").change(function () {
+        var first_name = $("#first_name").val();
+        $("#first_name").val(first_name.charAt(0).toUpperCase() + first_name.slice(1));
+    });
+
+    $("#last_name").change(function () {
+        var last_name = $("#last_name").val();
+        $("#last_name").val(last_name.charAt(0).toUpperCase() + last_name.slice(1));
+    });
+
+    $("#password, #confirm_password").change(function () {
+        var password = $(this).val();
+        var is_valid = true;
+
+        if (!/\d/.test(password)) {
+            is_valid = false;
+        }
+
+        if (!/[a-zA-Z]/.test(password)) {
+            is_valid = false;
+        }
+
+        if (!/[(@!#\$%\^\&*\)\(+=._-]/.test(password)) {
+            is_valid = false;
+        }
+
+        $(this).closest("form").addClass('was-validated');
+
+        if (is_valid) {
+            this.setCustomValidity("")
+        } else {
+            this.setCustomValidity("invalid")
+        }
+
+    });
+});

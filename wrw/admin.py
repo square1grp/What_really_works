@@ -16,8 +16,7 @@ def custom_titled_filter(title):
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['name']
-    search_fields = ['name']
+    search_fields = ['username']
 
 
 class SymptomAdmin(admin.ModelAdmin):
@@ -44,25 +43,25 @@ class SideEffectSeverityAdmin(admin.ModelAdmin):
 
 class UserSideEffectUpdateAdmin(admin.ModelAdmin):
     list_display = ['user', 'title', 'getSeverityAsText', 'created_at']
-    search_fields = ['user__name', 'title']
+    search_fields = ['user__username', 'title']
     list_filter = [('side_effect_severity__rating',
                     custom_titled_filter('Side Effect Severity'))]
 
 
 class UserSymptomAdmin(admin.ModelAdmin):
     list_display = ['user', 'symptom', 'created_at']
-    search_fields = ['user__name', 'symptom__name']
+    search_fields = ['user__username', 'symptom__name']
 
 
 class UserMethodTrialStartAdmin(admin.ModelAdmin):
     list_display = ['user', 'getMethodName', 'created_at']
-    search_fields = ['user__name', 'method__name']
+    search_fields = ['user__username', 'method__name']
 
 
 class UserMethodTrialEndAdmin(admin.ModelAdmin):
     list_display = ['getUserName', 'getMethodName',
                     'getStartedAt', 'created_at']
-    search_fields = ['method_trial_start__user__name', 'method__name']
+    search_fields = ['method_trial_start__user__username', 'method__name']
 
 
 class UserSymptomUpdateAdmin(admin.ModelAdmin):

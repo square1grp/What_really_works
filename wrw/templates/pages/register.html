@@ -1,0 +1,154 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+
+{% load static %}
+<script src="{% static 'js/register.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+<div class="register-page container" style="margin-top: 85px;">
+    <div class="row">
+        <form class="row mx-auto w-100 needs-validation" novalidate>
+            <div class="col-12 col-lg-5">
+                <div class="form-group row">
+                    <label for="username" class="col-form-label col-lg-5">Username</label>
+                    <input id="username" name="username" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a username.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="password" class="col-form-label col-lg-5">Password</label>
+                    <input id="password" name="password" type="password" class="form-control col-lg-7" required/>
+                    <div class="invalid-feedback text-right">
+                        Please provide a password. <br/>
+                        (min: 6 chars, letters, numbers, and special characters)
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="confirm_password" class="col-form-label col-lg-5">Confirm Password</label>
+                    <input id="confirm_password" name="confirm_password" type="password" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a password. <br/>
+                        (min: 6 chars, letters, numbers, and special characters)
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="email" class="col-form-label col-lg-5">Email Address</label>
+                    <input id="email" name="email" type="email" class="form-control col-lg-7" required/>
+                    <div class="invalid-feedback text-right">
+                        Please provide an email address.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2">
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <div class="form-group row">
+                    <label for="first_name" class="col-form-label col-lg-5">First Name</label>
+                    <input id="first_name" name="first_name" class="form-control col-lg-7" required/>
+                    <div class="invalid-feedback text-right">
+                        Please provide a first name.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="last_name" class="col-form-label col-lg-5">Last Name</label>
+                    <input id="last_name" name="last_name" class="form-control col-lg-7" required/>
+                    <div class="invalid-feedback text-right">
+                        Please provide a last name.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="birth_year" class="col-form-label col-lg-5">Birth Year</label>
+                    <select class="form-control col-lg-7" name="birth_year">
+                        {% for year in years%}
+                            <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="ethnicity" class="col-form-label col-lg-2">Ethnicity</label>
+                    <div class="col-lg-10">
+                        <div class="row mb-2">
+                            <label for="top" class="col-form-label col-lg-4">Top</label>
+                            <select class="form-control col-lg-8" id="ethnicity_top" name="ethnicity_top" required>
+                                <option value="">Plese select one of belows.</option>
+                                
+                                {% for key, values in ethnicity_list.items %}
+                                    <optgroup label="{{key}}">
+                                        {% for value in values %}
+                                            <option value="{{value}}">{{value}}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback text-right">
+                                This field is required.
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label for="top" class="col-form-label col-lg-4">Second Most</label>
+                            <select class="form-control col-lg-8" id="ethnicity_second" name="ethnicity_second">
+                                <option>Plese select one of belows.</option>
+                                
+                                {% for key, values in ethnicity_list.items %}
+                                    <optgroup label="{{key}}">
+                                        {% for value in values %}
+                                            <option value="{{value}}">{{value}}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label for="top" class="col-form-label col-lg-4">Third Most</label>
+                            <select class="form-control col-lg-8" id="ethnicity_third" name="ethnicity_third">
+                                <option>Plese select one of belows.</option>
+                                
+                                {% for key, values in ethnicity_list.items %}
+                                    <optgroup label="{{key}}">
+                                        {% for value in values %}
+                                            <option value="{{value}}">{{value}}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="gender" class="col-form-label col-lg-5">Biological Sex</label>
+                    <select class="form-control col-lg-7" name="gender" id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="sexual_orientation" class="col-form-label col-lg-5">Sexual Orientation</label>
+                    <select class="form-control col-lg-7" name="sexual_orientation" id="sexual_orientation">
+                        <option value="hetero">Heterosexual</option>
+                        <option value="homo">Homosexual</option>
+                        <option value="bi">Bisexual</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mx-auto my-5">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

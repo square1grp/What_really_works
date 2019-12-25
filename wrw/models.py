@@ -36,14 +36,34 @@ def convertRating(rating, to_text=True):
 
 
 class User(models.Model):
-    name = models.CharField(max_length=20)
+    username = models.CharField(max_length=20, unique=True)
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    birth_year = models.PositiveIntegerField(
+        choices=[(r, r) for r in range(1900, datetime.today().year+1)],
+        default=datetime.today().year)
+    ethnicity_top = models.CharField(max_length=50)
+    ethnicity_second = models.CharField(max_length=50, null=True, blank=True)
+    ethnicity_third = models.CharField(max_length=50, null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=[
+                              ('male', 'Male'), ('female', 'Female')], default='male')
+    sexual_orientation = models.CharField(max_length=10,
+                                          choices=[('hetero', 'Heterosexual'), ('homo', 'Homosexual'), ('bi', 'Bisexual')],
+                                          default='hetero')
+    country = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    city = models.CharField(max_length=50)
+    password = models.CharField(max_length=100)
+    confirm_link = models.TextField(unique=True)
+    is_approved = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
 
     def __str__(self):
-        return self.name
+        return self.first_name + ' ' + self.last_name
 
     def getSymptoms(self):
         symptoms = []
@@ -126,7 +146,7 @@ class User(models.Model):
                 ended_at = timezone.now()
 
             user_symptom_updates += UserSymptomUpdate.objects.filter(
-                user_symptom=user_symptom, 
+                user_symptom=user_symptom,
                 created_at__range=[started_at, ended_at])
 
         if not user_symptom_updates:
@@ -305,7 +325,7 @@ class Method(models.Model):
 
 
 class SymptomSeverity(models.Model):
-    rating = models.PositiveSmallIntegerField(
+    rating = models.PositiveIntegerField(
         choices=RATING_CHOICES, default=0)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -337,7 +357,7 @@ class SymptomSeverity(models.Model):
 
 
 class SideEffectSeverity(models.Model):
-    rating = models.PositiveSmallIntegerField(
+    rating = models.PositiveIntegerField(
         choices=RATING_CHOICES, default=0)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
