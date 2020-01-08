@@ -68,7 +68,8 @@ class RegisterPage(View):
             state='CA',
             city='Los Angeles'
         )
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         pass
 
     def get(self, request, *args, **kwargs):

@@ -1,46 +1,59 @@
 .btn:not(.delete):not(.edit) {
-    max-width: 250px;
-    width    : 100%;
+  max-width: 250px;
+  width: 100%;
 }
 
 .symptom-page #methods-table div.face {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
 }
 
 .symptom-page #methods-table *[class*="-face"] {
-    background-size    : contain;
-    background-repeat  : no-repeat;
-    background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .symptom-page #methods-table .ecstatic-face {
-    background-image: url('../images/EcstaticFace.png');
+  background-image: url("../images/EcstaticFace.png");
 }
 
 .symptom-page #methods-table .happy-face {
-    background-image: url('../images/HappyFace.png');
+  background-image: url("../images/HappyFace.png");
 }
 
 .symptom-page #methods-table .neutral-face {
-    background-image: url('../images/NeutralFace.png');
+  background-image: url("../images/NeutralFace.png");
 }
 
 .symptom-page #methods-table .sad-face {
-    background-image: url('../images/SadFace.png');
+  background-image: url("../images/SadFace.png");
 }
 
 .symptom-page #methods-table .miserable-face {
-    background-image: url('../images/MiserableFace.png');
+  background-image: url("../images/MiserableFace.png");
 }
-
 
 text.annotation-text {
-    font-weight: bold;
+  font-weight: bold;
 }
 
-
 .user-page .timeline-charts .legend .groups g:last-child {
-    display: none;
+  display: none;
+}
+
+.register-page #g-recaptcha-response {
+  display: block !important;
+  position: absolute;
+  margin: -78px 0 0 0 !important;
+  width: 302px !important;
+  height: 76px !important;
+  z-index: -999999;
+  opacity: 0;
+}
+
+.register-page .help-block.with-errors {
+  color: #ff5050;
+  margin-top: 5px;
 }
