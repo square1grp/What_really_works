@@ -6,6 +6,61 @@
 <script src="{% static 'js/validator.js' %}"></script>
 <script src="{% static 'js/register.js' %}"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script>
+
+    var placeSearch, autocomplete;
+
+    var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+    };
+
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete'), { types: ['geocode'] });
+
+        autocomplete.setFields(['address_component']);
+
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+        var values = {
+            street_number: '',
+            route: '',
+            locality: '',
+            administrative_area_level_1: '',
+            country: '',
+            postal_code: ''
+        };
+
+        var place = autocomplete.getPlace();
+
+        for (var i = 0; i < place.address_components.length; i++) {
+            var addressType = place.address_components[i].types[0];
+            if (componentForm[addressType]) {
+                var val = place.address_components[i][componentForm[addressType]];
+                values[addressType] = val;
+            }
+        }
+
+        document.getElementById("autocomplete").value = values['street_number'] + ' ' + values['route'];
+        document.getElementById("city").value = values['locality'];
+        document.getElementById("state").value = values['administrative_area_level_1'];
+        document.getElementById("zipcode").value = values['postal_code'];
+        document.getElementById("country").value = values['country'];
+    }
+</script>
+
+
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZpA8tDIuWo6kUlOT01I-hv0D1XKOCZRg&libraries=places&callback=initAutocomplete"
+    async defer></script>
 {% endblock %}
 
 {% block content %}
@@ -156,6 +211,31 @@
                         <option value="homo">Homosexual</option>
                         <option value="bi">Bisexual</option>
                     </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="address" class="col-form-label col-lg-5">Address</label>
+                    <input type="text" class="form-control col-lg-7" id="autocomplete" name="address" />
+                </div>
+
+                <div class="form-group row">
+                    <label for="address" class="col-form-label col-lg-5">City</label>
+                    <input type="text" class="form-control col-lg-7" id="city" name="city" />
+                </div>
+
+                <div class="form-group row">
+                    <label for="address" class="col-form-label col-lg-5">State</label>
+                    <input type="text" class="form-control col-lg-7" id="state" name="state" />
+                </div>
+
+                <div class="form-group row">
+                    <label for="address" class="col-form-label col-lg-5">Zipcode</label>
+                    <input type="text" class="form-control col-lg-7" id="zipcode" name="zipcode" />
+                </div>
+
+                <div class="form-group row">
+                    <label for="address" class="col-form-label col-lg-5">Country</label>
+                    <input type="text" class="form-control col-lg-7" id="country" name="country" />
                 </div>
             </div>
 
