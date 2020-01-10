@@ -3,6 +3,9 @@ from django.shortcuts import render
 from django.views import View
 from datetime import datetime
 from wrw.models import User
+from uuid import uuid4
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 
 class RegisterPage(View):
@@ -50,6 +53,8 @@ class RegisterPage(View):
 
     def post(self, request, *args, **kwargs):
         params = request.POST
+        confirm_token = str(uuid4())
+
         user = User(
             username=params['username'],
             first_name=params['first_name'],
@@ -62,15 +67,30 @@ class RegisterPage(View):
             gender=params['gender'],
             sexual_orientation=params['sexual_orientation'],
             password=params['password'],
-            confirm_token='adfasdfqfasdfasdfasd',
+            confirm_token=confirm_token,
             is_approved=False,
-            country='US',
-            state='CA',
-            city='Los Angeles'
+            address=params['address'],
+            city=params['city'],
+            state=params['state'],
+            zipcode=params['zipcode'],
+            country=params['country'],
         )
-        import pdb
-        pdb.set_trace()
-        pass
+
+        href = 'http://127.0.0.1:8000/register/verify-token/%s' % confirm_token
+
+        message = Mail(
+            from_email='info@whatreallyworks.com',
+            to_emails=params['email'],
+            subject='Email verification',
+            html_content='<a href="%s" target="_blank">Click here</a> or visit this URL on the browser: %s' % (href, href))
+
+        sg = SendGridAPIClient(
+            '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')
+        sg.send(message)
+
+        user.save()
+
+        return HttpResponseRedirect('/register/verify-token/')
 
     def get(self, request, *args, **kwargs):
         years = [r for r in range(1900, datetime.today().year+1)]

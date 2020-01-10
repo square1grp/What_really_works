@@ -9,43 +9,44 @@ $(document).ready(function () {
         $("#last_name").val(last_name.charAt(0).toUpperCase() + last_name.slice(1));
     });
 
-    $("#password, #confirm_password").change(function () {
-        var password = $(this).val();
+    $("#register-form").submit(function () {
+        $.each($("#password, #confirm_password"), function () {
+            var password = $(this).val();
 
-        if (password.length == 0)
-            return false;
+            if (password.length == 0)
+                return false;
 
-        var is_valid = true;
+            var is_valid = true;
 
-        if (!/\d/.test(password)) {
-            is_valid = false;
-        }
+            if (!/\d/.test(password)) {
+                is_valid = false;
+            }
 
-        if (!/[a-zA-Z]/.test(password)) {
-            is_valid = false;
-        }
+            if (!/[a-zA-Z]/.test(password)) {
+                is_valid = false;
+            }
 
-        if (!/[(@!#\$%\^\&*\)\(+=._-]/.test(password)) {
-            is_valid = false;
-        }
+            if (!/[(@!#\$%\^\&*\)\(+=._-]/.test(password)) {
+                is_valid = false;
+            }
 
-        $(this).closest("form").addClass('was-validated');
-
-        if (is_valid) {
-            this.setCustomValidity("")
-        } else {
-            this.setCustomValidity("invalid")
-        }
-
-        if ($("#password").val() != $("#confirm_password").val()) {
-            $.each($("#password, #confirm_password"), function () {
-                this.setCustomValidity("invalid")
-            });
-        } else {
-            $.each($("#password, #confirm_password"), function () {
+            if (is_valid) {
                 this.setCustomValidity("")
-            });
-        }
+            } else {
+                this.setCustomValidity("invalid")
+            }
+
+            if ($("#password").val() != $("#confirm_password").val()) {
+                $.each($("#password, #confirm_password"), function () {
+                    this.setCustomValidity("invalid")
+                });
+            } else {
+                $.each($("#password, #confirm_password"), function () {
+                    this.setCustomValidity("")
+                });
+            }
+
+        })
     });
 });
 

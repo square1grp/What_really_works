@@ -51,11 +51,13 @@ class User(models.Model):
     sexual_orientation = models.CharField(max_length=10,
                                           choices=[('hetero', 'Heterosexual'), ('homo', 'Homosexual'), ('bi', 'Bisexual')],
                                           default='hetero')
-    country = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
+    address = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    zipcode = models.CharField(max_length=50)
+    country = models.CharField(max_length=50)
     password = models.CharField(max_length=100)
-    confirm_token = models.TextField(unique=True)
+    confirm_token = models.TextField(unique=True, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
